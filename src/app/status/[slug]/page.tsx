@@ -51,10 +51,10 @@ export default async function ServiceStatusPage({ params }: Props) {
   )
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white">
+    <main className="min-h-screen bg-gray-50 text-gray-900">
       <div className="max-w-3xl mx-auto px-4 py-16 space-y-10">
         {/* Back */}
-        <Link href="/status" className="text-sm text-zinc-500 hover:text-zinc-300">
+        <Link href="/status" className="text-sm text-gray-500 hover:text-gray-700">
           ← All services
         </Link>
 

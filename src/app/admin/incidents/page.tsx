@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { requireAdmin } from '@/lib/auth/guards'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
-import { IncidentList } from '@/components/incidents/IncidentList'
+import { IncidentList, type IncidentListItem } from '@/components/incidents/IncidentList'
+import type { Incident } from '@/lib/domain/types'
+
+function toListItem(i: Incident): IncidentListItem {
+  return { id: i.id, state: i.state, severity: i.severity, title: i.title, serviceId: i.serviceId, startedAt: i.startedAt.toDate().toISOString() }
+}
 
 export const metadata: Metadata = { title: 'Incidents — Command Center' }
 
@@ -18,7 +23,7 @@ export default async function IncidentsPage() {
   const resolved = recent.filter((i) => !activeIds.has(i.id))
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Incidents</h1>
         <p className="text-sm text-gray-500 mt-1">Active incidents and recent history.</p>
@@ -31,7 +36,7 @@ export default async function IncidentsPage() {
         </h2>
         <div className="bg-white rounded-lg border border-gray-200 px-4">
           <IncidentList
-            incidents={active}
+            incidents={active.map(toListItem)}
             emptyMessage="No active incidents — all systems operational."
           />
         </div>
@@ -44,7 +49,7 @@ export default async function IncidentsPage() {
             Recent ({resolved.length})
           </h2>
           <div className="bg-white rounded-lg border border-gray-200 px-4">
-            <IncidentList incidents={resolved} />
+            <IncidentList incidents={resolved.map(toListItem)} />
           </div>
         </section>
       )}

@@ -58,6 +58,23 @@
       ]
     },
     {
+      "collectionGroup": "monitors",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "source", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "monitors",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "active", "order": "ASCENDING" },
+        { "fieldPath": "source", "order": "ASCENDING" },
+        { "fieldPath": "lastCheckAt", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "maintenanceWindows",
       "queryScope": "COLLECTION",
       "fields": [
@@ -78,6 +95,14 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "monitorIds", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "name", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "clients",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
     }

@@ -41,13 +41,23 @@ export const internalChecks = onSchedule(
   { schedule: 'every 15 minutes', timeoutSeconds: 540, maxInstances: 1 },
   async () => {
     // Firestore 'in' supports up to 10 values
-    const monitorsSnap = await db
-      .collection('monitors')
-      .where('active', '==', true)
-      .where('source', 'in', INTERNAL_SOURCES)
-      .get()
+    let monitorsSnap: FirebaseFirestore.QuerySnapshot
+    try {
+      monitorsSnap = await db
+        .collection('monitors')
+        .where('active', '==', true)
+        .where('source', 'in', INTERNAL_SOURCES)
+        .get()
+    } catch (err) {
+      console.error('internalChecks: Firestore query failed:', err)
+      throw err
+    }
 
-    console.log(`internalChecks: ${monitorsSnap.size} active monitors`)
+    console.log(`internalChecks: ${monitorsSnap.size} active monitors found`)
+    monitorsSnap.docs.forEach((d) => {
+      const data = d.data()
+      console.log(`  monitor ${d.id}: source=${data.source} url=${data.config?.url} active=${data.active}`)
+    })
 
     // Process monitors concurrently but cap parallelism to avoid thundering herd
     const CONCURRENCY = 10
@@ -55,7 +65,7 @@ export const internalChecks = onSchedule(
     for (let i = 0; i < docs.length; i += CONCURRENCY) {
       await Promise.allSettled(
         docs.slice(i, i + CONCURRENCY).map((doc) =>
-          processMonitor(doc.data() as Monitor).catch((err) =>
+          processMonitor({ ...doc.data(), id: doc.id } as Monitor).catch((err) =>
             console.error(`internalChecks: error for monitor ${doc.id}:`, err),
           ),
         ),

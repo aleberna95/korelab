@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth/guards'
 import { getOverviewStats } from '@/lib/dashboard/queries'
 import { KpiCard } from '@/components/dashboard/KpiCard'
 import { IncidentList } from '@/components/incidents/IncidentList'
+import type { IncidentListItem } from '@/components/incidents/IncidentList'
 
 export const metadata: Metadata = { title: 'Panoramica — Command Center' }
 
@@ -19,7 +20,7 @@ export default async function AdminOverviewPage() {
     (byState['major-outage'] ?? 0)
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Panoramica</h1>
         <p className="text-sm text-gray-500 mt-1">Command Center — stato generale a colpo d'occhio.</p>
@@ -58,7 +59,14 @@ export default async function AdminOverviewPage() {
         </div>
         <div className="bg-white rounded-lg border border-gray-200 px-4">
           <IncidentList
-            incidents={activeIncidents}
+            incidents={activeIncidents.map((i): IncidentListItem => ({
+              id: i.id,
+              state: i.state,
+              severity: i.severity,
+              title: i.title,
+              serviceId: i.serviceId,
+              startedAt: i.startedAt.toDate().toISOString(),
+            }))}
             emptyMessage="Nessun incidente attivo — tutti i sistemi operativi."
           />
         </div>

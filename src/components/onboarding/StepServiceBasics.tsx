@@ -3,16 +3,16 @@
 import { useWizard } from '@/lib/onboarding/state'
 
 const INPUT =
-  'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+  'input-base'
 
 function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
         {label}
       </label>
       {children}
-      {hint && <p className="text-xs text-zinc-500">{hint}</p>}
+      {hint && <p className="text-xs text-gray-400">{hint}</p>}
     </div>
   )
 }
@@ -38,7 +38,7 @@ export function StepServiceBasics() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Dati servizio</h2>
-        <p className="text-sm text-zinc-400 mt-1">Definisci cos'è questo servizio e dove si trova.</p>
+        <p className="text-sm text-gray-500 mt-1">Definisci cos'è questo servizio e dove si trova.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -109,7 +109,7 @@ export function StepServiceBasics() {
       </Field>
 
       <div className="space-y-3">
-        <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
           URLs
         </label>
         <div className="grid grid-cols-2 gap-3">

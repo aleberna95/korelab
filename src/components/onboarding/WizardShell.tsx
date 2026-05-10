@@ -79,27 +79,27 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
   }
 
   return (
-    <div className="flex gap-6 min-h-[600px]">
-      {/* Left: step nav */}
-      <div className="w-52 shrink-0">
+    <div className="flex flex-col md:flex-row gap-6 min-h-[600px]">
+      {/* Step nav */}
+      <div className="md:w-52 md:shrink-0">
         <StepNav />
       </div>
 
       {/* Right: step content + footer */}
       <div className="flex-1 flex flex-col">
         {/* Step heading */}
-        <div className="mb-1 text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+        <div className="mb-1 text-xs font-semibold text-gray-500 uppercase tracking-widest">
           Passo {currentIndex + 1} di {activeSteps.length}
         </div>
 
         {/* Step content */}
-        <div className="flex-1 bg-zinc-800/60 rounded-xl border border-zinc-700 p-6">
+        <div className="flex-1 bg-white rounded-xl border border-gray-200 p-6">
           {STEP_COMPONENT(state.currentStepId, clientOptions, runbookOptions)}
         </div>
 
         {/* Submit error */}
         {state.submitError && (
-          <div className="mt-3 px-4 py-2 bg-red-900/40 border border-red-700 rounded-md text-sm text-red-300">
+          <div className="mt-3 px-4 py-2 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
             {state.submitError}
           </div>
         )}
@@ -109,7 +109,7 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
           <button
             onClick={goPrev}
             disabled={isFirst || state.isSubmitting}
-            className="px-4 py-2 text-sm font-medium text-zinc-300 bg-zinc-800 border border-zinc-700 rounded-md hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="btn-secondary disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Precedente
           </button>
@@ -122,7 +122,7 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
                 }
               }}
               disabled={state.isSubmitting}
-              className="px-3 py-2 text-xs font-medium text-zinc-500 hover:text-zinc-300"
+              className="px-3 py-2 text-xs font-medium text-gray-400 hover:text-gray-600"
             >
               Reimposta
             </button>
@@ -131,7 +131,7 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
               <button
                 onClick={handleSubmit}
                 disabled={state.isSubmitting}
-                className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-primary px-5 py-2 flex items-center gap-2"
               >
                 {state.isSubmitting ? (
                   <>
@@ -146,7 +146,7 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
               <button
                 onClick={goNext}
                 disabled={!isValid || isLast}
-                className="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md disabled:opacity-40 disabled:cursor-not-allowed"
+                className="btn-primary px-5 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Avanti
               </button>

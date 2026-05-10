@@ -5,7 +5,7 @@ export function StepAutomation() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Automazione</h2>
-        <p className="text-sm text-zinc-400 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Configurazione auto-healing — visibile perché il piano e il consenso selezionati lo permettono.
         </p>
       </div>
@@ -18,7 +18,7 @@ export function StepAutomation() {
       </div>
 
       <div className="space-y-3 opacity-50 pointer-events-none select-none">
-        <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Modalità automazione
         </label>
         {(
@@ -29,14 +29,14 @@ export function StepAutomation() {
             ['auto-low-risk', 'Auto basso rischio — esegue azioni sicure automaticamente'],
           ] as const
         ).map(([value, label]) => (
-          <label key={value} className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+          <label key={value} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input
               type="radio"
               name="automationMode"
               value={value}
               readOnly
               checked={value === 'disabled'}
-              className="accent-indigo-500"
+              className="accent-blue-600"
             />
             {label}
           </label>

@@ -8,7 +8,7 @@ const STATE_COLORS: Record<string, string> = {
   'partial-outage': 'bg-orange-400',
   'major-outage': 'bg-red-500',
   maintenance: 'bg-blue-400',
-  unknown: 'bg-zinc-500',
+  unknown: 'bg-gray-400',
 }
 
 type Props = {
@@ -20,13 +20,13 @@ export function ServiceCard({ view, href }: Props) {
   const dot = STATE_COLORS[view.state] ?? 'bg-zinc-500'
 
   const card = (
-    <div className="bg-zinc-900 border border-zinc-700 rounded-xl px-5 py-4 space-y-3 hover:border-zinc-500 transition-colors">
+    <div className="bg-white border border-gray-200 rounded-xl px-5 py-4 space-y-3 hover:border-gray-300 hover:shadow-sm transition-all">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot}`} />
-          <p className="font-semibold text-white truncate">{view.name}</p>
+          <p className="font-semibold text-gray-900 truncate">{view.name}</p>
         </div>
-        <span className="text-xs text-zinc-400 capitalize shrink-0">
+        <span className="text-xs text-gray-400 capitalize shrink-0">
           {view.uptime30d.toFixed(2)}% 30d
         </span>
       </div>

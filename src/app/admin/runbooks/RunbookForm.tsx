@@ -99,8 +99,8 @@ export function RunbookForm({ runbook }: Props) {
     })
   }
 
-  const inputCls = 'w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm'
-  const labelCls = 'block text-sm text-zinc-400 mb-1'
+  const inputCls = 'input-base'
+  const labelCls = 'block text-sm text-gray-600 mb-1'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -117,7 +117,7 @@ export function RunbookForm({ runbook }: Props) {
       </div>
 
       {/* Service types + tags */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Service types (comma-separated)</label>
           <input type="text" value={serviceTypes} onChange={(e) => setServiceTypes(e.target.value)} placeholder="static-site, node-app" className={inputCls} />
@@ -137,14 +137,14 @@ export function RunbookForm({ runbook }: Props) {
       {/* Common failures */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-zinc-300">Common failures</h3>
-          <button type="button" onClick={addFailure} className="text-xs text-blue-400 hover:text-blue-300">+ Add</button>
+          <h3 className="text-sm font-semibold text-gray-700">Common failures</h3>
+          <button type="button" onClick={addFailure} className="text-xs text-blue-600 hover:text-blue-800">+ Add</button>
         </div>
         {failures.map((f, i) => (
-          <div key={i} className="bg-zinc-800/60 border border-zinc-700 rounded-lg p-4 space-y-2">
+          <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
             <div className="flex justify-between items-center">
-              <p className="text-xs text-zinc-400">Failure {i + 1}</p>
-              <button type="button" onClick={() => removeFailure(i)} className="text-xs text-red-400 hover:text-red-300">Remove</button>
+              <p className="text-xs text-gray-500">Failure {i + 1}</p>
+              <button type="button" onClick={() => removeFailure(i)} className="text-xs text-red-600 hover:text-red-800">Remove</button>
             </div>
             <input type="text" value={f.symptom} onChange={(e) => updateFailure(i, 'symptom', e.target.value)} placeholder="Symptom *" className={inputCls} />
             <input type="text" value={f.likelyCause} onChange={(e) => updateFailure(i, 'likelyCause', e.target.value)} placeholder="Likely cause" className={inputCls} />
@@ -156,17 +156,17 @@ export function RunbookForm({ runbook }: Props) {
       {/* Recovery steps */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-zinc-300">Recovery steps</h3>
-          <button type="button" onClick={addStep} className="text-xs text-blue-400 hover:text-blue-300">+ Add step</button>
+          <h3 className="text-sm font-semibold text-gray-700">Recovery steps</h3>
+          <button type="button" onClick={addStep} className="text-xs text-blue-600 hover:text-blue-800">+ Add step</button>
         </div>
         {steps.map((step, i) => (
-          <div key={i} className="bg-zinc-800/60 border border-zinc-700 rounded-lg p-4 space-y-2">
+          <div key={i} className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
             <div className="flex justify-between items-center">
-              <p className="text-xs text-zinc-400">Step {i + 1}</p>
-              <button type="button" onClick={() => removeStep(i)} className="text-xs text-red-400 hover:text-red-300">Remove</button>
+              <p className="text-xs text-gray-500">Step {i + 1}</p>
+              <button type="button" onClick={() => removeStep(i)} className="text-xs text-red-600 hover:text-red-800">Remove</button>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              <input type="text" value={step.title} onChange={(e) => updateStep(i, 'title', e.target.value)} placeholder="Title *" className={`${inputCls} col-span-2`} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <input type="text" value={step.title} onChange={(e) => updateStep(i, 'title', e.target.value)} placeholder="Title *" className={`${inputCls} sm:col-span-2`} />
               <select value={step.riskLevel} onChange={(e) => updateStep(i, 'riskLevel', e.target.value)} className={inputCls}>
                 <option value="low">low risk</option>
                 <option value="medium">medium risk</option>
@@ -179,7 +179,7 @@ export function RunbookForm({ runbook }: Props) {
       </div>
 
       {/* Contacts + links */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>Contacts (one per line)</label>
           <textarea value={contacts} onChange={(e) => setContacts(e.target.value)} rows={3} placeholder="John Doe — john@example.com" className={`${inputCls} resize-y`} />
@@ -190,20 +190,20 @@ export function RunbookForm({ runbook }: Props) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           type="submit"
           disabled={isPending}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium"
+          className="btn-primary px-6 py-2.5"
         >
           {isPending ? 'Saving…' : runbook ? 'Save changes' : 'Create runbook'}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="bg-zinc-700 hover:bg-zinc-600 text-white px-6 py-2.5 rounded-lg text-sm"
+          className="btn-secondary px-6 py-2.5"
         >
           Cancel
         </button>

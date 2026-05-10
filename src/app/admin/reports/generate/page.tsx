@@ -13,18 +13,21 @@ export default async function GenerateReportPage() {
   ])
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-6">
       <div>
-        <Link href="/admin/reports" className="text-sm text-zinc-500 hover:text-zinc-300">
+        <Link href="/admin/reports" className="text-sm text-gray-500 hover:text-gray-700">
           ← Reports
         </Link>
-        <h1 className="mt-3 text-2xl font-bold">Generate Report</h1>
-        <p className="text-zinc-400 text-sm mt-1">
+        <h1 className="mt-3 text-xl sm:text-2xl font-bold text-gray-900">Generate Report</h1>
+        <p className="text-gray-500 text-sm mt-1">
           Manually generate a report for any service and date range.
         </p>
       </div>
 
-      <GenerateReportForm services={services} clients={clients} />
+      <GenerateReportForm
+        services={services.map((s) => ({ id: s.id, name: s.name, clientId: s.clientId }))}
+        clients={clients.map((c) => ({ id: c.id, name: c.name }))}
+      />
     </div>
   )
 }

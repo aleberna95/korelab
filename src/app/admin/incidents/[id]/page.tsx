@@ -20,7 +20,7 @@ export default async function IncidentPage({ params }: Props) {
   if (!incident) notFound()
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <nav className="text-sm text-gray-500 mb-6">
         <a href="/admin/incidents" className="hover:underline">
           Incidents

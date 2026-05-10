@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useWizard, type WizardResource } from '@/lib/onboarding/state'
 
 const INPUT =
-  'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+  'input-base'
 
 const RESOURCE_KINDS = [
   'docker-host', 'k8s-cluster', 'db', 'dns-zone', 'ssl-cert',
@@ -14,7 +14,7 @@ const RESOURCE_KINDS = [
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
         {label}
       </label>
       {children}
@@ -40,7 +40,7 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
       >
         + Aggiungi risorsa
       </button>
@@ -48,7 +48,7 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
   }
 
   return (
-    <div className="bg-zinc-900 rounded-md p-3 space-y-3 border border-zinc-700">
+    <div className="bg-gray-50 rounded-md p-3 space-y-3 border border-gray-200">
       <div className="grid grid-cols-2 gap-3">
         <Field label="Tipo *">
           <select value={kind} onChange={(e) => setKind(e.target.value)} className={INPUT}>
@@ -79,14 +79,14 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
         <button
           type="button"
           onClick={submit}
-          className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md"
+          className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md"
         >
           Aggiungi
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-200"
+          className="px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800"
         >
           Annulla
         </button>
@@ -102,33 +102,33 @@ export function StepResources() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Risorse e dipendenze</h2>
-        <p className="text-sm text-zinc-400 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Collega opzionalmente risorse infrastrutturali a questo servizio. Puoi saltare questo passaggio e aggiungere risorse in seguito.
         </p>
       </div>
 
       {state.resources.length === 0 ? (
-        <p className="text-sm text-zinc-500 italic">Nessuna risorsa aggiunta.</p>
+        <p className="text-sm text-gray-500 italic">Nessuna risorsa aggiunta.</p>
       ) : (
         <div className="space-y-2">
           {state.resources.map((r, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 bg-zinc-900 rounded-md px-3 py-2 border border-zinc-700"
+              className="flex items-center gap-3 bg-gray-50 rounded-md px-3 py-2 border border-gray-200"
             >
-              <span className="text-xs font-mono text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">
+              <span className="text-xs font-mono text-gray-500 bg-gray-50 px-2 py-0.5 rounded">
                 {r.kind}
               </span>
-              <span className="flex-1 text-sm text-zinc-200">{r.name}</span>
+              <span className="flex-1 text-sm text-gray-800">{r.name}</span>
               {r.metadata && (
-                <span className="text-xs text-zinc-500 font-mono truncate max-w-[180px]">
+                <span className="text-xs text-gray-500 font-mono truncate max-w-[180px]">
                   {r.metadata}
                 </span>
               )}
               <button
                 type="button"
                 onClick={() => dispatch({ type: 'REMOVE_RESOURCE', index: i })}
-                className="text-zinc-500 hover:text-red-400 text-xs"
+                className="text-gray-500 hover:text-red-400 text-xs"
               >
                 Rimuovi
               </button>
@@ -139,8 +139,8 @@ export function StepResources() {
 
       <AddResourceForm onAdd={(r) => dispatch({ type: 'ADD_RESOURCE', resource: r })} />
 
-      <div className="border-t border-zinc-700 pt-4">
-        <p className="text-xs text-zinc-500">
+      <div className="border-t border-gray-200 pt-4">
+        <p className="text-xs text-gray-400">
           I bordi di dipendenza (es. questo servizio instrada verso un database) possono essere aggiunti dalla pagina di dettaglio del servizio dopo l'onboarding.
         </p>
       </div>

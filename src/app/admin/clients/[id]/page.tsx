@@ -22,7 +22,7 @@ export default async function ClientDetailPage({ params }: Props) {
   if (!client) notFound()
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-500">
         <Link href="/admin/clients" className="hover:underline">Clients</Link>

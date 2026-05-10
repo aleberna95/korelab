@@ -9,16 +9,16 @@ import {
 import type { RunbookOption } from './WizardShell'
 
 const INPUT =
-  'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+  'input-base'
 
 function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
         {label}
       </label>
       {children}
-      {hint && <p className="text-xs text-zinc-500">{hint}</p>}
+      {hint && <p className="text-xs text-gray-400">{hint}</p>}
     </div>
   )
 }
@@ -38,14 +38,14 @@ function AddFailureForm({ onAdd }: { onAdd: (f: WizardCommonFailure) => void }) 
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">
+      <button type="button" onClick={() => setOpen(true)} className="text-sm text-blue-600 hover:text-blue-800 font-medium">
         + Aggiungi problema comune
       </button>
     )
   }
 
   return (
-    <div className="bg-zinc-900 rounded-md p-3 space-y-2 border border-zinc-700">
+    <div className="bg-gray-50 rounded-md p-3 space-y-2 border border-gray-200">
       <Field label="Sintomo *">
         <input value={symptom} onChange={(e) => setSymptom(e.target.value)} placeholder="Il sito restituisce 502" className={INPUT} />
       </Field>
@@ -56,8 +56,8 @@ function AddFailureForm({ onAdd }: { onAdd: (f: WizardCommonFailure) => void }) 
         <input value={fix} onChange={(e) => setFix(e.target.value)} placeholder="Riavvia PHP-FPM: systemctl restart php-fpm" className={INPUT} />
       </Field>
       <div className="flex gap-2">
-        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md">Aggiungi</button>
-        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200">Annulla</button>
+        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md">Aggiungi</button>
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800">Annulla</button>
       </div>
     </div>
   )
@@ -78,14 +78,14 @@ function AddStepForm({ onAdd }: { onAdd: (s: WizardRecoveryStep) => void }) {
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">
+      <button type="button" onClick={() => setOpen(true)} className="text-sm text-blue-600 hover:text-blue-800 font-medium">
         + Aggiungi passo di ripristino
       </button>
     )
   }
 
   return (
-    <div className="bg-zinc-900 rounded-md p-3 space-y-2 border border-zinc-700">
+    <div className="bg-gray-50 rounded-md p-3 space-y-2 border border-gray-200">
       <Field label="Titolo passo *">
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Riavvia Nginx" className={INPUT} />
       </Field>
@@ -100,8 +100,8 @@ function AddStepForm({ onAdd }: { onAdd: (s: WizardRecoveryStep) => void }) {
         </select>
       </Field>
       <div className="flex gap-2">
-        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md">Aggiungi</button>
-        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200">Annulla</button>
+        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md">Aggiungi</button>
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800">Annulla</button>
       </div>
     </div>
   )
@@ -127,7 +127,7 @@ export function StepRunbook({ runbookOptions }: Props) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Runbook</h2>
-        <p className="text-sm text-zinc-400 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Aggiungi un runbook per sapere esattamente cosa fare quando questo servizio ha un incidente.
         </p>
       </div>
@@ -142,8 +142,8 @@ export function StepRunbook({ runbookOptions }: Props) {
             className={[
               'px-4 py-2 rounded-md text-sm font-medium border transition-colors',
               state.runbookMode === mode
-                ? 'bg-indigo-600 border-indigo-500 text-white'
-                : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:text-white',
+                ? 'bg-blue-600 border-blue-500 text-white'
+                : 'bg-white border-gray-200 text-gray-500 hover:text-gray-900',
             ].join(' ')}
           >
             {mode === 'none' ? 'Salta' : mode === 'existing' ? 'Usa esistente' : 'Crea nuovo'}
@@ -201,20 +201,20 @@ export function StepRunbook({ runbookOptions }: Props) {
 
           {/* Common failures */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Problemi comuni
             </label>
             {rb.commonFailures.length === 0 ? (
-              <p className="text-xs text-zinc-500 italic">Nessuno aggiunto.</p>
+              <p className="text-xs text-gray-500 italic">Nessuno aggiunto.</p>
             ) : (
               rb.commonFailures.map((f, i) => (
-                <div key={i} className="bg-zinc-900 rounded-md px-3 py-2 border border-zinc-700 text-sm space-y-0.5">
+                <div key={i} className="bg-gray-50 rounded-md px-3 py-2 border border-gray-200 text-sm space-y-0.5">
                   <div className="flex justify-between">
-                    <span className="text-zinc-200 font-medium">{f.symptom}</span>
-                    <button type="button" onClick={() => dispatch({ type: 'REMOVE_COMMON_FAILURE', index: i })} className="text-zinc-500 hover:text-red-400 text-xs">Remove</button>
+                    <span className="text-gray-800 font-medium">{f.symptom}</span>
+                    <button type="button" onClick={() => dispatch({ type: 'REMOVE_COMMON_FAILURE', index: i })} className="text-gray-500 hover:text-red-400 text-xs">Remove</button>
                   </div>
-                  {f.likelyCause && <p className="text-zinc-500 text-xs">Causa: {f.likelyCause}</p>}
-                  <p className="text-zinc-400 text-xs">Soluzione: {f.fix}</p>
+                  {f.likelyCause && <p className="text-gray-500 text-xs">Causa: {f.likelyCause}</p>}
+                  <p className="text-gray-500 text-xs">Soluzione: {f.fix}</p>
                 </div>
               ))
             )}
@@ -223,25 +223,25 @@ export function StepRunbook({ runbookOptions }: Props) {
 
           {/* Recovery steps */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Passi di ripristino (ordinati)
             </label>
             {rb.recoverySteps.length === 0 ? (
-              <p className="text-xs text-zinc-500 italic">Nessuno aggiunto.</p>
+              <p className="text-xs text-gray-500 italic">Nessuno aggiunto.</p>
             ) : (
               rb.recoverySteps.map((s, i) => (
-                <div key={i} className="bg-zinc-900 rounded-md px-3 py-2 border border-zinc-700 text-sm">
+                <div key={i} className="bg-gray-50 rounded-md px-3 py-2 border border-gray-200 text-sm">
                   <div className="flex justify-between items-start">
                     <div>
-                      <span className="text-zinc-400 text-xs mr-2">#{i + 1}</span>
-                      <span className="text-zinc-200 font-medium">{s.title}</span>
+                      <span className="text-gray-500 text-xs mr-2">#{i + 1}</span>
+                      <span className="text-gray-800 font-medium">{s.title}</span>
                       <span className={`ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded ${RISK_BADGE[s.riskLevel]}`}>
                         {s.riskLevel}
                       </span>
                     </div>
-                    <button type="button" onClick={() => dispatch({ type: 'REMOVE_RECOVERY_STEP', index: i })} className="text-zinc-500 hover:text-red-400 text-xs">Remove</button>
+                    <button type="button" onClick={() => dispatch({ type: 'REMOVE_RECOVERY_STEP', index: i })} className="text-gray-500 hover:text-red-400 text-xs">Remove</button>
                   </div>
-                  <p className="text-zinc-500 text-xs mt-1">{s.body}</p>
+                  <p className="text-gray-500 text-xs mt-1">{s.body}</p>
                 </div>
               ))
             )}
@@ -260,7 +260,7 @@ export function StepRunbook({ runbookOptions }: Props) {
       )}
 
       {state.runbookMode === 'none' && (
-        <p className="text-sm text-zinc-500 italic">
+        <p className="text-sm text-gray-500 italic">
           Nessun runbook verrà allegato. Puoi crearne uno in seguito dalla sezione Runbook.
         </p>
       )}

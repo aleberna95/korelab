@@ -68,7 +68,7 @@ export default async function SettingsPage() {
   ]
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-8">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
       </header>

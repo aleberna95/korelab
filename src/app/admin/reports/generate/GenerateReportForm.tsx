@@ -3,11 +3,10 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { generateReport } from './actions'
-import type { Service, Client } from '@/lib/domain/types'
 
 type Props = {
-  services: Service[]
-  clients: Client[]
+  services: { id: string; name: string; clientId: string }[]
+  clients: { id: string; name: string }[]
 }
 
 export function GenerateReportForm({ services, clients }: Props) {
@@ -63,14 +62,14 @@ export function GenerateReportForm({ services, clients }: Props) {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Service */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-1">Service *</label>
+        <label className="block text-sm text-gray-600 mb-1">Service *</label>
         <select
           value={serviceId}
           onChange={(e) => {
             setServiceId(e.target.value)
           }}
           required
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base"
         >
           {services.map((s) => {
             const clientName = clients.find((c) => c.id === s.clientId)?.name ?? s.clientId
@@ -84,49 +83,49 @@ export function GenerateReportForm({ services, clients }: Props) {
       </div>
 
       {/* Date range */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-zinc-400 mb-1">From *</label>
+          <label className="block text-sm text-gray-600 mb-1">From *</label>
           <input
             type="date"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
             required
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="input-base"
           />
         </div>
         <div>
-          <label className="block text-sm text-zinc-400 mb-1">To *</label>
+          <label className="block text-sm text-gray-600 mb-1">To *</label>
           <input
             type="date"
             value={to}
             onChange={(e) => setTo(e.target.value)}
             required
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="input-base"
           />
         </div>
       </div>
 
       {/* Label */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-1">Period label *</label>
+        <label className="block text-sm text-gray-600 mb-1">Period label *</label>
         <input
           type="text"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder="e.g. May 2026"
           required
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base"
         />
       </div>
 
       {/* Visibility */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-1">Visibility</label>
+        <label className="block text-sm text-gray-600 mb-1">Visibility</label>
         <select
           value={visibility}
           onChange={(e) => setVisibility(e.target.value as typeof visibility)}
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base"
         >
           <option value="private">private (admin only)</option>
           <option value="tokenized">tokenized (share via token)</option>
@@ -136,32 +135,32 @@ export function GenerateReportForm({ services, clients }: Props) {
 
       {/* Notes */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-1">Client notes</label>
+        <label className="block text-sm text-gray-600 mb-1">Client notes</label>
         <textarea
           value={clientNotes}
           onChange={(e) => setClientNotes(e.target.value)}
           rows={3}
           placeholder="Visible to client in the tokenized report…"
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
+          className="input-base resize-y"
         />
       </div>
       <div>
-        <label className="block text-sm text-zinc-400 mb-1">Private notes</label>
+        <label className="block text-sm text-gray-600 mb-1">Private notes</label>
         <textarea
           value={privateNotes}
           onChange={(e) => setPrivateNotes(e.target.value)}
           rows={2}
           placeholder="Admin only…"
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm resize-y"
+          className="input-base resize-y"
         />
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2.5 rounded-lg text-sm font-medium"
+        className="btn-primary w-full py-2.5"
       >
         {isPending ? 'Generating…' : 'Generate report'}
       </button>

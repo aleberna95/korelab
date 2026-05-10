@@ -20,7 +20,7 @@ export default async function ClientsPage() {
   const clients = await clientsRepo.list({ status: 'active', limit: 100 })
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
@@ -28,7 +28,7 @@ export default async function ClientsPage() {
         </div>
         <Link
           href="/admin/onboarding"
-          className="text-sm px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="btn-primary text-sm"
         >
           + Onboard client
         </Link>

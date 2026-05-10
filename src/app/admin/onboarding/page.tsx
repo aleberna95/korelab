@@ -27,8 +27,8 @@ export default async function OnboardingPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-white">Onboard New Client / Service</h1>
-        <p className="text-sm text-zinc-400 mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Onboard New Client / Service</h1>
+        <p className="text-sm text-gray-500 mt-1">
           Follow the steps to add a client, their first service, monitoring, and a runbook.
         </p>
       </div>

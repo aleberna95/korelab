@@ -18,7 +18,7 @@ export default async function ServicesPage({ searchParams }: Props) {
   const services = await servicesRepo.list({ ...filters, limit: 200 })
 
   return (
-    <div className="max-w-5xl mx-auto space-y-5">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Services</h1>
         <p className="text-sm text-gray-500 mt-1">All services, filterable by state and client.</p>

@@ -4,7 +4,7 @@ export const metadata = { title: 'Login — Command Center' }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <LoginForm />
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import type { Incident } from '@/lib/domain/types'
+import type { IncidentState, IncidentSeverity } from '@/lib/domain/types'
 import Link from 'next/link'
 
 const STATE_COLORS: Record<string, string> = {
@@ -17,8 +17,17 @@ const SEVERITY_COLORS: Record<string, string> = {
   minor: 'text-yellow-600',
 }
 
+export type IncidentListItem = {
+  id: string
+  state: IncidentState
+  severity: IncidentSeverity
+  title: string
+  serviceId: string
+  startedAt: string // ISO string
+}
+
 type Props = {
-  incidents: Incident[]
+  incidents: IncidentListItem[]
   emptyMessage?: string
 }
 
@@ -57,7 +66,7 @@ export function IncidentList({ incidents, emptyMessage = 'Nessun incidente trova
 
           {/* Time */}
           <span className="shrink-0 text-xs text-gray-400">
-            {formatTime(inc.startedAt as unknown as { toDate(): Date })}
+            {formatTime(inc.startedAt)}
           </span>
         </Link>
       ))}
@@ -65,9 +74,9 @@ export function IncidentList({ incidents, emptyMessage = 'Nessun incidente trova
   )
 }
 
-function formatTime(ts: { toDate(): Date } | undefined): string {
-  if (!ts?.toDate) return '—'
-  const d = ts.toDate()
+function formatTime(isoString: string): string {
+  if (!isoString) return '—'
+  const d = new Date(isoString)
   return new Intl.DateTimeFormat('it-IT', {
     dateStyle: 'short',
     timeStyle: 'short',

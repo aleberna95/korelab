@@ -23,29 +23,29 @@ export function MaintenanceList({ windows }: Props) {
             key={i}
             className={`rounded-xl px-5 py-4 border space-y-1 ${
               isActive
-                ? 'bg-blue-950/40 border-blue-700/50'
+                ? 'bg-blue-50 border-blue-200'
                 : isUpcoming
-                  ? 'bg-zinc-900 border-zinc-700'
-                  : 'bg-zinc-900/40 border-zinc-800'
+                  ? 'bg-white border-gray-200'
+                  : 'bg-gray-50 border-gray-200'
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-blue-300">{mw.title}</span>
+              <span className="text-sm font-semibold text-gray-900">{mw.title}</span>
               {isActive && (
-                <span className="text-xs bg-blue-800 text-blue-200 px-1.5 py-0.5 rounded-full">
+                <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
                   Attiva
                 </span>
               )}
               {isUpcoming && (
-                <span className="text-xs bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded-full">
+                <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
                   Pianificata
                 </span>
               )}
             </div>
             {mw.publicMessage && (
-              <p className="text-sm text-zinc-300">{mw.publicMessage}</p>
+              <p className="text-sm text-gray-600">{mw.publicMessage}</p>
             )}
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-gray-400">
               {fmt(mw.startsAt)} → {fmt(mw.endsAt)}
             </p>
           </div>

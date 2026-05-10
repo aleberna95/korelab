@@ -26,14 +26,14 @@ export default async function AuditPage({ searchParams }: Props) {
   const entries = await auditLogRepo.list({ action, actorKind, targetCollection, limit: 20 })
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Audit Log</h1>
         <p className="text-sm text-gray-500 mt-1">Last 20 entries.</p>
       </header>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-100">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
+          <table className="min-w-full min-w-[520px] divide-y divide-gray-100">
           <thead className="bg-gray-50">
             <tr>
               {['Time', 'Action', 'Actor', 'Target'].map((h) => (

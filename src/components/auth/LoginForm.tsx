@@ -93,14 +93,14 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-sm space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-white">Command Center</h1>
-        <p className="mt-1 text-sm text-zinc-400">Alessio Bernardini — Accesso Admin</p>
+        <h1 className="text-2xl font-bold text-gray-900">Command Center</h1>
+        <p className="mt-1 text-sm text-gray-500">Alessio Bernardini — Accesso Admin</p>
       </div>
 
       {step === 'credentials' && (
         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-zinc-300 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
@@ -110,11 +110,11 @@ export function LoginForm() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="input-base"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-zinc-300 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <input
@@ -124,14 +124,14 @@ export function LoginForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="input-base"
             />
           </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm transition-colors"
+            className="btn-primary w-full py-2"
           >
             {loading ? 'Accesso in corso…' : 'Accedi'}
           </button>
@@ -140,11 +140,11 @@ export function LoginForm() {
 
       {step === 'totp' && (
         <form onSubmit={handleTotpSubmit} className="space-y-4">
-          <p className="text-sm text-zinc-300">
+          <p className="text-sm text-gray-600">
             Inserisci il codice a 6 cifre dalla tua app di autenticazione.
           </p>
           <div>
-            <label htmlFor="totp" className="block text-sm font-medium text-zinc-300 mb-1">
+            <label htmlFor="totp" className="block text-sm font-medium text-gray-700 mb-1">
               Codice di verifica
             </label>
             <input
@@ -157,22 +157,22 @@ export function LoginForm() {
               autoFocus
               value={totpCode}
               onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
-              className="w-full px-3 py-2 rounded-md bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm tracking-widest text-center"
+              className="input-base tracking-widest text-center"
               placeholder="000000"
             />
           </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm transition-colors"
+            className="btn-primary w-full py-2"
           >
             {loading ? 'Verifica in corso…' : 'Verifica'}
           </button>
           <button
             type="button"
             onClick={() => { setStep('credentials'); setError(null) }}
-            className="w-full text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="w-full text-sm text-gray-400 hover:text-gray-600 transition-colors"
           >
             ← Indietro
           </button>

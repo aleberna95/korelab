@@ -19,7 +19,7 @@ export function RevokeTokenButton({ tokenId }: Props) {
     <button
       onClick={handleClick}
       disabled={isPending}
-      className="text-xs text-red-400 hover:text-red-300 disabled:opacity-50"
+      className="btn-danger text-xs px-3 py-1.5 min-h-[36px]"
     >
       {isPending ? 'Revoking…' : 'Revoke'}
     </button>

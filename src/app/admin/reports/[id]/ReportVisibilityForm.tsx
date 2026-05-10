@@ -24,12 +24,12 @@ export function ReportVisibilityForm({ reportId, current }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-3">
-      <label className="text-sm text-zinc-400">Visibility</label>
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+      <label className="text-sm text-gray-600">Visibility</label>
       <select
         value={visibility}
         onChange={(e) => setVisibility(e.target.value as Report['visibility'])}
-        className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm"
+        className="input-base sm:w-auto"
       >
         <option value="private">private (admin only)</option>
         <option value="tokenized">tokenized (shared via token)</option>
@@ -38,11 +38,11 @@ export function ReportVisibilityForm({ reportId, current }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg"
+        className="btn-primary"
       >
         {isPending ? 'Saving…' : 'Save'}
       </button>
-      {saved && <span className="text-xs text-green-400">Saved</span>}
+      {saved && <span className="text-xs text-green-600">Saved</span>}
     </form>
   )
 }

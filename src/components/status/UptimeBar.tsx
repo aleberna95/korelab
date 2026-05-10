@@ -24,7 +24,7 @@ export function UptimeBar({ bars, total = 90 }: Props) {
     <div className="flex gap-0.5" title="90-day uptime history">
       {padded.map((bar, i) =>
         bar === null ? (
-          <span key={i} className="flex-1 h-6 rounded-sm bg-zinc-700 opacity-40" />
+          <span key={i} className="flex-1 h-6 rounded-sm bg-gray-200" />
         ) : (
           <span
             key={i}

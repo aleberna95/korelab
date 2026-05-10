@@ -10,7 +10,8 @@ import { incidentsRepo } from '@/lib/repos/incidentsRepo'
 import { runbooksRepo } from '@/lib/repos/runbooksRepo'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
 import { DependencyGraph } from '@/components/dashboard/DependencyGraph'
-import { IncidentList } from '@/components/incidents/IncidentList'
+import { IncidentList, type IncidentListItem } from '@/components/incidents/IncidentList'
+import { AddMonitorForm } from './AddMonitorForm'
 
 export const metadata: Metadata = { title: 'Service — Command Center' }
 
@@ -50,7 +51,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       {/* Breadcrumb */}
       <nav className="text-sm text-gray-500">
         <Link href="/admin/services" className="hover:underline">Services</Link>
@@ -72,6 +73,12 @@ export default async function ServiceDetailPage({ params }: Props) {
             <p className="text-sm text-gray-600 mt-2">{service.description}</p>
           )}
         </div>
+        <Link
+          href={`/admin/services/${id}/edit`}
+          className="btn-secondary text-sm px-4 py-2"
+        >
+          Edit
+        </Link>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -127,6 +134,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   </span>
                 </div>
               ))}
+              <AddMonitorForm serviceId={id} clientId={service.clientId} />
             </div>
           </section>
 
@@ -156,7 +164,14 @@ export default async function ServiceDetailPage({ params }: Props) {
             </h2>
             <div className="bg-white rounded-lg border border-gray-200 px-4">
               <IncidentList
-                incidents={incidents}
+                incidents={incidents.map((i): IncidentListItem => ({
+                  id: i.id,
+                  state: i.state,
+                  severity: i.severity,
+                  title: i.title,
+                  serviceId: i.serviceId,
+                  startedAt: i.startedAt.toDate().toISOString(),
+                }))}
                 emptyMessage="No incidents recorded."
               />
             </div>

@@ -1,4 +1,5 @@
 import 'server-only'
+import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { getAdminAuth } from '@/lib/firebase/admin'
 
@@ -20,11 +21,14 @@ export async function createSessionCookie(idToken: string): Promise<string> {
 /**
  * Verifies the session cookie and returns the decoded claims.
  * Returns null if the cookie is missing, invalid, or revoked.
+ *
+ * Wrapped with React.cache() so it runs at most once per server request,
+ * even when called by both the admin layout and individual page components.
  */
-export async function verifySessionCookie(): Promise<{
+export const verifySessionCookie = cache(async (): Promise<{
   uid: string
   role: string | undefined
-} | null> {
+} | null> => {
   const cookieStore = await cookies()
   const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME)?.value
 
@@ -40,7 +44,7 @@ export async function verifySessionCookie(): Promise<{
   } catch {
     return null
   }
-}
+})
 
 /**
  * Cookie options for Set-Cookie header.

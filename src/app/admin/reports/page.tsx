@@ -11,9 +11,9 @@ function formatTs(ts: { toDate(): Date } | undefined): string {
 }
 
 const VISIBILITY_BADGE: Record<Report['visibility'], string> = {
-  private: 'bg-zinc-700 text-zinc-300',
-  tokenized: 'bg-blue-900 text-blue-300',
-  email: 'bg-purple-900 text-purple-300',
+  private: 'bg-gray-100 text-gray-600',
+  tokenized: 'bg-blue-100 text-blue-800',
+  email: 'bg-purple-100 text-purple-800',
 }
 
 export default async function ReportsPage() {
@@ -29,64 +29,64 @@ export default async function ReportsPage() {
   const serviceMap = new Map(services.map((s) => [s.id, s.name]))
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Reports</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Reports</h1>
         <Link
           href="/admin/reports/generate"
-          className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+          className="btn-primary text-sm"
         >
           Generate report
         </Link>
       </div>
 
       {reports.length === 0 ? (
-        <p className="text-zinc-500 text-sm">
+        <p className="text-gray-500 text-sm">
           No reports yet. Reports are auto-generated monthly or can be created manually.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm border-collapse">
             <thead>
-              <tr className="text-left text-zinc-400 border-b border-zinc-700">
-                <th className="pb-3 pr-4">Period</th>
-                <th className="pb-3 pr-4">Service</th>
-                <th className="pb-3 pr-4">Client</th>
-                <th className="pb-3 pr-4">Uptime</th>
-                <th className="pb-3 pr-4">Incidents</th>
-                <th className="pb-3 pr-4">Visibility</th>
-                <th className="pb-3 pr-4">Generated</th>
-                <th className="pb-3"></th>
+              <tr className="text-left text-gray-500 border-b border-gray-200 bg-gray-50">
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Period</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Service</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Client</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Uptime</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Incidents</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Visibility</th>
+                <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide">Generated</th>
+                <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-gray-100">
               {reports.map((r) => (
-                <tr key={r.id} className="hover:bg-zinc-800/50">
-                  <td className="py-3 pr-4 font-medium">{r.period.label}</td>
-                  <td className="py-3 pr-4 text-zinc-300">
+                <tr key={r.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium text-gray-900">{r.period.label}</td>
+                  <td className="px-4 py-3 text-gray-700">
                     {serviceMap.get(r.serviceId) ?? r.serviceId}
                   </td>
-                  <td className="py-3 pr-4 text-zinc-400">
+                  <td className="px-4 py-3 text-gray-500">
                     {clientMap.get(r.clientId) ?? r.clientId}
                   </td>
-                  <td className="py-3 pr-4 font-mono text-green-400">
+                  <td className="px-4 py-3 font-mono text-green-700">
                     {r.metrics.uptimePct.toFixed(3)}%
                   </td>
-                  <td className="py-3 pr-4 text-center">{r.metrics.incidentCount}</td>
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3 text-center text-gray-700">{r.metrics.incidentCount}</td>
+                  <td className="px-4 py-3">
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full ${VISIBILITY_BADGE[r.visibility]}`}
                     >
                       {r.visibility}
                     </span>
                   </td>
-                  <td className="py-3 pr-4 text-zinc-500 text-xs">
+                  <td className="px-4 py-3 text-gray-400 text-xs">
                     {formatTs(r.generatedAt as unknown as { toDate(): Date })}
                   </td>
-                  <td className="py-3">
+                  <td className="px-4 py-3">
                     <Link
                       href={`/admin/reports/${r.id}`}
-                      className="text-xs text-blue-400 hover:underline"
+                      className="text-xs text-blue-600 hover:underline"
                     >
                       View →
                     </Link>

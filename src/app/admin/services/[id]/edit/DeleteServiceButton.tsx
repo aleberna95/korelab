@@ -1,17 +1,17 @@
 'use client'
 
 import { useTransition } from 'react'
-import { deleteRunbook } from '../../actions'
+import { deleteService } from '../../actions'
 
-type Props = { runbookId: string }
+type Props = { serviceId: string }
 
-export function DeleteRunbookButton({ runbookId }: Props) {
+export function DeleteServiceButton({ serviceId }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function handleClick() {
-    if (!confirm('Delete this runbook permanently? This cannot be undone.')) return
+    if (!confirm('Delete this service permanently? This cannot be undone.')) return
     startTransition(async () => {
-      await deleteRunbook(runbookId)
+      await deleteService(serviceId)
     })
   }
 
@@ -21,7 +21,7 @@ export function DeleteRunbookButton({ runbookId }: Props) {
       disabled={isPending}
       className="btn-danger text-sm"
     >
-      {isPending ? 'Deleting…' : 'Delete runbook'}
+      {isPending ? 'Deleting…' : 'Delete service'}
     </button>
   )
 }

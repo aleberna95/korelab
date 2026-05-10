@@ -33,16 +33,16 @@ function ContactRow({
   onRemove: () => void
 }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-zinc-300 bg-zinc-900 rounded-md px-3 py-2">
+    <div className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 rounded-md px-3 py-2">
       <span className="flex-1">
         {contact.name} · {contact.email} · {contact.role}
         {contact.primary && (
-          <span className="ml-2 text-xs text-indigo-400 font-medium">Principale</span>
+          <span className="ml-2 text-xs text-blue-600 font-medium">Principale</span>
         )}
       </span>
       <button
         onClick={onRemove}
-        className="text-zinc-500 hover:text-red-400 text-xs"
+        className="text-gray-500 hover:text-red-400 text-xs"
         type="button"
       >
         Rimuovi
@@ -71,7 +71,7 @@ function AddContactForm({ onAdd }: { onAdd: (c: WizardContact) => void }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-sm text-indigo-400 hover:text-indigo-300 font-medium"
+        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
       >
         + Aggiungi contatto
       </button>
@@ -79,7 +79,7 @@ function AddContactForm({ onAdd }: { onAdd: (c: WizardContact) => void }) {
   }
 
   return (
-    <div className="bg-zinc-900 rounded-md p-3 space-y-2 border border-zinc-700">
+    <div className="bg-gray-50 rounded-md p-3 space-y-2 border border-gray-200">
       <div className="grid grid-cols-2 gap-2">
         <Field label="Nome *">
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" className={INPUT} />
@@ -94,8 +94,8 @@ function AddContactForm({ onAdd }: { onAdd: (c: WizardContact) => void }) {
           <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+39 333..." className={INPUT} />
         </Field>
       </div>
-      <label className="flex items-center gap-2 text-sm text-zinc-400 cursor-pointer">
-        <input type="checkbox" checked={primary} onChange={(e) => setPrimary(e.target.checked)} className="accent-indigo-500" />
+      <label className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer">
+        <input type="checkbox" checked={primary} onChange={(e) => setPrimary(e.target.checked)} className="accent-blue-600" />
         Contatto principale
       </label>
       <div className="flex gap-2 pt-1">
@@ -107,16 +107,16 @@ function AddContactForm({ onAdd }: { onAdd: (c: WizardContact) => void }) {
 }
 
 const INPUT =
-  'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+  'input-base'
 const BTN_PRIMARY =
-  'px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md'
+  'px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md'
 const BTN_GHOST =
-  'px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-200'
+  'px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
         {label}
       </label>
       {children}
@@ -136,8 +136,8 @@ export function StepClient({ clientOptions }: Props) {
   return (
     <div className="space-y-6">
       <div>
-      <h2 className="text-xl font-bold text-white">Cliente</h2>
-      <p className="text-sm text-zinc-400 mt-1">Collega questo servizio a un cliente esistente o creane uno nuovo.</p>
+      <h2 className="text-xl font-bold text-gray-900">Cliente</h2>
+      <p className="text-sm text-gray-500 mt-1">Collega questo servizio a un cliente esistente o creane uno nuovo.</p>
       </div>
 
       {/* Mode selector */}
@@ -150,8 +150,8 @@ export function StepClient({ clientOptions }: Props) {
             className={[
               'px-4 py-2 rounded-md text-sm font-medium border transition-colors',
               state.clientMode === mode
-                ? 'bg-indigo-600 border-indigo-500 text-white'
-                : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:text-white',
+                ? 'bg-blue-600 border-blue-500 text-white'
+                : 'bg-white border-gray-200 text-gray-500 hover:text-gray-900',
             ].join(' ')}
           >
             {mode === 'new' ? 'Nuovo cliente' : 'Cliente esistente'}
@@ -225,7 +225,7 @@ export function StepClient({ clientOptions }: Props) {
 
           {/* Contacts */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Contatti *
             </label>
             {c.contacts.map((contact, i) => (
@@ -243,15 +243,15 @@ export function StepClient({ clientOptions }: Props) {
 
           {/* Notification prefs */}
           <div className="space-y-3">
-            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Notifiche
             </label>
-            <label className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
               <input
                 type="checkbox"
                 checked={c.notificationEmail}
                 onChange={(e) => patchClient({ notificationEmail: e.target.checked })}
-                className="accent-indigo-500"
+                className="accent-blue-600"
               />
               Invia alert via email
             </label>
@@ -277,7 +277,7 @@ export function StepClient({ clientOptions }: Props) {
 
           {/* Consent */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
               Consenso cliente
             </label>
             {(
@@ -288,12 +288,12 @@ export function StepClient({ clientOptions }: Props) {
                 ['consentAutoHealing', 'Azioni auto-healing'],
               ] as const
             ).map(([key, label]) => (
-              <label key={key} className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+              <label key={key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={c[key]}
                   onChange={(e) => patchClient({ [key]: e.target.checked })}
-                  className="accent-indigo-500"
+                  className="accent-blue-600"
                 />
                 {label}
               </label>

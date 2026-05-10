@@ -16,14 +16,14 @@ export default async function MonitorsPage() {
   const monitors = await monitorsRepo.list({ limit: 200 })
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-gray-900">Monitors</h1>
         <p className="text-sm text-gray-500 mt-1">{monitors.length} monitor{monitors.length !== 1 ? 's' : ''} configured.</p>
       </header>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-100">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
+          <table className="min-w-full min-w-[640px] divide-y divide-gray-100">
           <thead className="bg-gray-50">
             <tr>
               {['Source', 'Service', 'URL', 'Last result', 'Last check', 'Status'].map((h) => (
@@ -42,9 +42,11 @@ export default async function MonitorsPage() {
               </tr>
             )}
             {monitors.map((m) => (
-              <tr key={m.id} className="hover:bg-gray-50 transition-colors">
+              <tr key={m.id} className="hover:bg-gray-50 transition-colors cursor-pointer">
                 <td className="px-4 py-3 text-sm text-gray-700 capitalize">
-                  {m.source.replace(/-/g, ' ')}
+                  <Link href={`/admin/monitors/${m.id}`} className="hover:text-blue-600">
+                    {m.source.replace(/-/g, ' ')}
+                  </Link>
                 </td>
                 <td className="px-4 py-3">
                   <Link href={`/admin/services/${m.serviceId}`} className="text-sm text-blue-600 hover:underline">

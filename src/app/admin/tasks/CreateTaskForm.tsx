@@ -3,11 +3,10 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createTask } from './actions'
-import type { Service, Runbook } from '@/lib/domain/types'
 
 type Props = {
-  services: Service[]
-  runbooks: Runbook[]
+  services: { id: string; name: string }[]
+  runbooks: { id: string; title: string }[]
 }
 
 export function CreateTaskForm({ services, runbooks }: Props) {
@@ -58,29 +57,29 @@ export function CreateTaskForm({ services, runbooks }: Props) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Task title *"
           required
-          className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base flex-1"
         />
         <button
           type="submit"
           disabled={isPending}
-          className="shrink-0 text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg"
+          className="btn-primary shrink-0"
         >
           {isPending ? 'Adding…' : 'Add'}
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <input
           type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description (optional)"
-          className="col-span-3 sm:col-span-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base col-span-1 sm:col-span-1"
         />
         <select
           value={serviceId}
           onChange={(e) => setServiceId(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base"
         >
           <option value="">— Service —</option>
           {services.map((s) => (
@@ -90,7 +89,7 @@ export function CreateTaskForm({ services, runbooks }: Props) {
         <select
           value={runbookId}
           onChange={(e) => setRunbookId(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+          className="input-base"
         >
           <option value="">— Runbook —</option>
           {runbooks.map((r) => (
@@ -100,16 +99,16 @@ export function CreateTaskForm({ services, runbooks }: Props) {
       </div>
 
       <div>
-        <label className="text-xs text-zinc-500 mr-2">Due date:</label>
+        <label className="text-xs text-gray-500 mr-2">Due date:</label>
         <input
           type="date"
           value={dueAt}
           onChange={(e) => setDueAt(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm"
+          className="input-base sm:w-auto"
         />
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </form>
   )
 }

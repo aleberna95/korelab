@@ -15,18 +15,18 @@ export default async function EditRunbookPage({ params }: Props) {
   if (!runbook) notFound()
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-6">
       <div>
-        <Link href={`/admin/runbooks/${id}`} className="text-sm text-zinc-500 hover:text-zinc-300">
+        <Link href={`/admin/runbooks/${id}`} className="text-sm text-gray-500 hover:text-gray-700">
           ← {runbook.title}
         </Link>
-        <h1 className="mt-3 text-2xl font-bold">Edit Runbook</h1>
+        <h1 className="mt-3 text-xl sm:text-2xl font-bold text-gray-900">Edit Runbook</h1>
       </div>
 
       <RunbookForm runbook={runbook} />
 
-      <div className="border-t border-zinc-800 pt-6">
-        <p className="text-xs text-zinc-500 mb-3">Danger zone</p>
+      <div className="border-t border-gray-200 pt-6">
+        <p className="text-xs text-gray-500 mb-3">Danger zone</p>
         <DeleteRunbookButton runbookId={runbook.id} />
       </div>
     </div>

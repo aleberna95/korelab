@@ -2,11 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { createStatusToken } from './actions'
-import type { Client, Service, StatusToken } from '@/lib/domain/types'
+import type { StatusToken } from '@/lib/domain/types'
 
 type Props = {
-  clients: Client[]
-  services: Service[]
+  clients: { id: string; name: string }[]
+  services: { id: string; name: string }[]
 }
 
 const ALL_SECTIONS: StatusToken['allowedSections'][number][] = ['status', 'incidents', 'maintenance', 'reports']
@@ -67,18 +67,18 @@ export function CreateTokenForm({ clients, services }: Props) {
   if (createdToken && createdUrl) {
     return (
       <div className="space-y-3">
-        <div className="bg-green-950/40 border border-green-700/50 rounded-lg px-4 py-3">
-          <p className="text-sm font-medium text-green-300 mb-2">
+        <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+          <p className="text-sm font-medium text-green-800 mb-2">
             Token created — copy the URL below. It will not be shown again.
           </p>
           <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs bg-zinc-900 rounded px-2 py-1 break-all text-zinc-200">
+            <code className="flex-1 text-xs bg-gray-100 rounded px-2 py-1 break-all text-gray-800">
               {createdUrl}
             </code>
             <button
               type="button"
               onClick={handleCopy}
-              className="shrink-0 text-xs bg-zinc-700 hover:bg-zinc-600 text-white px-3 py-1.5 rounded"
+              className="btn-secondary shrink-0 text-xs px-3 py-1.5"
             >
               {copied ? 'Copied!' : 'Copy'}
             </button>
@@ -87,7 +87,7 @@ export function CreateTokenForm({ clients, services }: Props) {
         <button
           type="button"
           onClick={() => { setCreatedToken(null); setCreatedUrl(null) }}
-          className="text-sm text-zinc-400 hover:text-zinc-200"
+          className="text-sm text-gray-500 hover:text-gray-700"
         >
           Create another token
         </button>
@@ -101,7 +101,7 @@ export function CreateTokenForm({ clients, services }: Props) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Scope */}
       <div className="flex items-center gap-4">
-        <label className="text-sm text-zinc-400">Scope</label>
+        <label className="text-sm text-gray-600">Scope</label>
         <div className="flex gap-3">
           {(['service', 'client'] as const).map((s) => (
             <label key={s} className="flex items-center gap-1.5 text-sm cursor-pointer">
@@ -122,16 +122,16 @@ export function CreateTokenForm({ clients, services }: Props) {
       </div>
 
       {/* Target */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-zinc-400 mb-1">
+          <label className="block text-sm text-gray-600 mb-1">
             {scope === 'service' ? 'Service' : 'Client'} *
           </label>
           <select
             value={targetId}
             onChange={(e) => setTargetId(e.target.value)}
             required
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="input-base"
           >
             {options.map((o) => (
               <option key={o.id} value={o.id}>{o.name}</option>
@@ -141,19 +141,19 @@ export function CreateTokenForm({ clients, services }: Props) {
 
         {/* Expiry */}
         <div>
-          <label className="block text-sm text-zinc-400 mb-1">Expires (optional)</label>
+          <label className="block text-sm text-gray-600 mb-1">Expires (optional)</label>
           <input
             type="date"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm"
+            className="input-base"
           />
         </div>
       </div>
 
       {/* Sections */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-2">Allowed sections *</label>
+        <label className="block text-sm text-gray-600 mb-2">Allowed sections *</label>
         <div className="flex gap-4 flex-wrap">
           {ALL_SECTIONS.map((s) => (
             <label key={s} className="flex items-center gap-1.5 text-sm cursor-pointer">
@@ -168,12 +168,12 @@ export function CreateTokenForm({ clients, services }: Props) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <button
         type="submit"
         disabled={isPending}
-        className="text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg"
+        className="btn-primary"
       >
         {isPending ? 'Creating…' : 'Create token'}
       </button>

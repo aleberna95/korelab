@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 const RISK_STYLES = {
-  low: 'text-green-400',
-  medium: 'text-amber-400',
-  high: 'text-red-400',
+  low: 'text-green-700',
+  medium: 'text-amber-700',
+  high: 'text-red-700',
 }
 
 type Props = { params: Promise<{ id: string }> }
@@ -19,29 +19,29 @@ export default async function RunbookDetailPage({ params }: Props) {
   if (!runbook) notFound()
 
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 space-y-8">
       <div>
-        <Link href="/admin/runbooks" className="text-sm text-zinc-500 hover:text-zinc-300">
+        <Link href="/admin/runbooks" className="text-sm text-gray-500 hover:text-gray-700">
           ← Runbooks
         </Link>
         <div className="mt-3 flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold">{runbook.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{runbook.title}</h1>
           <Link
             href={`/admin/runbooks/${runbook.id}/edit`}
-            className="shrink-0 text-sm bg-zinc-700 hover:bg-zinc-600 text-white px-4 py-2 rounded-lg"
+            className="btn-secondary shrink-0 text-sm"
           >
             Edit
           </Link>
         </div>
         {runbook.notes && (
-          <p className="mt-2 text-zinc-400 text-sm">{runbook.notes}</p>
+          <p className="mt-2 text-gray-500 text-sm">{runbook.notes}</p>
         )}
         <div className="flex flex-wrap gap-1.5 mt-3">
           {runbook.serviceTypes.map((t) => (
-            <span key={t} className="text-xs bg-zinc-700 text-zinc-300 px-2 py-0.5 rounded">{t}</span>
+            <span key={t} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">{t}</span>
           ))}
           {runbook.appliesToTags.map((t) => (
-            <span key={t} className="text-xs bg-zinc-700/60 text-zinc-400 px-2 py-0.5 rounded">#{t}</span>
+            <span key={t} className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">#{t}</span>
           ))}
         </div>
       </div>
@@ -49,12 +49,12 @@ export default async function RunbookDetailPage({ params }: Props) {
       {/* First checks */}
       {runbook.firstChecks.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">First checks</h2>
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">First checks</h2>
           <ul className="space-y-1.5">
             {runbook.firstChecks.map((check, i) => (
               <li key={i} className="flex gap-2 text-sm">
-                <span className="text-zinc-600 shrink-0">{i + 1}.</span>
-                <span>{check}</span>
+                <span className="text-gray-400 shrink-0">{i + 1}.</span>
+                <span className="text-gray-700">{check}</span>
               </li>
             ))}
           </ul>
@@ -64,21 +64,21 @@ export default async function RunbookDetailPage({ params }: Props) {
       {/* Common failures */}
       {runbook.commonFailures.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
             Common failures
           </h2>
           <div className="space-y-2">
             {runbook.commonFailures.map((f, i) => (
-              <div key={i} className="bg-zinc-800/60 border border-zinc-700 rounded-lg px-4 py-3">
-                <p className="font-medium text-sm text-white">{f.symptom}</p>
+              <div key={i} className="bg-white border border-gray-200 rounded-lg px-4 py-3">
+                <p className="font-medium text-sm text-gray-900">{f.symptom}</p>
                 {f.likelyCause && (
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    <span className="text-zinc-500">Cause: </span>{f.likelyCause}
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    <span className="text-gray-400">Cause: </span>{f.likelyCause}
                   </p>
                 )}
                 {f.fix && (
-                  <p className="text-xs text-zinc-300 mt-1">
-                    <span className="text-zinc-500">Fix: </span>{f.fix}
+                  <p className="text-xs text-gray-700 mt-1">
+                    <span className="text-gray-400">Fix: </span>{f.fix}
                   </p>
                 )}
               </div>
@@ -90,26 +90,26 @@ export default async function RunbookDetailPage({ params }: Props) {
       {/* Recovery steps */}
       {runbook.recoverySteps.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
             Recovery steps
           </h2>
           <div className="space-y-3">
             {runbook.recoverySteps.map((step, i) => (
               <div
                 key={i}
-                className="bg-zinc-800/60 border border-zinc-700 rounded-xl px-5 py-4"
+                className="bg-white border border-gray-200 rounded-xl px-5 py-4"
               >
                 <div className="flex items-center gap-2.5 mb-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-700 text-xs font-bold shrink-0">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-700 text-xs font-bold shrink-0">
                     {i + 1}
                   </span>
-                  <p className="font-semibold text-sm">{step.title}</p>
+                  <p className="font-semibold text-sm text-gray-900">{step.title}</p>
                   <span className={`ml-auto text-xs capitalize ${RISK_STYLES[step.riskLevel]}`}>
                     {step.riskLevel} risk
                   </span>
                 </div>
                 {step.body && (
-                  <p className="text-sm text-zinc-300 whitespace-pre-wrap pl-8.5">{step.body}</p>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap pl-8.5">{step.body}</p>
                 )}
               </div>
             ))}
@@ -120,10 +120,10 @@ export default async function RunbookDetailPage({ params }: Props) {
       {/* Contacts */}
       {runbook.contacts.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Contacts</h2>
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Contacts</h2>
           <ul className="space-y-1">
             {runbook.contacts.map((c, i) => (
-              <li key={i} className="text-sm text-zinc-300">{c}</li>
+              <li key={i} className="text-sm text-gray-700">{c}</li>
             ))}
           </ul>
         </section>
@@ -132,7 +132,7 @@ export default async function RunbookDetailPage({ params }: Props) {
       {/* Links */}
       {runbook.links.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Links</h2>
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Links</h2>
           <ul className="space-y-1">
             {runbook.links.map((link, i) => (
               <li key={i}>
@@ -140,7 +140,7 @@ export default async function RunbookDetailPage({ params }: Props) {
                   href={link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-400 hover:underline break-all"
+                  className="text-sm text-blue-600 hover:underline break-all"
                 >
                   {link}
                 </a>

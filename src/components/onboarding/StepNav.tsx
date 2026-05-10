@@ -7,7 +7,7 @@ export function StepNav() {
   const { state, dispatch, activeSteps, currentIndex } = useWizard()
 
   return (
-    <nav className="space-y-0.5">
+    <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
       {activeSteps.map((stepId, idx) => {
         const isCurrent = stepId === state.currentStepId
         const isPast = idx < currentIndex
@@ -20,10 +20,10 @@ export function StepNav() {
             onClick={() => dispatch({ type: 'SET_STEP', stepId })}
             disabled={state.isSubmitting}
             className={[
-              'w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-sm transition-colors',
+              'flex items-center gap-2.5 px-3 py-2 rounded-md text-left text-sm transition-colors shrink-0',
               isCurrent
-                ? 'bg-zinc-700 text-white font-medium'
-                : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200',
+                ? 'bg-blue-50 text-blue-700 font-medium'
+                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700',
             ].join(' ')}
           >
             {/* Step indicator dot */}
@@ -31,10 +31,10 @@ export function StepNav() {
               className={[
                 'w-5 h-5 rounded-full text-[10px] font-bold flex items-center justify-center shrink-0',
                 isCurrent
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-blue-600 text-white'
                   : isPast && isValid
-                    ? 'bg-green-700 text-white'
-                    : 'bg-zinc-700 text-zinc-400',
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-200 text-gray-500',
               ].join(' ')}
             >
               {isPast && isValid ? '✓' : idx + 1}

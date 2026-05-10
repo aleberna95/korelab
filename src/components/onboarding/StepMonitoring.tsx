@@ -3,16 +3,16 @@
 import { useWizard } from '@/lib/onboarding/state'
 
 const INPUT =
-  'w-full bg-zinc-800 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+  'input-base'
 
 function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
         {label}
       </label>
       {children}
-      {hint && <p className="text-xs text-zinc-500">{hint}</p>}
+      {hint && <p className="text-xs text-gray-400">{hint}</p>}
     </div>
   )
 }
@@ -39,7 +39,7 @@ export function StepMonitoring() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-white">Monitoraggio</h2>
-        <p className="text-sm text-zinc-400 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Configura il monitor principale per questo servizio.
         </p>
       </div>
@@ -57,8 +57,8 @@ export function StepMonitoring() {
       </Field>
 
       {healthcheckUrl && (
-        <div className="px-3 py-2 bg-zinc-900 rounded-md border border-zinc-700 text-xs text-zinc-400">
-          URL monitor (dal servizio): <span className="text-zinc-200">{healthcheckUrl}</span>
+        <div className="px-3 py-2 bg-gray-50 rounded-md border border-gray-200 text-xs text-gray-500">
+          URL monitor (dal servizio): <span className="text-gray-800">{healthcheckUrl}</span>
         </div>
       )}
 
@@ -97,7 +97,7 @@ export function StepMonitoring() {
       </Field>
 
       <div className="space-y-2">
-        <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
           Canali di allerta
         </label>
         {(
@@ -107,12 +107,12 @@ export function StepMonitoring() {
             ['clientNotify', 'Notifica cliente direttamente'],
           ] as const
         ).map(([key, label]) => (
-          <label key={key} className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">
+          <label key={key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input
               type="checkbox"
               checked={m[key]}
               onChange={(e) => patch({ [key]: e.target.checked })}
-              className="accent-indigo-500"
+              className="accent-blue-600"
             />
             {label}
           </label>

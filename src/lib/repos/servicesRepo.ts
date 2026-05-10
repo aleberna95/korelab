@@ -197,6 +197,28 @@ export const servicesRepo = {
     })
   },
 
+  async delete(id: string, actorUid?: string): Promise<void> {
+    await col().doc(id).delete()
+
+    await auditLogRepo.write({
+      actorUid,
+      actorKind: actorUid ? 'user' : 'function',
+      action: 'services.delete',
+      targetCollection: COLLECTION,
+      targetId: id,
+    })
+  },
+
+  async addMonitorId(serviceId: string, monitorId: string): Promise<void> {
+    await getAdminDb()
+      .collection(COLLECTION)
+      .doc(serviceId)
+      .update({
+        monitorIds: FieldValue.arrayUnion(monitorId),
+        updatedAt: FieldValue.serverTimestamp(),
+      })
+  },
+
   async getDailyRollups(
     serviceId: string,
     fromDate: string,

@@ -25,33 +25,33 @@ type Props = {
 
 export function IncidentList({ active, recent }: Props) {
   if (!active && recent.length === 0) {
-    return <p className="text-sm text-zinc-400">Nessun incidente in questo periodo.</p>
+    return <p className="text-sm text-gray-400">Nessun incidente in questo periodo.</p>
   }
 
   return (
     <div className="space-y-4">
       {active && (
-        <div className="bg-red-950/40 border border-red-800/50 rounded-xl px-5 py-4 space-y-1">
+        <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-4 space-y-1">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-            <p className="text-sm font-semibold text-red-300">{active.title}</p>
+            <p className="text-sm font-semibold text-red-700">{active.title}</p>
             <span className={`ml-auto text-xs capitalize ${SEVERITY_STYLES[active.severity] ?? ''}`}>
               {active.severity}
             </span>
           </div>
           {active.publicMessage && (
-            <p className="text-sm text-zinc-300">{active.publicMessage}</p>
+            <p className="text-sm text-gray-700">{active.publicMessage}</p>
           )}
-          <p className="text-xs text-zinc-500">Dal {fmt(active.startedAt)}</p>
+          <p className="text-xs text-gray-400">Dal {fmt(active.startedAt)}</p>
         </div>
       )}
 
       {recent.length > 0 && (
         <div className="space-y-2">
           {recent.map((inc, i) => (
-            <div key={i} className="bg-zinc-900/60 border border-zinc-800 rounded-lg px-4 py-3">
+            <div key={i} className="bg-white border border-gray-200 rounded-lg px-4 py-3">
               <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-zinc-200">{inc.title}</p>
+                <p className="text-sm font-medium text-gray-800">{inc.title}</p>
                 <span className={`text-xs capitalize shrink-0 ${SEVERITY_STYLES[inc.severity] ?? ''}`}>
                   {inc.severity}
                 </span>

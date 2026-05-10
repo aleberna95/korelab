@@ -31,51 +31,54 @@ export default async function TokensPage() {
   const revoked = tokens.filter((t) => t.revokedAt)
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Status Tokens</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Status Tokens</h1>
+          <p className="text-gray-500 text-sm mt-1">
             Share private status pages with clients via single-use tokens.
           </p>
         </div>
       </div>
 
       {/* Create token form */}
-      <section className="bg-zinc-800/50 border border-zinc-700 rounded-xl p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-zinc-300">Create new token</h2>
-        <CreateTokenForm clients={clients} services={services} />
+      <section className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700">Create new token</h2>
+        <CreateTokenForm
+          clients={clients.map((c) => ({ id: c.id, name: c.name }))}
+          services={services.map((s) => ({ id: s.id, name: s.name }))}
+        />
       </section>
 
       {/* Active tokens */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
           Active ({active.length})
         </h2>
         {active.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No active tokens.</p>
+          <p className="text-gray-500 text-sm">No active tokens.</p>
         ) : (
           <div className="space-y-2">
             {active.map((t) => (
               <div
                 key={t.id}
-                className="bg-zinc-800/60 border border-zinc-700 rounded-lg px-4 py-3 flex items-start justify-between gap-4"
+                className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex items-start justify-between gap-4"
               >
                 <div className="space-y-0.5 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 capitalize">
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 capitalize">
                       {t.scope}
                     </span>
-                    <span className="text-sm font-medium truncate">
+                    <span className="text-sm font-medium text-gray-900 truncate">
                       {t.scope === 'service'
                         ? (serviceMap.get(t.targetId) ?? t.targetId)
                         : (clientMap.get(t.targetId) ?? t.targetId)}
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-gray-500">
                     Sections: {t.allowedSections.join(', ')}
                   </p>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-gray-400">
                     Created {formatTs(t.createdAt as unknown as { toDate(): Date })}
                     {t.expiresAt && ` · Expires ${formatTs(t.expiresAt as unknown as { toDate(): Date })}`}
                     {t.lastUsedAt && ` · Last used ${formatTs(t.lastUsedAt as unknown as { toDate(): Date })}`}
@@ -93,14 +96,14 @@ export default async function TokensPage() {
       {/* Revoked tokens */}
       {revoked.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
             Revoked ({revoked.length})
           </h2>
           <div className="space-y-1 opacity-50">
             {revoked.map((t) => (
               <div
                 key={t.id}
-                className="bg-zinc-900/40 border border-zinc-800 rounded-lg px-4 py-2 text-sm line-through text-zinc-500"
+                className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-sm line-through text-gray-400"
               >
                 {t.scope} ·{' '}
                 {t.scope === 'service'

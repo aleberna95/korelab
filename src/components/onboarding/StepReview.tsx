@@ -4,9 +4,9 @@ import { useWizard, getEffectiveSupportPlan, getActiveSteps } from '@/lib/onboar
 
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[160px_1fr] gap-2 text-sm py-1.5 border-b border-zinc-800 last:border-0">
-      <span className="text-zinc-500 font-medium">{label}</span>
-      <span className="text-zinc-200 break-all">{value ?? <span className="text-zinc-600 italic">not set</span>}</span>
+    <div className="grid grid-cols-[160px_1fr] gap-2 text-sm py-1.5 border-b border-gray-200 last:border-0">
+      <span className="text-gray-500 font-medium">{label}</span>
+      <span className="text-gray-800 break-all">{value ?? <span className="text-gray-400 italic">not set</span>}</span>
     </div>
   )
 }
@@ -14,18 +14,18 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-0">
-      <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-2 pt-2">{title}</h3>
-      <div className="bg-zinc-900 rounded-lg px-4 py-1 divide-y divide-zinc-800">
+      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2 pt-2">{title}</h3>
+      <div className="bg-gray-50 rounded-lg px-4 py-1 divide-y divide-gray-200">
         {children}
       </div>
     </div>
   )
 }
 
-function Badge({ text, color = 'zinc' }: { text: string; color?: 'zinc' | 'indigo' | 'green' | 'amber' }) {
+function Badge({ text, color = 'gray' | 'blue' | 'green' | 'amber'}: { text: string; color?: 'gray' | 'blue' | 'green' | 'amber'|'gray' | 'blue' | 'green' | 'amber'|'gray' | 'blue' | 'green' | 'amber'|'gray' | 'blue' | 'green' | 'amber' }) {
   const cls = {
-    zinc: 'bg-zinc-700 text-zinc-300',
-    indigo: 'bg-indigo-900/50 text-indigo-300',
+    gray: 'bg-gray-100 text-gray-700',
+    blue: 'bg-blue-100 text-blue-800',
     green: 'bg-green-900/40 text-green-400',
     amber: 'bg-amber-900/40 text-amber-400',
   }[color]
@@ -47,7 +47,7 @@ export function StepReview() {
     <div className="space-y-5">
       <div>
         <h2 className="text-xl font-bold text-white">Riepilogo e conferma</h2>
-        <p className="text-sm text-zinc-400 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Controlla cosa verrà scritto nel database. L'operazione è irreversibile — puoi modificare i record in seguito dalle pagine di dettaglio.
         </p>
       </div>
@@ -61,7 +61,7 @@ export function StepReview() {
             <Row label="Modalità" value={<Badge text="nuovo" color="green" />} />
             <Row label="Nome" value={state.client.name} />
             <Row label="Tipo azienda" value={state.client.businessType} />
-            <Row label="Piano supporto" value={<Badge text={state.client.supportPlan} color="indigo" />} />
+            <Row label="Piano supporto" value={<Badge text={state.client.supportPlan} color="blue" />} />
             <Row
               label="Contatti"
               value={state.client.contacts.map((c) => `${c.name} <${c.email}>`).join(', ')}
@@ -82,13 +82,13 @@ export function StepReview() {
         <Row label="Nome" value={state.service.name} />
         <Row label="Tipo" value={state.service.type} />
         <Row label="Ambiente" value={state.service.environment} />
-        <Row label="Criticità" value={<Badge text={state.service.criticality} color={state.service.criticality === 'critical' ? 'amber' : 'zinc'} />} />
+        <Row label="Criticità" value={<Badge text={state.service.criticality} color={state.service.criticality === 'critical' ? 'amber' : 'gray'} />} />
         {state.service.primaryUrl && <Row label="Primary URL" value={state.service.primaryUrl} />}
         {state.service.healthcheckUrl && <Row label="Healthcheck URL" value={state.service.healthcheckUrl} />}
         {state.service.tags && <Row label="Tags" value={state.service.tags} />}
         <Row label="Pagina stato" value={state.visibility.statusPage} />
         <Row label="Condivisione report" value={state.visibility.reportSharing} />
-        <Row label="Automazione" value={<><Badge text="disabilitata" color="zinc" /> (forzata in MVP)</>} />
+        <Row label="Automazione" value={<><Badge text="disabilitata" color="gray" /> (forzata in MVP)</>} />
       </Section>
 
       {/* Monitor */}
@@ -152,7 +152,7 @@ export function StepReview() {
         )}
       </Section>
 
-      <div className="bg-indigo-900/20 border border-indigo-700/40 rounded-lg px-4 py-3 text-sm text-indigo-300">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-700">
         Cliccando <strong>Conferma e crea</strong> verranno scritti atomicamente tutti i documenti sopra in un'unica transazione Firestore. I fallimenti parziali annulleranno tutto.
       </div>
     </div>

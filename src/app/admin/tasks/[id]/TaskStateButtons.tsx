@@ -11,13 +11,13 @@ type Props = {
 
 const TRANSITIONS: Record<Task['state'], Array<{ label: string; state: Task['state']; color: string }>> = {
   todo: [
-    { label: 'Start', state: 'doing', color: 'bg-blue-600 hover:bg-blue-700' },
-    { label: 'Cancel', state: 'cancelled', color: 'bg-zinc-700 hover:bg-zinc-600' },
+    { label: 'Start', state: 'doing', color: 'bg-blue-600 hover:bg-blue-700 text-white' },
+    { label: 'Cancel', state: 'cancelled', color: 'bg-gray-100 hover:bg-gray-200 text-gray-700' },
   ],
   doing: [
-    { label: 'Mark done', state: 'done', color: 'bg-green-700 hover:bg-green-600' },
-    { label: 'Back to todo', state: 'todo', color: 'bg-zinc-700 hover:bg-zinc-600' },
-    { label: 'Cancel', state: 'cancelled', color: 'bg-zinc-700 hover:bg-zinc-600' },
+    { label: 'Mark done', state: 'done', color: 'bg-green-600 hover:bg-green-700 text-white' },
+    { label: 'Back to todo', state: 'todo', color: 'bg-gray-100 hover:bg-gray-200 text-gray-700' },
+    { label: 'Cancel', state: 'cancelled', color: 'bg-gray-100 hover:bg-gray-200 text-gray-700' },
   ],
   done: [],
   cancelled: [],
@@ -42,7 +42,7 @@ export function TaskStateButtons({ taskId, currentState }: Props) {
           key={a.state}
           onClick={() => transition(a.state)}
           disabled={isPending}
-          className={`text-sm text-white px-4 py-2 rounded-lg disabled:opacity-50 ${a.color}`}
+          className={`text-sm px-4 py-2 rounded-lg disabled:opacity-50 min-h-[44px] ${a.color}`}
         >
           {a.label}
         </button>

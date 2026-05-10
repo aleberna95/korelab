@@ -10,10 +10,10 @@ import { TaskNoteForm } from './TaskNoteForm'
 import type { Task } from '@/lib/domain/types'
 
 const STATE_STYLES: Record<Task['state'], string> = {
-  todo: 'bg-zinc-700 text-zinc-300',
-  doing: 'bg-blue-900 text-blue-300',
-  done: 'bg-green-900 text-green-300',
-  cancelled: 'bg-zinc-800 text-zinc-500',
+  todo: 'bg-gray-100 text-gray-700',
+  doing: 'bg-blue-100 text-blue-800',
+  done: 'bg-green-100 text-green-800',
+  cancelled: 'bg-gray-100 text-gray-400',
 }
 
 function fmt(ts: { toDate(): Date } | undefined) {
@@ -37,13 +37,13 @@ export default async function TaskDetailPage({ params }: Props) {
   ])
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-8">
       <div>
-        <Link href="/admin/tasks" className="text-sm text-zinc-500 hover:text-zinc-300">
+        <Link href="/admin/tasks" className="text-sm text-gray-500 hover:text-gray-700">
           ← Tasks
         </Link>
         <div className="mt-3 flex items-start gap-3">
-          <h1 className="text-2xl font-bold flex-1">{task.title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex-1">{task.title}</h1>
           <span className={`text-xs px-2.5 py-1 rounded-full mt-1 ${STATE_STYLES[task.state]}`}>
             {task.state}
           </span>
@@ -52,35 +52,35 @@ export default async function TaskDetailPage({ params }: Props) {
 
       {/* Description */}
       {task.description && (
-        <p className="text-zinc-300 text-sm">{task.description}</p>
+        <p className="text-gray-600 text-sm">{task.description}</p>
       )}
 
       {/* Meta */}
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         {service && (
           <div>
-            <p className="text-xs text-zinc-500 mb-0.5">Service</p>
-            <Link href={`/admin/services/${service.id}`} className="text-blue-400 hover:underline">
+            <p className="text-xs text-gray-500 mb-0.5">Service</p>
+            <Link href={`/admin/services/${service.id}`} className="text-blue-600 hover:underline">
               {service.name}
             </Link>
           </div>
         )}
         {incident && (
           <div>
-            <p className="text-xs text-zinc-500 mb-0.5">Incident</p>
-            <Link href={`/admin/incidents/${incident.id}`} className="text-blue-400 hover:underline">
+            <p className="text-xs text-gray-500 mb-0.5">Incident</p>
+            <Link href={`/admin/incidents/${incident.id}`} className="text-blue-600 hover:underline">
               {incident.title}
             </Link>
           </div>
         )}
         {runbook && (
           <div>
-            <p className="text-xs text-zinc-500 mb-0.5">Runbook</p>
-            <Link href={`/admin/runbooks/${runbook.id}`} className="text-blue-400 hover:underline">
+            <p className="text-xs text-gray-500 mb-0.5">Runbook</p>
+            <Link href={`/admin/runbooks/${runbook.id}`} className="text-blue-600 hover:underline">
               {runbook.title}
             </Link>
             {task.runbookStepIndex !== undefined && (
-              <span className="text-zinc-500 text-xs ml-2">
+              <span className="text-gray-400 text-xs ml-2">
                 step {task.runbookStepIndex + 1}
               </span>
             )}
@@ -88,33 +88,33 @@ export default async function TaskDetailPage({ params }: Props) {
         )}
         {task.dueAt && (
           <div>
-            <p className="text-xs text-zinc-500 mb-0.5">Due</p>
-            <p>{fmt(task.dueAt as unknown as { toDate(): Date })}</p>
+            <p className="text-xs text-gray-500 mb-0.5">Due</p>
+            <p className="text-gray-900">{fmt(task.dueAt as unknown as { toDate(): Date })}</p>
           </div>
         )}
         <div>
-          <p className="text-xs text-zinc-500 mb-0.5">Created</p>
-          <p className="text-zinc-400">{fmt(task.createdAt as unknown as { toDate(): Date })}</p>
+          <p className="text-xs text-gray-500 mb-0.5">Created</p>
+          <p className="text-gray-600">{fmt(task.createdAt as unknown as { toDate(): Date })}</p>
         </div>
         {task.completedAt && (
           <div>
-            <p className="text-xs text-zinc-500 mb-0.5">Completed</p>
-            <p className="text-zinc-400">{fmt(task.completedAt as unknown as { toDate(): Date })}</p>
+            <p className="text-xs text-gray-500 mb-0.5">Completed</p>
+            <p className="text-gray-600">{fmt(task.completedAt as unknown as { toDate(): Date })}</p>
           </div>
         )}
       </div>
 
       {/* State transitions */}
       {task.state !== 'done' && task.state !== 'cancelled' && (
-        <section className="space-y-3 border-t border-zinc-700 pt-6">
-          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Actions</h2>
+        <section className="space-y-3 border-t border-gray-200 pt-6">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Actions</h2>
           <TaskStateButtons taskId={task.id} currentState={task.state} />
         </section>
       )}
 
       {/* Notes */}
-      <section className="space-y-3 border-t border-zinc-700 pt-6">
-        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Notes</h2>
+      <section className="space-y-3 border-t border-gray-200 pt-6">
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Notes</h2>
         <TaskNoteForm taskId={task.id} currentNotes={task.notes} />
       </section>
     </div>
