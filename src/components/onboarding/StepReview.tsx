@@ -22,7 +22,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-function Badge({ text, color = 'gray' | 'blue' | 'green' | 'amber'}: { text: string; color?: 'gray' | 'blue' | 'green' | 'amber'|'gray' | 'blue' | 'green' | 'amber'|'gray' | 'blue' | 'green' | 'amber'|'gray' | 'blue' | 'green' | 'amber' }) {
+function Badge({ text, color = 'gray' }: { text: string; color?: 'gray' | 'blue' | 'green' | 'amber' }) {
   const cls = {
     gray: 'bg-gray-100 text-gray-700',
     blue: 'bg-blue-100 text-blue-800',
