@@ -37,12 +37,12 @@ export function StepServiceBasics() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Service basics</h2>
-        <p className="text-sm text-zinc-400 mt-1">Define what this service is and where it lives.</p>
+        <h2 className="text-xl font-bold text-white">Dati servizio</h2>
+        <p className="text-sm text-zinc-400 mt-1">Definisci cos'è questo servizio e dove si trova.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Service name *">
+        <Field label="Nome servizio *">
           <input
             value={s.name}
             onChange={(e) => patch({ name: e.target.value })}
@@ -51,7 +51,7 @@ export function StepServiceBasics() {
           />
         </Field>
 
-        <Field label="Type *">
+        <Field label="Tipo *">
           <select
             value={s.type}
             onChange={(e) => patch({ type: e.target.value })}
@@ -64,7 +64,7 @@ export function StepServiceBasics() {
           </select>
         </Field>
 
-        <Field label="Environment *">
+        <Field label="Ambiente *">
           <select
             value={s.environment}
             onChange={(e) => patch({ environment: e.target.value })}
@@ -76,7 +76,7 @@ export function StepServiceBasics() {
           </select>
         </Field>
 
-        <Field label="Criticality *">
+        <Field label="Criticità *">
           <select
             value={s.criticality}
             onChange={(e) => patch({ criticality: e.target.value })}
@@ -89,17 +89,17 @@ export function StepServiceBasics() {
         </Field>
       </div>
 
-      <Field label="Description">
+      <Field label="Descrizione">
         <textarea
           value={s.description}
           onChange={(e) => patch({ description: e.target.value })}
           rows={2}
-          placeholder="Brief description of what this service does…"
+          placeholder="Breve descrizione di cosa fa questo servizio…"
           className={INPUT}
         />
       </Field>
 
-      <Field label="Tags (comma-separated)">
+      <Field label="Tag (separati da virgola)">
         <input
           value={s.tags}
           onChange={(e) => patch({ tags: e.target.value })}
@@ -131,7 +131,7 @@ export function StepServiceBasics() {
               type="url"
             />
           </Field>
-          <Field label="Healthcheck URL" hint="Used for internal HTTP checks">
+          <Field label="Healthcheck URL" hint="Usato per controlli HTTP interni">
             <input
               value={s.healthcheckUrl}
               onChange={(e) => patch({ healthcheckUrl: e.target.value })}

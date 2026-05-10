@@ -5,12 +5,12 @@ type Props = {
 }
 
 const STATE_INFO: Record<string, { label: string; color: string; dot: string }> = {
-  operational: { label: 'All systems operational', color: 'text-green-400', dot: 'bg-green-400' },
-  degraded: { label: 'Degraded performance', color: 'text-amber-400', dot: 'bg-amber-400' },
-  'partial-outage': { label: 'Partial outage', color: 'text-orange-400', dot: 'bg-orange-400' },
-  'major-outage': { label: 'Major outage', color: 'text-red-400', dot: 'bg-red-400' },
-  maintenance: { label: 'Under maintenance', color: 'text-blue-400', dot: 'bg-blue-400' },
-  unknown: { label: 'Status unknown', color: 'text-zinc-400', dot: 'bg-zinc-500' },
+  operational: { label: 'Tutti i sistemi operativi', color: 'text-green-400', dot: 'bg-green-400' },
+  degraded: { label: 'Prestazioni degradate', color: 'text-amber-400', dot: 'bg-amber-400' },
+  'partial-outage': { label: 'Interruzione parziale', color: 'text-orange-400', dot: 'bg-orange-400' },
+  'major-outage': { label: 'Interruzione grave', color: 'text-red-400', dot: 'bg-red-400' },
+  maintenance: { label: 'In manutenzione', color: 'text-blue-400', dot: 'bg-blue-400' },
+  unknown: { label: 'Stato sconosciuto', color: 'text-zinc-400', dot: 'bg-zinc-500' },
 }
 
 export function StatusHeader({ name, state, description }: Props) {

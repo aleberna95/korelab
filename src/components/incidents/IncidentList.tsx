@@ -22,7 +22,7 @@ type Props = {
   emptyMessage?: string
 }
 
-export function IncidentList({ incidents, emptyMessage = 'No incidents found.' }: Props) {
+export function IncidentList({ incidents, emptyMessage = 'Nessun incidente trovato.' }: Props) {
   if (incidents.length === 0) {
     return <p className="text-sm text-gray-500 py-6 text-center">{emptyMessage}</p>
   }
@@ -47,7 +47,7 @@ export function IncidentList({ incidents, emptyMessage = 'No incidents found.' }
             <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">
               {inc.title}
             </p>
-            <p className="text-xs text-gray-500 truncate">Service: {inc.serviceId}</p>
+            <p className="text-xs text-gray-500 truncate">Servizio: {inc.serviceId}</p>
           </div>
 
           {/* Severity */}

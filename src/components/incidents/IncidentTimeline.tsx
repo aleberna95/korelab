@@ -16,7 +16,7 @@ type Props = {
 
 export function IncidentTimeline({ timeline }: Props) {
   if (timeline.length === 0) {
-    return <p className="text-sm text-gray-400">No timeline events.</p>
+    return <p className="text-sm text-gray-400">Nessun evento nella cronologia.</p>
   }
 
   return (

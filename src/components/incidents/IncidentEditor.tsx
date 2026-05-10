@@ -74,7 +74,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
       {/* Row 1: state + severity */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">State</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Stato</label>
           <select
             value={state}
             onChange={(e) => setState(e.target.value as IncidentState)}
@@ -88,7 +88,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Severity</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Gravità</label>
           <select
             value={severity}
             onChange={(e) => setSeverity(e.target.value as IncidentSeverity)}
@@ -105,7 +105,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
 
       {/* Title */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Title</label>
+        <label className="block text-xs font-medium text-gray-700 mb-1">Titolo</label>
         <input
           type="text"
           value={title}
@@ -117,7 +117,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
       {/* Public message */}
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">
-          Public message <span className="font-normal text-gray-400">(visible on status page)</span>
+          Messaggio pubblico <span className="font-normal text-gray-400">(visibile sulla pagina di stato)</span>
         </label>
         <textarea
           value={publicMessage}
@@ -129,7 +129,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
 
       {/* Private message */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">Private notes</label>
+        <label className="block text-xs font-medium text-gray-700 mb-1">Note private</label>
         <textarea
           value={privateMessage}
           onChange={(e) => setPrivateMessage(e.target.value)}
@@ -141,7 +141,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
       {/* Root cause + resolution */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Root cause</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Causa radice</label>
           <textarea
             value={rootCause}
             onChange={(e) => setRootCause(e.target.value)}
@@ -150,7 +150,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Resolution</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Risoluzione</label>
           <textarea
             value={resolution}
             onChange={(e) => setResolution(e.target.value)}
@@ -163,15 +163,15 @@ export function IncidentEditor({ incident, onSaved }: Props) {
       {/* Visibility + notified client */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Visibility</label>
+          <label className="block text-xs font-medium text-gray-700 mb-1">Visibilità</label>
           <select
             value={visibility}
             onChange={(e) => setVisibility(e.target.value as Incident['visibility'])}
             className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
-            <option value="private">Private</option>
-            <option value="tokenized">Tokenized</option>
-            <option value="public">Public</option>
+            <option value="private">Privato</option>
+            <option value="tokenized">Tokenizzato</option>
+            <option value="public">Pubblico</option>
           </select>
         </div>
         <div className="flex items-end pb-1">
@@ -182,7 +182,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
               onChange={(e) => setNotifiedClient(e.target.checked)}
               className="rounded border-gray-300"
             />
-            <span className="text-sm text-gray-700">Notify client</span>
+            <span className="text-sm text-gray-700">Notifica cliente</span>
           </label>
         </div>
       </div>
@@ -190,13 +190,13 @@ export function IncidentEditor({ incident, onSaved }: Props) {
       {/* Comment */}
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">
-          Add timeline comment
+          Aggiungi commento alla cronologia
         </label>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={2}
-          placeholder="Optional comment for the timeline…"
+          placeholder="Commento opzionale per la cronologia…"
           className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
         />
       </div>
@@ -211,7 +211,7 @@ export function IncidentEditor({ incident, onSaved }: Props) {
           disabled={saving}
           className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {saving ? 'Saving…' : 'Save changes'}
+          {saving ? 'Salvataggio…' : 'Salva modifiche'}
         </button>
 
         {/* Quick actions */}
@@ -219,24 +219,24 @@ export function IncidentEditor({ incident, onSaved }: Props) {
           <button
             onClick={() => {
               setState('false-positive')
-              setComment('Marked as false positive')
+              setComment('Marcato come falso positivo')
             }}
             disabled={saving}
             className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
-            Mark false positive
+            Segna come falso positivo
           </button>
         )}
         {canTransition(incident.state, 'resolved') && incident.state !== 'resolved' && (
           <button
             onClick={() => {
               setState('resolved')
-              setComment('Manually closed by admin')
+              setComment('Chiuso manualmente dall\'admin')
             }}
             disabled={saving}
             className="px-3 py-2 text-sm text-gray-600 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
           >
-            Close incident
+            Chiudi incidente
           </button>
         )}
       </div>

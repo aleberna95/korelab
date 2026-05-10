@@ -46,77 +46,77 @@ export function StepReview() {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-white">Review & confirm</h2>
+        <h2 className="text-xl font-bold text-white">Riepilogo e conferma</h2>
         <p className="text-sm text-zinc-400 mt-1">
-          Review what will be written to the database. This is irreversible — you can edit records afterwards from their detail pages.
+          Controlla cosa verrà scritto nel database. L'operazione è irreversibile — puoi modificare i record in seguito dalle pagine di dettaglio.
         </p>
       </div>
 
       {/* Client */}
-      <Section title="Client">
+      <Section title="Cliente">
         {state.clientMode === 'existing' ? (
-          <Row label="Mode" value={<><Badge text="existing" /> {state.existingClientId}</>} />
+          <Row label="Modalità" value={<><Badge text="esistente" /> {state.existingClientId}</>} />
         ) : (
           <>
-            <Row label="Mode" value={<Badge text="new" color="green" />} />
-            <Row label="Name" value={state.client.name} />
-            <Row label="Business type" value={state.client.businessType} />
-            <Row label="Support plan" value={<Badge text={state.client.supportPlan} color="indigo" />} />
+            <Row label="Modalità" value={<Badge text="nuovo" color="green" />} />
+            <Row label="Nome" value={state.client.name} />
+            <Row label="Tipo azienda" value={state.client.businessType} />
+            <Row label="Piano supporto" value={<Badge text={state.client.supportPlan} color="indigo" />} />
             <Row
-              label="Contacts"
+              label="Contatti"
               value={state.client.contacts.map((c) => `${c.name} <${c.email}>`).join(', ')}
             />
-            <Row label="Consent" value={[
-              state.client.consentMonitoring && 'monitoring',
-              state.client.consentNotification && 'notification',
-              state.client.consentIntervention && 'intervention',
+            <Row label="Consenso" value={[
+              state.client.consentMonitoring && 'monitoraggio',
+              state.client.consentNotification && 'notifiche',
+              state.client.consentIntervention && 'intervento',
               state.client.consentAutoHealing && 'auto-healing',
-            ].filter(Boolean).join(', ') || 'none'} />
+            ].filter(Boolean).join(', ') || 'nessuno'} />
             {state.client.tags && <Row label="Tags" value={state.client.tags} />}
           </>
         )}
       </Section>
 
       {/* Service */}
-      <Section title="Service">
-        <Row label="Name" value={state.service.name} />
-        <Row label="Type" value={state.service.type} />
-        <Row label="Environment" value={state.service.environment} />
-        <Row label="Criticality" value={<Badge text={state.service.criticality} color={state.service.criticality === 'critical' ? 'amber' : 'zinc'} />} />
+      <Section title="Servizio">
+        <Row label="Nome" value={state.service.name} />
+        <Row label="Tipo" value={state.service.type} />
+        <Row label="Ambiente" value={state.service.environment} />
+        <Row label="Criticità" value={<Badge text={state.service.criticality} color={state.service.criticality === 'critical' ? 'amber' : 'zinc'} />} />
         {state.service.primaryUrl && <Row label="Primary URL" value={state.service.primaryUrl} />}
         {state.service.healthcheckUrl && <Row label="Healthcheck URL" value={state.service.healthcheckUrl} />}
         {state.service.tags && <Row label="Tags" value={state.service.tags} />}
-        <Row label="Status page" value={state.visibility.statusPage} />
-        <Row label="Report sharing" value={state.visibility.reportSharing} />
-        <Row label="Automation" value={<><Badge text="disabled" color="zinc" /> (forced in MVP)</>} />
+        <Row label="Pagina stato" value={state.visibility.statusPage} />
+        <Row label="Condivisione report" value={state.visibility.reportSharing} />
+        <Row label="Automazione" value={<><Badge text="disabilitata" color="zinc" /> (forzata in MVP)</>} />
       </Section>
 
       {/* Monitor */}
       {showMonitoring && (
         <Section title="Monitor">
-          <Row label="Source" value={state.monitor.source} />
-          <Row label="Interval" value={`${state.monitor.intervalSec}s`} />
-          <Row label="Expect status" value={String(state.monitor.expectStatus)} />
-          {state.monitor.expectBody && <Row label="Expect body" value={state.monitor.expectBody} />}
-          <Row label="Alert channels" value={[
+          <Row label="Sorgente" value={state.monitor.source} />
+          <Row label="Intervallo" value={`${state.monitor.intervalSec}s`} />
+          <Row label="Stato atteso" value={String(state.monitor.expectStatus)} />
+          {state.monitor.expectBody && <Row label="Corpo atteso" value={state.monitor.expectBody} />}
+          <Row label="Canali allerta" value={[
             state.monitor.telegram && 'Telegram',
             state.monitor.email && 'Email',
-            state.monitor.clientNotify && 'Client notify',
-          ].filter(Boolean).join(', ') || 'none'} />
+            state.monitor.clientNotify && 'Notifica cliente',
+          ].filter(Boolean).join(', ') || 'nessuno'} />
         </Section>
       )}
 
       {/* Access */}
       {showAccess && (
         <Section title="Access">
-          <Row label="Level" value={state.access.level} />
+          <Row label="Livello" value={state.access.level} />
           {state.access.providers && <Row label="Providers" value={state.access.providers} />}
           {state.access.secretManagerRefs.trim() && (
             <Row
-              label="Secret refs"
+              label="Riferimenti secret"
               value={
                 <span className="font-mono text-xs">
-                  {state.access.secretManagerRefs.split('\n').filter(Boolean).length} reference(s)
+                  {state.access.secretManagerRefs.split('\n').filter(Boolean).length} riferimento/i
                 </span>
               }
             />
@@ -126,7 +126,7 @@ export function StepReview() {
 
       {/* Resources */}
       {state.resources.length > 0 && (
-        <Section title="Resources">
+        <Section title="Risorse">
           {state.resources.map((r, i) => (
             <Row key={i} label={r.kind} value={r.name} />
           ))}
@@ -135,25 +135,25 @@ export function StepReview() {
 
       {/* Runbook */}
       <Section title="Runbook">
-        {state.runbookMode === 'none' && <Row label="Mode" value="Skip — no runbook" />}
+        {state.runbookMode === 'none' && <Row label="Modalità" value="Salta — nessun runbook" />}
         {state.runbookMode === 'existing' && (
           <>
-            <Row label="Mode" value={<Badge text="existing" />} />
+            <Row label="Modalità" value={<Badge text="esistente" />} />
             <Row label="ID" value={state.existingRunbookId} />
           </>
         )}
         {state.runbookMode === 'new' && (
           <>
-            <Row label="Mode" value={<Badge text="new" color="green" />} />
-            <Row label="Title" value={state.runbook.title} />
-            <Row label="Recovery steps" value={String(state.runbook.recoverySteps.length)} />
-            <Row label="Common failures" value={String(state.runbook.commonFailures.length)} />
+            <Row label="Modalità" value={<Badge text="nuovo" color="green" />} />
+            <Row label="Titolo" value={state.runbook.title} />
+            <Row label="Passi di ripristino" value={String(state.runbook.recoverySteps.length)} />
+            <Row label="Problemi comuni" value={String(state.runbook.commonFailures.length)} />
           </>
         )}
       </Section>
 
       <div className="bg-indigo-900/20 border border-indigo-700/40 rounded-lg px-4 py-3 text-sm text-indigo-300">
-        Clicking <strong>Confirm & Create</strong> will atomically write all the above documents in a single Firestore transaction. Partial failures will roll back everything.
+        Cliccando <strong>Conferma e crea</strong> verranno scritti atomicamente tutti i documenti sopra in un'unica transazione Firestore. I fallimenti parziali annulleranno tutto.
       </div>
     </div>
   )

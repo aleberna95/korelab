@@ -1,7 +1,7 @@
 import type { PublicMaintenance } from '@/lib/status/projector'
 
 function fmt(d: Date): string {
-  return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(d)
+  return new Intl.DateTimeFormat('it-IT', { dateStyle: 'medium', timeStyle: 'short' }).format(d)
 }
 
 type Props = {
@@ -33,12 +33,12 @@ export function MaintenanceList({ windows }: Props) {
               <span className="text-sm font-semibold text-blue-300">{mw.title}</span>
               {isActive && (
                 <span className="text-xs bg-blue-800 text-blue-200 px-1.5 py-0.5 rounded-full">
-                  Active
+                  Attiva
                 </span>
               )}
               {isUpcoming && (
                 <span className="text-xs bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded-full">
-                  Scheduled
+                  Pianificata
                 </span>
               )}
             </div>

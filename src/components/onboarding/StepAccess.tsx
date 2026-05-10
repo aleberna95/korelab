@@ -18,9 +18,9 @@ function Field({ label, children, hint }: { label: string; children: React.React
 }
 
 const ACCESS_LEVELS = [
-  { value: 'none', label: 'None — no access' },
-  { value: 'read-only', label: 'Read-only' },
-  { value: 'operational', label: 'Operational' },
+  { value: 'none', label: 'Nessuno — nessun accesso' },
+  { value: 'read-only', label: 'Solo lettura' },
+  { value: 'operational', label: 'Operativo' },
   { value: 'admin', label: 'Admin' },
 ]
 
@@ -44,13 +44,13 @@ export function StepAccess() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Access</h2>
+        <h2 className="text-xl font-bold text-white">Accesso</h2>
         <p className="text-sm text-zinc-400 mt-1">
-          How much access do you have to this service? Link credentials by Secret Manager reference — never paste actual values here.
+          Quant'accesso hai a questo servizio? Collega le credenziali tramite riferimento Secret Manager — non incollare mai i valori reali qui.
         </p>
       </div>
 
-      <Field label="Access level">
+      <Field label="Livello di accesso">
         <select
           value={a.level}
           onChange={(e) => patch({ level: e.target.value })}
@@ -62,7 +62,7 @@ export function StepAccess() {
         </select>
       </Field>
 
-      <Field label="Providers / tools (comma-separated)" hint="e.g. Cloudflare, cPanel, GitHub, Vercel">
+      <Field label="Provider / strumenti (separati da virgola)" hint="es. Cloudflare, cPanel, GitHub, Vercel">
         <input
           value={a.providers}
           onChange={(e) => patch({ providers: e.target.value })}
@@ -72,8 +72,8 @@ export function StepAccess() {
       </Field>
 
       <Field
-        label="Secret Manager references (one per line)"
-        hint="Format: projects/{project}/secrets/{name}/versions/{version}"
+        label="Riferimenti Secret Manager (uno per riga)"
+        hint="Formato: projects/{project}/secrets/{name}/versions/{version}"
       >
         <textarea
           value={a.secretManagerRefs}
@@ -85,17 +85,17 @@ export function StepAccess() {
         />
         {invalidRefs.length > 0 && (
           <p className="text-xs text-amber-400 mt-1">
-            {invalidRefs.length} invalid reference(s) — check format.
+            {invalidRefs.length} riferimento/i non valido/i — controlla il formato.
           </p>
         )}
       </Field>
 
-      <Field label="Access notes">
+      <Field label="Note di accesso">
         <textarea
           value={a.notes}
           onChange={(e) => patch({ notes: e.target.value })}
           rows={2}
-          placeholder="e.g. SSH key only on the ops machine; contact CTO for admin panel"
+          placeholder="es. Chiave SSH solo sulla macchina ops; contattare il CTO per il pannello admin"
           className={INPUT}
         />
       </Field>

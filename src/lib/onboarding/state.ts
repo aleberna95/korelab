@@ -21,15 +21,15 @@ export type StepId =
   | 'review'
 
 export const STEP_LABELS: Record<StepId, string> = {
-  client: 'Client',
-  service: 'Service',
-  monitoring: 'Monitoring',
-  access: 'Access',
-  resources: 'Resources',
-  visibility: 'Visibility',
-  automation: 'Automation',
+  client: 'Cliente',
+  service: 'Servizio',
+  monitoring: 'Monitoraggio',
+  access: 'Accesso',
+  resources: 'Risorse',
+  visibility: 'Visibilità',
+  automation: 'Automazione',
   runbook: 'Runbook',
-  review: 'Review & Confirm',
+  review: 'Riepilogo e conferma',
 }
 
 // ─── State shape ───────────────────────────────────────────────────────────

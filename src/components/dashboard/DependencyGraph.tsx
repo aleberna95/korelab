@@ -66,7 +66,7 @@ export function DependencyGraph({ service, outbound, inbound, nodeLabels }: Prop
 
   if (dedupedNodes.length === 0) {
     return (
-      <p className="text-sm text-gray-400 text-center py-6">No dependencies mapped.</p>
+      <p className="text-sm text-gray-400 text-center py-6">Nessuna dipendenza mappata.</p>
     )
   }
 
@@ -74,7 +74,7 @@ export function DependencyGraph({ service, outbound, inbound, nodeLabels }: Prop
     <svg
       viewBox={`0 0 ${SVG_W} ${SVG_H}`}
       className="w-full max-h-72 border border-gray-100 rounded-lg bg-gray-50"
-      aria-label="Dependency graph"
+      aria-label="Grafo delle dipendenze"
     >
       <defs>
         <marker
@@ -157,7 +157,7 @@ export function DependencyGraph({ service, outbound, inbound, nodeLabels }: Prop
             fill="#6b7280"
             className="pointer-events-none select-none"
           >
-            {n.dir === 'out' ? '→ uses' : '← used by'}
+            {n.dir === 'out' ? '→ usa' : '← usato da'}
           </text>
         </g>
       ))}

@@ -60,7 +60,7 @@ export function LoginForm() {
         setMfaResolver(resolver)
         setStep('totp')
       } else {
-        setError('Invalid email or password.')
+        setError('Email o password non validi.')
       }
     } finally {
       setLoading(false)
@@ -84,7 +84,7 @@ export function LoginForm() {
       router.push('/admin')
       router.refresh()
     } catch {
-      setError('Invalid verification code. Please try again.')
+      setError('Codice di verifica non valido. Riprova.')
     } finally {
       setLoading(false)
     }
@@ -94,7 +94,7 @@ export function LoginForm() {
     <div className="w-full max-w-sm space-y-6">
       <div className="text-center">
         <h1 className="text-2xl font-bold text-white">Command Center</h1>
-        <p className="mt-1 text-sm text-zinc-400">Alessio Bernardini — Admin Access</p>
+        <p className="mt-1 text-sm text-zinc-400">Alessio Bernardini — Accesso Admin</p>
       </div>
 
       {step === 'credentials' && (
@@ -133,7 +133,7 @@ export function LoginForm() {
             disabled={loading}
             className="w-full py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm transition-colors"
           >
-            {loading ? 'Signing in…' : 'Sign in'}
+            {loading ? 'Accesso in corso…' : 'Accedi'}
           </button>
         </form>
       )}
@@ -141,11 +141,11 @@ export function LoginForm() {
       {step === 'totp' && (
         <form onSubmit={handleTotpSubmit} className="space-y-4">
           <p className="text-sm text-zinc-300">
-            Enter the 6-digit code from your authenticator app.
+            Inserisci il codice a 6 cifre dalla tua app di autenticazione.
           </p>
           <div>
             <label htmlFor="totp" className="block text-sm font-medium text-zinc-300 mb-1">
-              Verification code
+              Codice di verifica
             </label>
             <input
               id="totp"
@@ -167,14 +167,14 @@ export function LoginForm() {
             disabled={loading}
             className="w-full py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm transition-colors"
           >
-            {loading ? 'Verifying…' : 'Verify'}
+            {loading ? 'Verifica in corso…' : 'Verifica'}
           </button>
           <button
             type="button"
             onClick={() => { setStep('credentials'); setError(null) }}
             className="w-full text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
           >
-            ← Back
+            ← Indietro
           </button>
         </form>
       )}

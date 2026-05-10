@@ -8,7 +8,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 
 function fmt(d: Date | undefined): string {
   if (!d) return '—'
-  return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(d)
+  return new Intl.DateTimeFormat('it-IT', { dateStyle: 'medium', timeStyle: 'short' }).format(d)
 }
 
 function fmtDuration(sec: number | undefined): string | null {
@@ -25,7 +25,7 @@ type Props = {
 
 export function IncidentList({ active, recent }: Props) {
   if (!active && recent.length === 0) {
-    return <p className="text-sm text-zinc-400">No incidents in this period.</p>
+    return <p className="text-sm text-zinc-400">Nessun incidente in questo periodo.</p>
   }
 
   return (
@@ -42,7 +42,7 @@ export function IncidentList({ active, recent }: Props) {
           {active.publicMessage && (
             <p className="text-sm text-zinc-300">{active.publicMessage}</p>
           )}
-          <p className="text-xs text-zinc-500">Since {fmt(active.startedAt)}</p>
+          <p className="text-xs text-zinc-500">Dal {fmt(active.startedAt)}</p>
         </div>
       )}
 
@@ -63,7 +63,7 @@ export function IncidentList({ active, recent }: Props) {
                 <span>{fmt(inc.startedAt)}</span>
                 {inc.resolvedAt && <span>→ {fmt(inc.resolvedAt)}</span>}
                 {fmtDuration(inc.downtimeSec) && (
-                  <span className="text-zinc-600">Downtime: {fmtDuration(inc.downtimeSec)}</span>
+                  <span className="text-zinc-600">Inattività: {fmtDuration(inc.downtimeSec)}</span>
                 )}
               </div>
             </div>

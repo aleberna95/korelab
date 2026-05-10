@@ -5,7 +5,7 @@ import { getOverviewStats } from '@/lib/dashboard/queries'
 import { KpiCard } from '@/components/dashboard/KpiCard'
 import { IncidentList } from '@/components/incidents/IncidentList'
 
-export const metadata: Metadata = { title: 'Overview — Command Center' }
+export const metadata: Metadata = { title: 'Panoramica — Command Center' }
 
 export default async function AdminOverviewPage() {
   await requireAdmin()
@@ -21,26 +21,26 @@ export default async function AdminOverviewPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       <header>
-        <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
-        <p className="text-sm text-gray-500 mt-1">Command Center — at-a-glance health.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Panoramica</h1>
+        <p className="text-sm text-gray-500 mt-1">Command Center — stato generale a colpo d'occhio.</p>
       </header>
 
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <KpiCard label="Total services" value={total} accent="blue" />
+        <KpiCard label="Servizi totali" value={total} accent="blue" />
         <KpiCard
-          label="Operational"
+          label="Operativi"
           value={byState['operational'] ?? 0}
           accent="green"
           sub={`${total > 0 ? Math.round(((byState['operational'] ?? 0) / total) * 100) : 0}%`}
         />
         <KpiCard
-          label="Unhealthy"
+          label="Non operativi"
           value={unhealthy}
           accent={unhealthy > 0 ? 'red' : 'green'}
         />
         <KpiCard
-          label="Active incidents"
+          label="Incidenti attivi"
           value={activeIncidents.length}
           accent={activeIncidents.length > 0 ? 'red' : 'green'}
         />
@@ -50,16 +50,16 @@ export default async function AdminOverviewPage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Active Incidents
+            Incidenti Attivi
           </h2>
           <Link href="/admin/incidents" className="text-xs text-blue-600 hover:underline">
-            View all →
+            Vedi tutti →
           </Link>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 px-4">
           <IncidentList
             incidents={activeIncidents}
-            emptyMessage="No active incidents — all systems operational."
+            emptyMessage="Nessun incidente attivo — tutti i sistemi operativi."
           />
         </div>
       </section>
@@ -68,7 +68,7 @@ export default async function AdminOverviewPage() {
       {withoutMonitor.length > 0 && (
         <section>
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Services without monitor ({withoutMonitor.length})
+            Servizi senza monitor ({withoutMonitor.length})
           </h2>
           <div className="bg-white rounded-lg border border-amber-200 px-4 divide-y divide-gray-50">
             {withoutMonitor.slice(0, 10).map((svc) => (
@@ -89,15 +89,15 @@ export default async function AdminOverviewPage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Recent Activity
+            Attività Recente
           </h2>
           <Link href="/admin/audit" className="text-xs text-blue-600 hover:underline">
-            View all →
+            Vedi tutti →
           </Link>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-50">
           {recentAudit.length === 0 && (
-            <p className="px-4 py-6 text-sm text-gray-400 text-center">No audit events yet.</p>
+            <p className="px-4 py-6 text-sm text-gray-400 text-center">Nessun evento di audit.</p>
           )}
           {recentAudit.map((entry) => (
             <div key={entry.id} className="px-4 py-2.5 flex items-center gap-4">

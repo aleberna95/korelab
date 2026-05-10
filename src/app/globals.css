@@ -1,12 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #ffffff;
+  --foreground: #111827;       /* gray-900 */
+  --muted: #f9fafb;            /* gray-50 */
+  --muted-foreground: #6b7280; /* gray-500 */
+  --border: #e5e7eb;           /* gray-200 */
+  --ring: #3b82f6;             /* blue-500 */
+  --accent: #3b82f6;           /* blue-500 */
+  --accent-hover: #2563eb;     /* blue-600 */
+  --destructive: #ef4444;      /* red-500 */
+  --success: #22c55e;          /* green-500 */
+  --warning: #f59e0b;          /* amber-500 */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e5e7eb;
+  --sidebar-active: #eff6ff;      /* blue-50 */
+  --sidebar-active-text: #1d4ed8; /* blue-700 */
+  --topbar-bg: #ffffff;
+  --topbar-border: #e5e7eb;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: system-ui, -apple-system, sans-serif;
+}
+
+@layer components {
+  .input-base {
+    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm
+           text-gray-900 placeholder:text-gray-400
+           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  .btn-primary {
+    @apply rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white
+           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium
+           text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+
+  .btn-danger {
+    @apply rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white
+           hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500;
+  }
 }

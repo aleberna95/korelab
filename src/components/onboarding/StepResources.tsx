@@ -42,7 +42,7 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
         onClick={() => setOpen(true)}
         className="text-sm text-indigo-400 hover:text-indigo-300 font-medium"
       >
-        + Add resource
+        + Aggiungi risorsa
       </button>
     )
   }
@@ -50,7 +50,7 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
   return (
     <div className="bg-zinc-900 rounded-md p-3 space-y-3 border border-zinc-700">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Kind *">
+        <Field label="Tipo *">
           <select value={kind} onChange={(e) => setKind(e.target.value)} className={INPUT}>
             <option value="">— select —</option>
             {RESOURCE_KINDS.map((k) => (
@@ -58,7 +58,7 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
             ))}
           </select>
         </Field>
-        <Field label="Name *">
+        <Field label="Nome *">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -67,7 +67,7 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
           />
         </Field>
       </div>
-      <Field label="Metadata (JSON, optional)">
+        <Field label="Metadata (JSON, opzionale)">
         <input
           value={metadata}
           onChange={(e) => setMetadata(e.target.value)}
@@ -81,14 +81,14 @@ function AddResourceForm({ onAdd }: { onAdd: (r: WizardResource) => void }) {
           onClick={submit}
           className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md"
         >
-          Add
+          Aggiungi
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-200"
         >
-          Cancel
+          Annulla
         </button>
       </div>
     </div>
@@ -101,14 +101,14 @@ export function StepResources() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Resources & dependencies</h2>
+        <h2 className="text-xl font-bold text-white">Risorse e dipendenze</h2>
         <p className="text-sm text-zinc-400 mt-1">
-          Optionally link infrastructure resources to this service. You can skip this and add resources later.
+          Collega opzionalmente risorse infrastrutturali a questo servizio. Puoi saltare questo passaggio e aggiungere risorse in seguito.
         </p>
       </div>
 
       {state.resources.length === 0 ? (
-        <p className="text-sm text-zinc-500 italic">No resources added yet.</p>
+        <p className="text-sm text-zinc-500 italic">Nessuna risorsa aggiunta.</p>
       ) : (
         <div className="space-y-2">
           {state.resources.map((r, i) => (
@@ -130,7 +130,7 @@ export function StepResources() {
                 onClick={() => dispatch({ type: 'REMOVE_RESOURCE', index: i })}
                 className="text-zinc-500 hover:text-red-400 text-xs"
               >
-                Remove
+                Rimuovi
               </button>
             </div>
           ))}
@@ -141,7 +141,7 @@ export function StepResources() {
 
       <div className="border-t border-zinc-700 pt-4">
         <p className="text-xs text-zinc-500">
-          Dependency edges (e.g. this service routes-to a database) can be added from the service detail page after onboarding.
+          I bordi di dipendenza (es. questo servizio instrada verso un database) possono essere aggiunti dalla pagina di dettaglio del servizio dopo l'onboarding.
         </p>
       </div>
     </div>

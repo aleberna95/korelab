@@ -48,7 +48,7 @@ export function IncidentDetail({ incident, initialTimeline }: Props) {
           <div>
             <h2 className="text-xl font-semibold text-gray-900">{incident.title}</h2>
             <p className="text-sm text-gray-500 mt-0.5">
-              Service: {incident.serviceId} · Severity:{' '}
+              Servizio: {incident.serviceId} · Gravità:{' '}
               <span className="capitalize font-medium">{incident.severity}</span>
             </p>
           </div>
@@ -56,25 +56,25 @@ export function IncidentDetail({ incident, initialTimeline }: Props) {
 
         {/* Meta grid */}
         <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-          <MetaItem label="Source" value={incident.source} />
-          <MetaItem label="Visibility" value={incident.visibility} />
-          <MetaItem label="Notified client" value={incident.notifiedClient ? 'Yes' : 'No'} />
-          <MetaItem label="Started" value={formatTime(incident.startedAt as unknown as { toDate(): Date })} />
+          <MetaItem label="Sorgente" value={incident.source} />
+          <MetaItem label="Visibilità" value={incident.visibility} />
+          <MetaItem label="Cliente notificato" value={incident.notifiedClient ? 'Sì' : 'No'} />
+          <MetaItem label="Iniziato" value={formatTime(incident.startedAt as unknown as { toDate(): Date })} />
           {incident.resolvedAt && (
             <MetaItem
-              label="Resolved"
+              label="Risolto"
               value={formatTime(incident.resolvedAt as unknown as { toDate(): Date })}
             />
           )}
           {incident.metrics.downtimeSec != null && (
-            <MetaItem label="Downtime" value={formatDuration(incident.metrics.downtimeSec)} />
+            <MetaItem label="Inattività" value={formatDuration(incident.metrics.downtimeSec)} />
           )}
         </dl>
 
         {/* Editor */}
         <section>
           <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-            Edit
+            Modifica
           </h3>
           <IncidentEditor incident={incident} onSaved={refreshTimeline} />
         </section>
@@ -83,7 +83,7 @@ export function IncidentDetail({ incident, initialTimeline }: Props) {
       {/* ── Right: timeline ──────────────────────────────────────────────── */}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-          Timeline
+          Cronologia
         </h3>
         <IncidentTimeline timeline={timeline} />
       </div>

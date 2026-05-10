@@ -39,25 +39,25 @@ function AddFailureForm({ onAdd }: { onAdd: (f: WizardCommonFailure) => void }) 
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">
-        + Add common failure
+        + Aggiungi problema comune
       </button>
     )
   }
 
   return (
     <div className="bg-zinc-900 rounded-md p-3 space-y-2 border border-zinc-700">
-      <Field label="Symptom *">
-        <input value={symptom} onChange={(e) => setSymptom(e.target.value)} placeholder="Site returns 502" className={INPUT} />
+      <Field label="Sintomo *">
+        <input value={symptom} onChange={(e) => setSymptom(e.target.value)} placeholder="Il sito restituisce 502" className={INPUT} />
       </Field>
-      <Field label="Likely cause">
-        <input value={cause} onChange={(e) => setCause(e.target.value)} placeholder="PHP-FPM crashed" className={INPUT} />
+      <Field label="Causa probabile">
+        <input value={cause} onChange={(e) => setCause(e.target.value)} placeholder="PHP-FPM in crash" className={INPUT} />
       </Field>
-      <Field label="Fix *">
-        <input value={fix} onChange={(e) => setFix(e.target.value)} placeholder="Restart PHP-FPM: systemctl restart php-fpm" className={INPUT} />
+      <Field label="Soluzione *">
+        <input value={fix} onChange={(e) => setFix(e.target.value)} placeholder="Riavvia PHP-FPM: systemctl restart php-fpm" className={INPUT} />
       </Field>
       <div className="flex gap-2">
-        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md">Add</button>
-        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200">Cancel</button>
+        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md">Aggiungi</button>
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200">Annulla</button>
       </div>
     </div>
   )
@@ -79,29 +79,29 @@ function AddStepForm({ onAdd }: { onAdd: (s: WizardRecoveryStep) => void }) {
   if (!open) {
     return (
       <button type="button" onClick={() => setOpen(true)} className="text-sm text-indigo-400 hover:text-indigo-300 font-medium">
-        + Add recovery step
+        + Aggiungi passo di ripristino
       </button>
     )
   }
 
   return (
     <div className="bg-zinc-900 rounded-md p-3 space-y-2 border border-zinc-700">
-      <Field label="Step title *">
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Restart Nginx" className={INPUT} />
+      <Field label="Titolo passo *">
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Riavvia Nginx" className={INPUT} />
       </Field>
-      <Field label="Instructions *">
-        <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="SSH in and run: systemctl restart nginx" className={INPUT} />
+      <Field label="Istruzioni *">
+        <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="Accedi via SSH ed esegui: systemctl restart nginx" className={INPUT} />
       </Field>
-      <Field label="Risk level">
+      <Field label="Livello di rischio">
         <select value={risk} onChange={(e) => setRisk(e.target.value as 'low' | 'medium' | 'high')} className={INPUT}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
+          <option value="low">Basso</option>
+          <option value="medium">Medio</option>
+          <option value="high">Alto</option>
         </select>
       </Field>
       <div className="flex gap-2">
-        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md">Add</button>
-        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200">Cancel</button>
+        <button type="button" onClick={submit} className="px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 rounded-md">Aggiungi</button>
+        <button type="button" onClick={() => setOpen(false)} className="px-3 py-1.5 text-sm text-zinc-400 hover:text-zinc-200">Annulla</button>
       </div>
     </div>
   )
@@ -128,7 +128,7 @@ export function StepRunbook({ runbookOptions }: Props) {
       <div>
         <h2 className="text-xl font-bold text-white">Runbook</h2>
         <p className="text-sm text-zinc-400 mt-1">
-          Attach a runbook so you know exactly what to do when this service has an incident.
+          Aggiungi un runbook per sapere esattamente cosa fare quando questo servizio ha un incidente.
         </p>
       </div>
 
@@ -146,14 +146,14 @@ export function StepRunbook({ runbookOptions }: Props) {
                 : 'bg-zinc-900 border-zinc-700 text-zinc-400 hover:text-white',
             ].join(' ')}
           >
-            {mode === 'none' ? 'Skip' : mode === 'existing' ? 'Use existing' : 'Create new'}
+            {mode === 'none' ? 'Salta' : mode === 'existing' ? 'Usa esistente' : 'Crea nuovo'}
           </button>
         ))}
       </div>
 
       {/* Existing runbook picker */}
       {state.runbookMode === 'existing' && (
-        <Field label="Select runbook *">
+        <Field label="Seleziona runbook *">
           <select
             value={state.existingRunbookId}
             onChange={(e) => dispatch({ type: 'SET_EXISTING_RUNBOOK', id: e.target.value })}
@@ -170,7 +170,7 @@ export function StepRunbook({ runbookOptions }: Props) {
       {/* New runbook form */}
       {state.runbookMode === 'new' && (
         <div className="space-y-5">
-          <Field label="Runbook title *">
+          <Field label="Titolo runbook *">
             <input
               value={rb.title}
               onChange={(e) => patchRunbook({ title: e.target.value })}
@@ -179,7 +179,7 @@ export function StepRunbook({ runbookOptions }: Props) {
             />
           </Field>
 
-          <Field label="First checks (one per line)" hint="Quick things to verify before digging deeper">
+          <Field label="Primi controlli (uno per riga)" hint="Cose rapide da verificare prima di approfondire">
             <textarea
               value={rb.firstChecks}
               onChange={(e) => patchRunbook({ firstChecks: e.target.value })}
@@ -189,7 +189,7 @@ export function StepRunbook({ runbookOptions }: Props) {
             />
           </Field>
 
-          <Field label="Contacts (one per line)" hint="Who to call when things go wrong">
+          <Field label="Contatti (uno per riga)" hint="Chi chiamare quando le cose vanno male">
             <textarea
               value={rb.contacts}
               onChange={(e) => patchRunbook({ contacts: e.target.value })}
@@ -202,10 +202,10 @@ export function StepRunbook({ runbookOptions }: Props) {
           {/* Common failures */}
           <div className="space-y-2">
             <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-              Common failures
+              Problemi comuni
             </label>
             {rb.commonFailures.length === 0 ? (
-              <p className="text-xs text-zinc-500 italic">None added yet.</p>
+              <p className="text-xs text-zinc-500 italic">Nessuno aggiunto.</p>
             ) : (
               rb.commonFailures.map((f, i) => (
                 <div key={i} className="bg-zinc-900 rounded-md px-3 py-2 border border-zinc-700 text-sm space-y-0.5">
@@ -213,8 +213,8 @@ export function StepRunbook({ runbookOptions }: Props) {
                     <span className="text-zinc-200 font-medium">{f.symptom}</span>
                     <button type="button" onClick={() => dispatch({ type: 'REMOVE_COMMON_FAILURE', index: i })} className="text-zinc-500 hover:text-red-400 text-xs">Remove</button>
                   </div>
-                  {f.likelyCause && <p className="text-zinc-500 text-xs">Cause: {f.likelyCause}</p>}
-                  <p className="text-zinc-400 text-xs">Fix: {f.fix}</p>
+                  {f.likelyCause && <p className="text-zinc-500 text-xs">Causa: {f.likelyCause}</p>}
+                  <p className="text-zinc-400 text-xs">Soluzione: {f.fix}</p>
                 </div>
               ))
             )}
@@ -224,10 +224,10 @@ export function StepRunbook({ runbookOptions }: Props) {
           {/* Recovery steps */}
           <div className="space-y-2">
             <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-              Recovery steps (ordered)
+              Passi di ripristino (ordinati)
             </label>
             {rb.recoverySteps.length === 0 ? (
-              <p className="text-xs text-zinc-500 italic">None added yet.</p>
+              <p className="text-xs text-zinc-500 italic">Nessuno aggiunto.</p>
             ) : (
               rb.recoverySteps.map((s, i) => (
                 <div key={i} className="bg-zinc-900 rounded-md px-3 py-2 border border-zinc-700 text-sm">
@@ -248,7 +248,7 @@ export function StepRunbook({ runbookOptions }: Props) {
             <AddStepForm onAdd={(s) => dispatch({ type: 'ADD_RECOVERY_STEP', step: s })} />
           </div>
 
-          <Field label="Notes">
+          <Field label="Note">
             <textarea
               value={rb.notes}
               onChange={(e) => patchRunbook({ notes: e.target.value })}
@@ -261,7 +261,7 @@ export function StepRunbook({ runbookOptions }: Props) {
 
       {state.runbookMode === 'none' && (
         <p className="text-sm text-zinc-500 italic">
-          No runbook will be attached. You can create one later from the Runbooks section.
+          Nessun runbook verrà allegato. Puoi crearne uno in seguito dalla sezione Runbook.
         </p>
       )}
     </div>

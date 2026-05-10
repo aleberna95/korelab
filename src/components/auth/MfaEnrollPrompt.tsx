@@ -48,7 +48,7 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
       setSecret(totpSecret.secretKey)
       setStep('scan')
     } catch (err) {
-      setError('Failed to start MFA enrollment. Make sure you are signed in.')
+      setError('Impossibile avviare la configurazione MFA. Assicurati di essere connesso.')
       console.error(err)
     } finally {
       setLoading(false)
@@ -74,7 +74,7 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
       await mfaUser.enroll(assertion, 'Authenticator App')
       setStep('done')
     } catch {
-      setError('Invalid code. Please check your authenticator and try again.')
+      setError('Codice non valido. Controlla la tua app di autenticazione e riprova.')
     } finally {
       setLoading(false)
     }
@@ -83,9 +83,9 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
   if (step === 'start') {
     return (
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-white">Set up two-factor authentication</h2>
+        <h2 className="text-lg font-semibold text-white">Configura l'autenticazione a due fattori</h2>
         <p className="text-sm text-zinc-400">
-          MFA is required for admin access. Set up an authenticator app to continue.
+          L'MFA è richiesta per l'accesso admin. Configura un'app di autenticazione per continuare.
         </p>
         {error && <p className="text-sm text-red-400">{error}</p>}
         <button
@@ -93,7 +93,7 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
           disabled={loading}
           className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium disabled:opacity-50"
         >
-          {loading ? 'Starting…' : 'Set up authenticator'}
+          {loading ? 'Avvio…' : 'Configura autenticatore'}
         </button>
       </div>
     )
@@ -102,9 +102,9 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
   if (step === 'scan') {
     return (
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-white">Scan QR code</h2>
+        <h2 className="text-lg font-semibold text-white">Scansiona il codice QR</h2>
         <p className="text-sm text-zinc-400">
-          Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+          Scansiona questo codice QR con la tua app di autenticazione (Google Authenticator, Authy, ecc.)
         </p>
         {qrCodeUrl && (
           <div className="bg-white p-3 rounded-md inline-block">
@@ -120,14 +120,14 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
         )}
         {secret && (
           <p className="text-xs text-zinc-500 font-mono break-all">
-            Manual key: {secret}
+            Chiave manuale: {secret}
           </p>
         )}
         <button
           onClick={() => setStep('verify')}
           className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium"
         >
-          I've scanned it →
+          Ho scansionato →
         </button>
       </div>
     )
@@ -136,9 +136,9 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
   if (step === 'verify') {
     return (
       <form onSubmit={handleVerify} className="space-y-4">
-        <h2 className="text-lg font-semibold text-white">Enter verification code</h2>
+        <h2 className="text-lg font-semibold text-white">Inserisci il codice di verifica</h2>
         <p className="text-sm text-zinc-400">
-          Enter the 6-digit code from your authenticator app to complete enrollment.
+          Inserisci il codice a 6 cifre dalla tua app per completare la configurazione.
         </p>
         <input
           type="text"
@@ -158,7 +158,7 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
           disabled={loading}
           className="w-full px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium"
         >
-          {loading ? 'Verifying…' : 'Confirm'}
+          {loading ? 'Verifica in corso…' : 'Conferma'}
         </button>
       </form>
     )
@@ -166,16 +166,16 @@ export function MfaEnrollPrompt({ onDone }: MfaEnrollPromptProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-white">✓ MFA enabled</h2>
+      <h2 className="text-lg font-semibold text-white">✓ MFA attiva</h2>
       <p className="text-sm text-zinc-400">
-        Two-factor authentication is now active on your account.
+        L'autenticazione a due fattori è ora attiva sul tuo account.
       </p>
       {onDone && (
         <button
           onClick={onDone}
           className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-500 text-white text-sm font-medium"
         >
-          Continue
+          Continua
         </button>
       )}
     </div>

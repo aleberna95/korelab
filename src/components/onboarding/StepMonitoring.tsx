@@ -18,11 +18,11 @@ function Field({ label, children, hint }: { label: string; children: React.React
 }
 
 const MONITOR_SOURCES = [
-  { value: 'internal-http', label: 'Internal HTTP check' },
-  { value: 'internal-ssl', label: 'Internal SSL check' },
-  { value: 'internal-dns', label: 'Internal DNS check' },
-  { value: 'internal-domain', label: 'Internal domain check' },
-  { value: 'uptimerobot', label: 'UptimeRobot (synced)' },
+  { value: 'internal-http', label: 'Controllo HTTP interno' },
+  { value: 'internal-ssl', label: 'Controllo SSL interno' },
+  { value: 'internal-dns', label: 'Controllo DNS interno' },
+  { value: 'internal-domain', label: 'Controllo dominio interno' },
+  { value: 'uptimerobot', label: 'UptimeRobot (sincronizzato)' },
 ]
 
 export function StepMonitoring() {
@@ -38,13 +38,13 @@ export function StepMonitoring() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Monitoring</h2>
+        <h2 className="text-xl font-bold text-white">Monitoraggio</h2>
         <p className="text-sm text-zinc-400 mt-1">
-          Configure the primary monitor for this service.
+          Configura il monitor principale per questo servizio.
         </p>
       </div>
 
-      <Field label="Monitor source *">
+      <Field label="Sorgente monitor *">
         <select
           value={m.source}
           onChange={(e) => patch({ source: e.target.value })}
@@ -58,12 +58,12 @@ export function StepMonitoring() {
 
       {healthcheckUrl && (
         <div className="px-3 py-2 bg-zinc-900 rounded-md border border-zinc-700 text-xs text-zinc-400">
-          Monitor URL (from service): <span className="text-zinc-200">{healthcheckUrl}</span>
+          URL monitor (dal servizio): <span className="text-zinc-200">{healthcheckUrl}</span>
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Check interval (seconds) *" hint="30–3600">
+        <Field label="Intervallo controllo (secondi) *" hint="30–3600">
           <input
             type="number"
             min={30}
@@ -75,7 +75,7 @@ export function StepMonitoring() {
           />
         </Field>
 
-        <Field label="Expected HTTP status *">
+        <Field label="Stato HTTP atteso *">
           <input
             type="number"
             min={100}
@@ -87,7 +87,7 @@ export function StepMonitoring() {
         </Field>
       </div>
 
-      <Field label="Expected response body (optional)" hint="Substring that must appear in the response">
+      <Field label="Corpo risposta atteso (opzionale)" hint="Sottostringa che deve apparire nella risposta">
         <input
           value={m.expectBody}
           onChange={(e) => patch({ expectBody: e.target.value })}
@@ -98,13 +98,13 @@ export function StepMonitoring() {
 
       <div className="space-y-2">
         <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-          Alert channels
+          Canali di allerta
         </label>
         {(
           [
             ['telegram', 'Telegram bot'],
             ['email', 'Email'],
-            ['clientNotify', 'Notify client directly'],
+            ['clientNotify', 'Notifica cliente direttamente'],
           ] as const
         ).map(([key, label]) => (
           <label key={key} className="flex items-center gap-2 text-sm text-zinc-300 cursor-pointer">

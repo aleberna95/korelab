@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 
@@ -6,17 +9,27 @@ interface AdminShellProps {
   userEmail: string
 }
 
-/**
- * Server Component wrapper — passes userEmail from the server to the Topbar.
- * Sidebar and Topbar are Client Components for interactivity.
- */
 export function AdminShell({ children, userEmail }: AdminShellProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
-    <div className="flex min-h-screen bg-zinc-950 text-white">
-      <Sidebar />
+    <div className="flex min-h-screen bg-gray-50 text-gray-900">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       <div className="flex-1 flex flex-col min-w-0">
-        <Topbar userEmail={userEmail} />
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+        <Topbar
+          userEmail={userEmail}
+          onToggleSidebar={() => setSidebarOpen((v) => !v)}
+        />
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto">{children}</main>
       </div>
     </div>
   )

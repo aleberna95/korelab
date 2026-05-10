@@ -8,8 +8,8 @@ import { ServiceCard } from '@/components/status/ServiceCard'
 import { StatusHeader } from '@/components/status/StatusHeader'
 
 export const metadata: Metadata = {
-  title: 'System Status',
-  description: 'Current system operational status — alessiobernardini.dev',
+  title: 'Stato del Sistema',
+  description: 'Stato operativo attuale del sistema — alessiobernardini.dev',
 }
 
 // Next.js route segment config for cache headers
@@ -51,11 +51,11 @@ export default async function StatusPage() {
         <StatusHeader
           name="alessiobernardini.dev"
           state={allOperational ? 'operational' : 'degraded'}
-          description="Operational status for all monitored services."
+          description="Stato operativo di tutti i servizi monitorati."
         />
 
         {publicServices.length === 0 ? (
-          <p className="text-zinc-500 text-sm">No public services configured.</p>
+          <p className="text-zinc-500 text-sm">Nessun servizio pubblico configurato.</p>
         ) : (
           <div className="space-y-3">
             {views.map(({ svc, view }) => (
@@ -69,7 +69,7 @@ export default async function StatusPage() {
         )}
 
         <footer className="text-xs text-zinc-600 text-center pt-8">
-          Powered by Command Center · Updated every 60s
+          Alimentato da Command Center · Aggiornato ogni 60s
         </footer>
       </div>
     </main>

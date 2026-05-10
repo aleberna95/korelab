@@ -1,12 +1,12 @@
 import type { ServiceStatusState } from '@/lib/domain/types'
 
 const STATE_STYLES: Record<ServiceStatusState | string, { bg: string; text: string; label: string }> = {
-  operational: { bg: 'bg-green-100', text: 'text-green-800', label: 'Operational' },
-  degraded: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Degraded' },
-  'partial-outage': { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Partial outage' },
-  'major-outage': { bg: 'bg-red-100', text: 'text-red-800', label: 'Major outage' },
-  maintenance: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Maintenance' },
-  unknown: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Unknown' },
+  operational: { bg: 'bg-green-100', text: 'text-green-800', label: 'Operativo' },
+  degraded: { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Degradato' },
+  'partial-outage': { bg: 'bg-orange-100', text: 'text-orange-800', label: 'Interruzione parziale' },
+  'major-outage': { bg: 'bg-red-100', text: 'text-red-800', label: 'Interruzione grave' },
+  maintenance: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Manutenzione' },
+  unknown: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Sconosciuto' },
 }
 
 type Props = {

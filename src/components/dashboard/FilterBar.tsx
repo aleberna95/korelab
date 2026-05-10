@@ -33,7 +33,7 @@ export function FilterBar() {
         onChange={(e) => update('env', e.target.value)}
         className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        <option value="">All environments</option>
+        <option value="">Tutti gli ambienti</option>
         {ENVIRONMENTS.map((e) => (
           <option key={e} value={e} className="capitalize">
             {e}
@@ -47,7 +47,7 @@ export function FilterBar() {
         onChange={(e) => update('state', e.target.value)}
         className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        <option value="">All states</option>
+        <option value="">Tutti gli stati</option>
         {STATES.map((s) => (
           <option key={s} value={s}>
             {s.replace(/-/g, ' ')}
@@ -61,7 +61,7 @@ export function FilterBar() {
         onChange={(e) => update('criticality', e.target.value)}
         className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        <option value="">All criticalities</option>
+        <option value="">Tutte le criticità</option>
         {CRITICALITIES.map((c) => (
           <option key={c} value={c} className="capitalize">
             {c}
@@ -75,10 +75,10 @@ export function FilterBar() {
         onChange={(e) => update('filter', e.target.value)}
         className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
-        <option value="">No special filter</option>
-        <option value="no-monitor">No monitor</option>
-        <option value="no-access">No access configured</option>
-        <option value="active-incident">Active incident</option>
+        <option value="">Nessun filtro speciale</option>
+        <option value="no-monitor">Senza monitor</option>
+        <option value="no-access">Senza accesso configurato</option>
+        <option value="active-incident">Incidente attivo</option>
       </select>
 
       {/* Clear */}
@@ -87,7 +87,7 @@ export function FilterBar() {
           onClick={() => router.push(pathname)}
           className="text-sm text-gray-500 hover:text-gray-700 underline"
         >
-          Clear filters
+          Azzera filtri
         </button>
       )}
     </div>

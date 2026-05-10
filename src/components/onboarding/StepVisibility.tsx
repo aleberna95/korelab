@@ -18,15 +18,15 @@ function Field({ label, children, hint }: { label: string; children: React.React
 }
 
 const STATUS_PAGE_OPTIONS = [
-  { value: 'private', label: 'Private — internal only' },
-  { value: 'tokenized', label: 'Tokenized — shared via secret URL' },
-  { value: 'public', label: 'Public — visible to everyone' },
+  { value: 'private', label: 'Privato — solo interno' },
+  { value: 'tokenized', label: 'Tokenizzato — condiviso via URL segreto' },
+  { value: 'public', label: 'Pubblico — visibile a tutti' },
 ]
 
 const REPORT_SHARING_OPTIONS = [
-  { value: 'private', label: 'Private — internal only' },
-  { value: 'tokenized', label: 'Tokenized — shared via secret URL' },
-  { value: 'email', label: 'Email — sent directly to client' },
+  { value: 'private', label: 'Privato — solo interno' },
+  { value: 'tokenized', label: 'Tokenizzato — condiviso via URL segreto' },
+  { value: 'email', label: 'Email — inviato direttamente al cliente' },
 ]
 
 export function StepVisibility() {
@@ -40,15 +40,15 @@ export function StepVisibility() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-white">Visibility</h2>
+        <h2 className="text-xl font-bold text-white">Visibilità</h2>
         <p className="text-sm text-zinc-400 mt-1">
-          Control who can see the status page and reports for this service.
+          Controlla chi può vedere la pagina di stato e i report per questo servizio.
         </p>
       </div>
 
       <Field
-        label="Status page"
-        hint="Private: admin-only. Tokenized: a secret URL is generated. Public: visible to anyone."
+        label="Pagina di stato"
+        hint="Privato: solo admin. Tokenizzato: viene generato un URL segreto. Pubblico: visibile a chiunque."
       >
         <div className="space-y-2 mt-1">
           {STATUS_PAGE_OPTIONS.map((opt) => (
@@ -70,8 +70,8 @@ export function StepVisibility() {
       </Field>
 
       <Field
-        label="Report sharing"
-        hint="How monthly reports are shared with the client."
+        label="Condivisione report"
+        hint="Come i report mensili vengono condivisi con il cliente."
       >
         <div className="space-y-2 mt-1">
           {REPORT_SHARING_OPTIONS.map((opt) => (

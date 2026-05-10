@@ -13,8 +13,8 @@ export function ServiceTable({ services, total }: Props) {
       <div className="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
         <p className="text-xs text-gray-500">
           {total !== undefined
-            ? `Showing ${services.length} of ${total}`
-            : `${services.length} service${services.length !== 1 ? 's' : ''}`}
+            ? `Mostra ${services.length} di ${total}`
+            : `${services.length} servizio${services.length !== 1 ? 'i' : ''}`}
         </p>
       </div>
 
@@ -23,19 +23,19 @@ export function ServiceTable({ services, total }: Props) {
           <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Service
+                Servizio
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Status
+                Stato
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Env
+                Ambiente
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Criticality
+                Criticità
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Type
+                Tipo
               </th>
             </tr>
           </thead>
@@ -43,7 +43,7 @@ export function ServiceTable({ services, total }: Props) {
             {services.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-400">
-                  No services found.
+                  Nessun servizio trovato.
                 </td>
               </tr>
             )}
