@@ -28,8 +28,8 @@ export default async function MonitorDetailPage({ params }: Props) {
     lastResult: monitor.lastResult ?? null,
     config: {
       url: monitor.config.url,
-      intervalSec: monitor.config.intervalSec,
-      timeoutMs: monitor.config.timeoutMs,
+      intervalSec: monitor.config.intervalSec ?? 300,
+      timeoutMs: monitor.config.timeoutMs ?? 10000,
       expectStatus: monitor.config.expectStatus,
       expectBody: monitor.config.expectBody,
     },
