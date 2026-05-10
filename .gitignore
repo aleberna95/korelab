@@ -34,3 +34,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# firebase
+.firebase/
+functions/lib/
+functions/.env
+functions/node_modules/
+
+# secrets — never commit
+service-account.json
+*-service-account.json
