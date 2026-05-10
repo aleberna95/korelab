@@ -106,12 +106,14 @@ export default async function TokenizedStatusPage({ params }: Props) {
           {allowedSections.includes('reports') && view.latestReport && (
             <section className="space-y-2">
               <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Latest Report</h2>
-              <Link
+              <a
                 href={view.latestReport.url}
                 className="inline-block text-sm text-blue-400 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 {view.latestReport.periodLabel} →
-              </Link>
+              </a>
             </section>
           )}
 
