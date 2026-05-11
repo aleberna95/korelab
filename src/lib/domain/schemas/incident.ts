@@ -11,7 +11,6 @@ export const IncidentStateSchema = z.enum([
 export const IncidentSeveritySchema = z.enum(['minor', 'major', 'critical'])
 
 export const IncidentSourceSchema = z.enum([
-  'uptimerobot',
   'internal-check',
   'manual',
 ])

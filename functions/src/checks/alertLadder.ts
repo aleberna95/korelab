@@ -19,9 +19,6 @@ import type { Firestore } from 'firebase-admin/firestore'
 /** SSL cert alert thresholds in days (descending — largest first) */
 export const SSL_THRESHOLDS = [30, 14, 7, 2]
 
-/** Domain expiry alert thresholds in days (descending) */
-export const DOMAIN_THRESHOLDS = [60, 30, 7]
-
 /**
  * Returns the highest threshold that has been crossed by `currentDays`
  * but has NOT yet been recorded in `alreadyAlertedt`, or null if none.

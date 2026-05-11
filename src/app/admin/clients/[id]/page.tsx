@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth/guards'
 import { clientsRepo } from '@/lib/repos/clientsRepo'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
+import { TestClientTelegramButton } from './TestClientTelegramButton'
 
 export const metadata: Metadata = { title: 'Client — Command Center' }
 
@@ -31,14 +32,22 @@ export default async function ClientDetailPage({ params }: Props) {
       </nav>
 
       {/* Header */}
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
-        <p className="text-sm text-gray-500 mt-1 capitalize">
-          {client.businessType} · {client.supportPlan.replace(/-/g, ' ')} ·{' '}
-          <span className={client.status === 'active' ? 'text-green-600' : 'text-gray-400'}>
-            {client.status}
-          </span>
-        </p>
+      <header className="flex items-start gap-4">
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
+          <p className="text-sm text-gray-500 mt-1 capitalize">
+            {client.businessType} · {client.supportPlan.replace(/-/g, ' ')} ·{' '}
+            <span className={client.status === 'active' ? 'text-green-600' : 'text-gray-400'}>
+              {client.status}
+            </span>
+          </p>
+        </div>
+        <Link
+          href={`/admin/clients/${id}/edit`}
+          className="btn-secondary text-sm px-4 py-2"
+        >
+          Modifica
+        </Link>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -47,7 +56,7 @@ export default async function ClientDetailPage({ params }: Props) {
           {/* Contacts */}
           <section>
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Contacts
+              Contatti
             </h2>
             <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
               {client.contacts.map((c, i) => (
@@ -61,12 +70,12 @@ export default async function ClientDetailPage({ params }: Props) {
                       {c.email}
                     </a>
                     {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
-                    {c.primary && <span className="text-xs text-green-600">Primary</span>}
+                    {c.primary && <span className="text-xs text-green-600">Principale</span>}
                   </div>
                 </div>
               ))}
               {client.contacts.length === 0 && (
-                <p className="px-4 py-6 text-sm text-gray-400 text-center">No contacts.</p>
+                <p className="px-4 py-6 text-sm text-gray-400 text-center">Nessun contatto.</p>
               )}
             </div>
           </section>
@@ -74,7 +83,7 @@ export default async function ClientDetailPage({ params }: Props) {
           {/* Services */}
           <section>
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Services ({services.length})
+              Servizi ({services.length})
             </h2>
             <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
               {services.map((svc) => (
@@ -91,7 +100,7 @@ export default async function ClientDetailPage({ params }: Props) {
                 </Link>
               ))}
               {services.length === 0 && (
-                <p className="px-4 py-6 text-sm text-gray-400 text-center">No services.</p>
+                <p className="px-4 py-6 text-sm text-gray-400 text-center">Nessun servizio.</p>
               )}
             </div>
           </section>
@@ -102,7 +111,7 @@ export default async function ClientDetailPage({ params }: Props) {
           {/* Consent matrix */}
           <section>
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Consent
+              Consensi
             </h2>
             <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 space-y-2">
               {Object.entries(client.consent)
@@ -111,7 +120,7 @@ export default async function ClientDetailPage({ params }: Props) {
                   <div key={k} className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 capitalize">{k.replace(/([A-Z])/g, ' $1')}</span>
                     <span className={`text-xs font-medium ${v ? 'text-green-600' : 'text-gray-400'}`}>
-                      {v ? 'Yes' : 'No'}
+                      {v ? 'Sì' : 'No'}
                     </span>
                   </div>
                 ))}
@@ -121,19 +130,18 @@ export default async function ClientDetailPage({ params }: Props) {
           {/* Notification prefs */}
           <section>
             <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Notifications
+              Notifiche
             </h2>
             <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 space-y-1.5 text-sm">
-              <p className="text-gray-600">
-                Email: <span className="font-medium">{client.notificationPrefs.email ? 'Yes' : 'No'}</span>
-              </p>
-              {client.notificationPrefs.emails?.length > 0 && (
-                <p className="text-xs text-gray-400">{client.notificationPrefs.emails.join(', ')}</p>
-              )}
-              {client.notificationPrefs.telegramChatId && (
-                <p className="text-gray-600">
-                  Telegram: <span className="font-mono text-xs">{client.notificationPrefs.telegramChatId}</span>
-                </p>
+              {client.telegramChatId ? (
+                <div className="flex items-center gap-3 flex-wrap">
+                  <p className="text-gray-600">
+                    Telegram: <span className="font-mono text-xs">{client.telegramChatId}</span>
+                  </p>
+                  <TestClientTelegramButton clientId={id} hasChatId={true} />
+                </div>
+              ) : (
+                <p className="text-gray-400 italic text-xs">Nessun Telegram configurato</p>
               )}
             </div>
           </section>
@@ -142,7 +150,7 @@ export default async function ClientDetailPage({ params }: Props) {
           {client.notes && (
             <section>
               <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                Notes
+                Note
               </h2>
               <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">{client.notes}</p>

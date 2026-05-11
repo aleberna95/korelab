@@ -57,7 +57,7 @@ export function ServiceTable({ services, total }: Props) {
                     {svc.name}
                   </Link>
                   <p className="text-xs text-gray-400 truncate max-w-[200px]">
-                    {svc.urls?.primary ?? ''}
+                    {svc.url ?? ''}
                   </p>
                 </td>
                 <td className="px-4 py-3">

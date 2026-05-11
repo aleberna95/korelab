@@ -18,11 +18,8 @@ function Field({ label, children, hint }: { label: string; children: React.React
 }
 
 const MONITOR_SOURCES = [
-  { value: 'internal-http', label: 'Controllo HTTP interno' },
-  { value: 'internal-ssl', label: 'Controllo SSL interno' },
-  { value: 'internal-dns', label: 'Controllo DNS interno' },
-  { value: 'internal-domain', label: 'Controllo dominio interno' },
-  { value: 'uptimerobot', label: 'UptimeRobot (sincronizzato)' },
+  { value: 'internal-http', label: 'Controllo HTTP' },
+  { value: 'internal-ssl', label: 'Controllo SSL (scadenza certificato)' },
 ]
 
 export function StepMonitoring() {
@@ -103,7 +100,6 @@ export function StepMonitoring() {
         {(
           [
             ['telegram', 'Telegram bot'],
-            ['email', 'Email'],
             ['clientNotify', 'Notifica cliente direttamente'],
           ] as const
         ).map(([key, label]) => (

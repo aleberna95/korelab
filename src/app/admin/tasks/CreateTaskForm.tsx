@@ -6,10 +6,9 @@ import { createTask } from './actions'
 
 type Props = {
   services: { id: string; name: string }[]
-  runbooks: { id: string; title: string }[]
 }
 
-export function CreateTaskForm({ services, runbooks }: Props) {
+export function CreateTaskForm({ services }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -17,7 +16,6 @@ export function CreateTaskForm({ services, runbooks }: Props) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [serviceId, setServiceId] = useState('')
-  const [runbookId, setRunbookId] = useState('')
   const [dueAt, setDueAt] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
@@ -31,7 +29,6 @@ export function CreateTaskForm({ services, runbooks }: Props) {
           title: title.trim(),
           description: description.trim(),
           serviceId: serviceId || undefined,
-          runbookId: runbookId || undefined,
           dueAt: dueAt ? `${dueAt}T23:59:59.000Z` : undefined,
           state: 'todo',
           notes: '',
@@ -39,7 +36,6 @@ export function CreateTaskForm({ services, runbooks }: Props) {
         setTitle('')
         setDescription('')
         setServiceId('')
-        setRunbookId('')
         setDueAt('')
         router.refresh()
       } catch (err) {
@@ -84,16 +80,6 @@ export function CreateTaskForm({ services, runbooks }: Props) {
           <option value="">— Service —</option>
           {services.map((s) => (
             <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </select>
-        <select
-          value={runbookId}
-          onChange={(e) => setRunbookId(e.target.value)}
-          className="input-base"
-        >
-          <option value="">— Runbook —</option>
-          {runbooks.map((r) => (
-            <option key={r.id} value={r.id}>{r.title}</option>
           ))}
         </select>
       </div>

@@ -10,6 +10,9 @@
  */
 
 import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore'
+import { getApps, initializeApp } from 'firebase-admin/app'
+
+if (!getApps().length) initializeApp()
 
 const db = getFirestore()
 

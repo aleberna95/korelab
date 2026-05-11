@@ -6,8 +6,6 @@ import { createMonitorForService } from '../actions'
 const SOURCES = [
   { value: 'internal-http', label: 'HTTP — sito risponde?' },
   { value: 'internal-ssl', label: 'SSL — certificato valido?' },
-  { value: 'internal-dns', label: 'DNS — record corretti?' },
-  { value: 'internal-domain', label: 'Domain — scadenza dominio (richiede WHOIS API key)' },
 ] as const
 
 type Props = { serviceId: string; clientId: string }
@@ -31,7 +29,7 @@ export function AddMonitorForm({ serviceId, clientId }: Props) {
     startTransition(async () => {
       try {
         await createMonitorForService(serviceId, clientId, {
-          source: source as 'internal-http' | 'internal-ssl' | 'internal-dns' | 'internal-domain',
+          source: source as 'internal-http' | 'internal-ssl',
           config: {
             url: url.trim(),
             intervalSec: Number(intervalSec),
@@ -39,7 +37,7 @@ export function AddMonitorForm({ serviceId, clientId }: Props) {
             expectStatus: expectStatus !== '' ? Number(expectStatus) : undefined,
             expectBody: expectBody.trim() || undefined,
           },
-          alertChannels: { telegram: true, email: false, clientNotify: false },
+          alertChannels: { telegram: true, clientNotify: false },
           active: true,
         })
         setOpen(false)

@@ -2,14 +2,14 @@
  * internalChecks.ts — Scheduled Cloud Function, runs every 15 minutes.
  *
  * Fetches all active monitors with source in:
- *   ['internal-http', 'internal-ssl', 'internal-dns', 'internal-domain']
+ *   ['internal-http', 'internal-ssl']
  *
  * For each monitor:
  *  1. Runs the appropriate checker.
  *  2. Writes an uptimeSample document.
  *  3. Updates monitor.lastResult + lastCheckAt.
  *  4. Opens or closes an incident via incidentHelper if result changed.
- *  5. For SSL/domain: applies alert ladder.
+ *  5. For SSL: applies alert ladder.
  */
 
 import { onSchedule } from 'firebase-functions/v2/scheduler'
@@ -18,14 +18,11 @@ import { getApps, initializeApp } from 'firebase-admin/app'
 import type { Monitor } from '../lib/types'
 import { checkSSL } from './ssl'
 import { checkHTTP } from './http'
-import { checkDNS } from './dns'
-import { checkDomain } from './domain'
 import {
   findCrossedThreshold,
   recordThreshold,
   clearThresholds,
   SSL_THRESHOLDS,
-  DOMAIN_THRESHOLDS,
 } from './alertLadder'
 import { ensureIncident, closeIncident } from './incidentHelper'
 import { sendTelegramMessage } from '../alerts/telegram'
@@ -34,7 +31,7 @@ if (!getApps().length) initializeApp()
 
 const db = getFirestore()
 
-const INTERNAL_SOURCES = ['internal-http', 'internal-ssl', 'internal-dns', 'internal-domain']
+const INTERNAL_SOURCES = ['internal-http', 'internal-ssl']
 const ADMIN_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID ?? ''
 
 export const internalChecks = onSchedule(
@@ -91,12 +88,6 @@ async function processMonitor(monitor: Monitor): Promise<void> {
     case 'internal-http':
       checkResult = await checkHTTP(monitor)
       break
-    case 'internal-dns':
-      checkResult = await checkDNS(monitor)
-      break
-    case 'internal-domain':
-      checkResult = await checkDomain(monitor)
-      break
     default:
       return
   }
@@ -149,23 +140,33 @@ async function processMonitor(monitor: Monitor): Promise<void> {
       source: 'internal-check',
     })
   } else if (result === 'up' && (previousResult === 'down' || previousResult === 'degraded')) {
-    // Recovery
+    // Recovery from failure
     await closeIncident(serviceId)
     await clearThresholds(db, monitorId)
+  } else if (result === 'up') {
+    // Healthy check — ensure service status is operational (handles first-run and unknown state)
+    const svcSnap = await db.collection('services').doc(serviceId).get()
+    const currentState = (svcSnap.data() as { currentStatus?: { state?: string } } | undefined)
+      ?.currentStatus?.state
+    if (currentState !== 'operational') {
+      await db.collection('services').doc(serviceId).update({
+        'currentStatus.state': 'operational',
+        'currentStatus.since': now,
+        'currentStatus.activeIncidentId': null,
+      })
+    }
   }
 
-  // ── 5. Alert ladder for SSL and domain ────────────────────────────────────
-  if (daysToExpiry !== undefined && (source === 'internal-ssl' || source === 'internal-domain')) {
-    const thresholds = source === 'internal-ssl' ? SSL_THRESHOLDS : DOMAIN_THRESHOLDS
+  // ── 5. Alert ladder for SSL ────────────────────────────────────────────
+  if (daysToExpiry !== undefined && source === 'internal-ssl') {
     const alreadyAlerted = monitor.alertedThresholds ?? []
-
-    const threshold = findCrossedThreshold(daysToExpiry, thresholds, alreadyAlerted)
+    const threshold = findCrossedThreshold(daysToExpiry, SSL_THRESHOLDS, alreadyAlerted)
 
     if (threshold !== null) {
       await recordThreshold(db, monitorId, threshold)
 
       if (ADMIN_CHAT_ID) {
-        const label = source === 'internal-ssl' ? 'SSL certificate' : 'Domain'
+        const label = 'SSL certificate'
         const url = monitor.config.url ?? monitorId
         await sendTelegramMessage({
           chatId: ADMIN_CHAT_ID,

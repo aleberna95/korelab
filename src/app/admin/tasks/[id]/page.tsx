@@ -1,7 +1,6 @@
 import { requireAdmin } from '@/lib/auth/guards'
 import { tasksRepo } from '@/lib/repos/tasksRepo'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
-import { runbooksRepo } from '@/lib/repos/runbooksRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -30,9 +29,8 @@ export default async function TaskDetailPage({ params }: Props) {
   const task = await tasksRepo.getById(id)
   if (!task) notFound()
 
-  const [service, runbook, incident] = await Promise.all([
+  const [service, incident] = await Promise.all([
     task.serviceId ? servicesRepo.getById(task.serviceId) : null,
-    task.runbookId ? runbooksRepo.getById(task.runbookId) : null,
     task.incidentId ? incidentsRepo.getById(task.incidentId) : null,
   ])
 
@@ -73,19 +71,7 @@ export default async function TaskDetailPage({ params }: Props) {
             </Link>
           </div>
         )}
-        {runbook && (
-          <div>
-            <p className="text-xs text-gray-500 mb-0.5">Runbook</p>
-            <Link href={`/admin/runbooks/${runbook.id}`} className="text-blue-600 hover:underline">
-              {runbook.title}
-            </Link>
-            {task.runbookStepIndex !== undefined && (
-              <span className="text-gray-400 text-xs ml-2">
-                step {task.runbookStepIndex + 1}
-              </span>
-            )}
-          </div>
-        )}
+
         {task.dueAt && (
           <div>
             <p className="text-xs text-gray-500 mb-0.5">Due</p>

@@ -2,30 +2,28 @@
  * onIncidentWrite — Firestore trigger.
  *
  * Fires when an incident document is created or updated.
- * On state change (or on creation), dispatches alerts via Telegram and email.
+ * On state change (or on creation), dispatches a Telegram alert.
  *
  * Alert targets:
- *   - Admin: always (telegram + email using env vars)
+ *   - Admin: always (telegram via ADMIN_TELEGRAM_CHAT_ID)
  *   - Client: only on 'investigating' or 'resolved', and only if:
  *       incident.notifiedClient === true
  *       client.consent.notification === true
+ *       client.telegramChatId is set
  *
- * Deduplication: uses alertDedup/{key} with 60s TTL to avoid duplicate alerts
- * when the document is written multiple times in quick succession.
+ * Deduplication: uses alertDedup/{key} with 60s TTL to avoid duplicate alerts.
  */
 
 import { onDocumentWritten } from 'firebase-functions/v2/firestore'
 import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { getApps, initializeApp } from 'firebase-admin/app'
 import { sendTelegramMessage } from '../alerts/telegram'
-import { sendEmail } from '../alerts/email'
 
 if (!getApps().length) initializeApp()
 
 const db = getFirestore()
 
 const ADMIN_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID ?? ''
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? ''
 const DEDUP_TTL_MS = 60_000 // 60 seconds
 
 const STATE_EMOJI: Record<string, string> = {
@@ -105,12 +103,6 @@ async function sendIncidentAlerts(
     `Severity: ${incident.severity ?? 'unknown'}\n` +
     `Service: ${incident.serviceId ?? ''}`
 
-  const adminHtml =
-    `<p>${emoji} <strong>Incident: ${escapeHtml(incident.title ?? incidentId)}</strong></p>` +
-    `<p>State: <strong>${escapeHtml(transitionLabel)}</strong><br>` +
-    `Severity: ${escapeHtml(incident.severity ?? 'unknown')}<br>` +
-    `Service: ${escapeHtml(incident.serviceId ?? '')}</p>`
-
   const alerts: Promise<void>[] = []
 
   // Admin Telegram
@@ -122,51 +114,25 @@ async function sendIncidentAlerts(
     )
   }
 
-  // Admin email
-  if (ADMIN_EMAIL) {
-    alerts.push(
-      sendEmail({
-        to: ADMIN_EMAIL,
-        subject: `${emoji} ${incident.title ?? incidentId} — ${toState}`,
-        html: adminHtml,
-      }).catch((e) => console.error('[onIncidentWrite] admin email:', e)),
-    )
-  }
-
-  // Client alerts: only on investigating (first alert) or resolved
+  // Client Telegram: only on investigating (first alert) or resolved
   const alertClient = toState === 'investigating' || toState === 'resolved'
   if (alertClient && incident.notifiedClient && incident.clientId) {
     const clientSnap = await db.collection('clients').doc(incident.clientId).get()
     const client = clientSnap.data()
 
-    if (client?.consent?.notification) {
+    if (client?.consent?.notification && client?.telegramChatId) {
       const publicMsg = incident.publicMessage
         ? `\n${escapeHtml(incident.publicMessage)}`
         : ''
       const clientText =
         `${emoji} <b>${escapeHtml(incident.title ?? '')}</b>${publicMsg}`
-      const clientHtml =
-        `<p>${emoji} <strong>${escapeHtml(incident.title ?? '')}</strong>${publicMsg.replace(/\n/g, '<br>')}</p>`
 
-      if (client.notificationPrefs?.telegramChatId) {
-        alerts.push(
-          sendTelegramMessage({
-            chatId: client.notificationPrefs.telegramChatId,
-            text: clientText,
-          }).catch((e) => console.error('[onIncidentWrite] client telegram:', e)),
-        )
-      }
-
-      const emails: string[] = client.notificationPrefs?.emails ?? []
-      if (emails.length > 0) {
-        alerts.push(
-          sendEmail({
-            to: emails,
-            subject: `${emoji} ${incident.title ?? ''} — ${toState}`,
-            html: clientHtml,
-          }).catch((e) => console.error('[onIncidentWrite] client email:', e)),
-        )
-      }
+      alerts.push(
+        sendTelegramMessage({
+          chatId: client.telegramChatId,
+          text: clientText,
+        }).catch((e) => console.error('[onIncidentWrite] client telegram:', e)),
+      )
     }
   }
 

@@ -67,9 +67,9 @@ const validClient = {
   name: 'ACME Corp',
   businessType: 'corporate',
   contacts: [],
-  notificationPrefs: { email: true, emails: [] },
+  telegramChatId: '',
   supportPlan: 'monitor-only',
-  consent: { monitoring: true, notification: true, intervention: false, autoHealing: false },
+  consent: { monitoring: true, notification: true },
   tags: [],
   status: 'active',
   notes: '',
@@ -85,14 +85,10 @@ const validService = {
   criticality: 'high',
   tags: [],
   description: '',
-  urls: {},
-  access: { level: 'none', providers: [], notes: '' },
-  visibility: { statusPage: 'private', reportSharing: 'private' },
-  automation: { mode: 'disabled', allowedActions: [], cooldownMinutes: 30, maxRetries: 3 },
+  url: 'https://example.com',
+  statusPageVisibility: 'private',
   currentStatus: { state: 'unknown', since: new Date() },
   monitorIds: [],
-  resourceIds: [],
-  runbookIds: [],
   createdAt: new Date(),
   updatedAt: new Date(),
 }
@@ -102,7 +98,7 @@ const validMonitor = {
   clientId: 'client-1',
   source: 'internal-http',
   config: { intervalSec: 60 },
-  alertChannels: { telegram: true, email: false, clientNotify: false },
+  alertChannels: { telegram: true, clientNotify: false },
   active: true,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -239,25 +235,5 @@ describe('catch-all deny', () => {
     await assertFails(db.collection('clients').get())
     await assertFails(db.collection('services').get())
     await assertFails(db.collection('auditLog').get())
-  })
-})
-
-// ─── statusTokens ────────────────────────────────────────────────────────────
-
-describe('statusTokens', () => {
-  it('admin can read and write status tokens', async () => {
-    const db = adminCtx().firestore()
-    const ref = db.collection('statusTokens').doc('tok1')
-    await assertSucceeds(
-      ref.set({
-        tokenHash: 'abc123',
-        scope: 'client',
-        targetId: 'client-1',
-        allowedSections: ['status'],
-        createdAt: new Date(),
-        createdBy: 'admin-uid',
-      }),
-    )
-    await assertSucceeds(ref.get())
   })
 })

@@ -7,7 +7,8 @@
     {
       "source": "functions",
       "codebase": "default",
-      "ignore": ["node_modules", ".git", "**/*.test.ts"]
+      "ignore": ["node_modules", ".git", "**/*.test.ts"],
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"]
     }
   ],
   "emulators": {

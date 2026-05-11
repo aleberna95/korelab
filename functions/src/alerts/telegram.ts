@@ -9,7 +9,7 @@
 
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager'
 
-const PROJECT_ID = process.env.GCLOUD_PROJECT ?? 'korelab-cc'
+const PROJECT_ID = process.env.GCLOUD_PROJECT ?? process.env.GOOGLE_CLOUD_PROJECT ?? 'korelab-cc-c1a7d'
 const smClient = new SecretManagerServiceClient()
 
 let _botToken: string | null = null
@@ -18,7 +18,7 @@ async function getBotToken(): Promise<string> {
   if (_botToken) return _botToken
 
   const [version] = await smClient.accessSecretVersion({
-    name: `projects/${PROJECT_ID}/secrets/telegram-bot-token/versions/latest`,
+    name: `projects/${PROJECT_ID}/secrets/TELEGRAM_BOT_TOKEN/versions/latest`,
   })
 
   const raw = version.payload?.data

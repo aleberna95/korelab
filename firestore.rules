@@ -27,8 +27,7 @@ service cloud.firestore {
           && d.name is string && d.name.size() > 0
           && d.status in ['active', 'paused', 'archived']
           && d.businessType in ['agency', 'ecommerce', 'corporate', 'startup', 'other']
-          && d.supportPlan in ['none', 'monitor-only', 'reporting-only',
-                               'managed-support', 'managed-infra', 'auto-healing'];
+          && d.supportPlan in ['monitor-only', 'managed', 'full'];
     }
 
     function validServiceShape() {
@@ -43,8 +42,7 @@ service cloud.firestore {
     function validMonitorShape() {
       let d = request.resource.data;
       return d.keys().hasAll(['serviceId', 'clientId', 'source', 'config', 'active'])
-          && d.source in ['uptimerobot', 'internal-http', 'internal-ssl',
-                          'internal-dns', 'internal-domain']
+          && d.source in ['internal-http', 'internal-ssl']
           && d.active is bool;
     }
 
@@ -53,7 +51,7 @@ service cloud.firestore {
       return d.keys().hasAll(['serviceId', 'clientId', 'state', 'severity',
                               'source', 'title'])
           && d.severity in ['minor', 'major', 'critical']
-          && d.source in ['uptimerobot', 'internal-check', 'manual'];
+          && d.source in ['internal-check', 'manual'];
     }
 
     // ─── users/{uid} ────────────────────────────────────────────────────────
@@ -85,9 +83,6 @@ service cloud.firestore {
     match /resources/{docId} {
       allow read, write: if isAdminWithAppCheck();
     }
-    match /dependencies/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
     match /monitors/{docId} {
       allow read, delete: if isAdminWithAppCheck();
       allow create: if isAdminWithAppCheck() && validMonitorShape();
@@ -101,16 +96,7 @@ service cloud.firestore {
         allow read, write: if isAdminWithAppCheck();
       }
     }
-    match /maintenanceWindows/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
-    match /runbooks/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
     match /tasks/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
-    match /reports/{docId} {
       allow read, write: if isAdminWithAppCheck();
     }
     match /auditLog/{docId} {
@@ -118,27 +104,6 @@ service cloud.firestore {
       // Writes happen only via Admin SDK (server-side), which bypasses rules.
       allow read: if isAdminWithAppCheck();
       allow write: if false;
-    }
-    match /statusTokens/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
-    match /secretRefs/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
-    match /webhookEvents/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
-    match /uptimeSamples/{docId} {
-      allow read, write: if isAdminWithAppCheck();
-    }
-    match /webhookSecrets/{hash} {
-      // Written only by Admin SDK (server-side); read by admin for management UI
-      allow read: if isAdminWithAppCheck();
-      allow write: if false;
-    }
-    match /processedEvents/{key} {
-      // Idempotency records — written by webhook route via Admin SDK only
-      allow read, write: if false;
     }
     match /alertDedup/{key} {
       // Alert deduplication — written by Cloud Functions (Admin SDK) only

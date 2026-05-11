@@ -31,7 +31,7 @@ function fakeTs(d: Date) {
   return { toDate: () => d, toMillis: () => d.getTime() } as unknown as Timestamp
 }
 
-import type { Service, Incident, MaintenanceWindow } from '@/lib/domain/types'
+import type { Service, Incident } from '@/lib/domain/types'
 
 const BASE_SERVICE: Service = {
   id: 'svc1',
@@ -42,14 +42,10 @@ const BASE_SERVICE: Service = {
   criticality: 'high',
   tags: [],
   description: '',
-  urls: {},
-  access: { level: 'none', providers: [], notes: '' },
-  visibility: { statusPage: 'public', reportSharing: 'private' },
-  automation: { mode: 'disabled', allowedActions: [], cooldownMinutes: 0, maxRetries: 0 },
+  url: 'https://acme.example.com',
+  statusPageVisibility: 'public',
   currentStatus: { state: 'operational', since: fakeTs(new Date('2026-05-01')), uptime30d: 99.95 },
   monitorIds: [],
-  resourceIds: [],
-  runbookIds: [],
   createdAt: fakeTs(new Date()),
   updatedAt: fakeTs(new Date()),
 }
@@ -68,7 +64,7 @@ const INCIDENT_PUBLIC: Incident = {
   severity: 'minor',
   startedAt: fakeTs(new Date('2026-05-09T08:00:00Z')),
   resolvedAt: fakeTs(new Date('2026-05-09T08:21:36Z')),
-  source: 'uptimerobot',
+  source: 'internal-check',
   title: 'Elevated error rate',
   publicMessage: 'We detected elevated errors. Issue resolved.',
   visibility: 'public',
@@ -83,30 +79,15 @@ const INCIDENT_PRIVATE: Incident = {
   title: 'Internal db lag',
 }
 
-const MAINTENANCE: MaintenanceWindow = {
-  id: 'mw1',
-  serviceIds: ['svc1'],
-  clientId: 'cl1',
-  title: 'Scheduled deployment',
-  publicMessage: 'Planned maintenance for 15 minutes.',
-  startsAt: fakeTs(new Date('2026-05-12T02:00:00Z')),
-  endsAt: fakeTs(new Date('2026-05-12T02:15:00Z')),
-  suppressIncidents: true,
-  createdAt: fakeTs(new Date()),
-  updatedAt: fakeTs(new Date()),
-}
-
 // ─── Tests ────────────────────────────────────────────────────────────────
 
 describe('projectServiceForStatus', () => {
   it('returns only the allowed top-level keys', () => {
-    const view = projectServiceForStatus(BASE_SERVICE, [], [], [], ['status'])
+    const view = projectServiceForStatus(BASE_SERVICE, [], [], ['status'])
     const keys = Object.keys(view).sort()
     expect(keys).toEqual([
       'activeIncident',
       'daily90d',
-      'latestReport',
-      'maintenance',
       'name',
       'recentIncidents',
       'since',
@@ -116,20 +97,20 @@ describe('projectServiceForStatus', () => {
   })
 
   it('maps service name and state correctly', () => {
-    const view = projectServiceForStatus(BASE_SERVICE, [], [], [], ['status'])
+    const view = projectServiceForStatus(BASE_SERVICE, [], [], ['status'])
     expect(view.name).toBe('Acme Website')
     expect(view.state).toBe('operational')
     expect(view.uptime30d).toBe(99.95)
   })
 
   it('includes daily90d from rollups', () => {
-    const view = projectServiceForStatus(BASE_SERVICE, [], ROLLUPS, [], ['status'])
+    const view = projectServiceForStatus(BASE_SERVICE, [], ROLLUPS, ['status'])
     expect(view.daily90d).toHaveLength(3)
     expect(view.daily90d[0]).toEqual({ date: '2026-05-08', uptimePct: 100 })
   })
 
   it('hides public incidents when incidents section not allowed', () => {
-    const view = projectServiceForStatus(BASE_SERVICE, [INCIDENT_PUBLIC], ROLLUPS, [], ['status'])
+    const view = projectServiceForStatus(BASE_SERVICE, [INCIDENT_PUBLIC], ROLLUPS, ['status'])
     expect(view.recentIncidents).toHaveLength(0)
     expect(view.activeIncident).toBeUndefined()
   })
@@ -139,7 +120,6 @@ describe('projectServiceForStatus', () => {
       BASE_SERVICE,
       [INCIDENT_PUBLIC],
       ROLLUPS,
-      [],
       ['status', 'incidents'],
     )
     expect(view.recentIncidents).toHaveLength(1)
@@ -153,7 +133,6 @@ describe('projectServiceForStatus', () => {
       BASE_SERVICE,
       [INCIDENT_PRIVATE],
       ROLLUPS,
-      [],
       ['status', 'incidents'],
     )
     expect(view.recentIncidents).toHaveLength(0)
@@ -169,22 +148,10 @@ describe('projectServiceForStatus', () => {
       BASE_SERVICE,
       [activeInc],
       [],
-      [],
       ['status', 'incidents'],
     )
     expect(view.activeIncident).toBeDefined()
     expect(view.activeIncident!.title).toBe('Elevated error rate')
-  })
-
-  it('hides maintenance when section not allowed', () => {
-    const view = projectServiceForStatus(BASE_SERVICE, [], [], [MAINTENANCE], ['status'])
-    expect(view.maintenance).toHaveLength(0)
-  })
-
-  it('includes maintenance when section allowed', () => {
-    const view = projectServiceForStatus(BASE_SERVICE, [], [], [MAINTENANCE], ['status', 'maintenance'])
-    expect(view.maintenance).toHaveLength(1)
-    expect(view.maintenance[0].title).toBe('Scheduled deployment')
   })
 
   it('caps daily90d at 90 entries', () => {
@@ -196,7 +163,7 @@ describe('projectServiceForStatus', () => {
       downChecks: 0,
       incidentCount: 0,
     }))
-    const view = projectServiceForStatus(BASE_SERVICE, [], many, [], ['status'])
+    const view = projectServiceForStatus(BASE_SERVICE, [], many, ['status'])
     expect(view.daily90d.length).toBeLessThanOrEqual(90)
   })
 
@@ -207,13 +174,10 @@ describe('projectServiceForStatus', () => {
       privateMessage: 'Secret details',
       resolution: 'Restarted pod',
     }
-    const view = projectServiceForStatus(BASE_SERVICE, [inc], [], [], ['status', 'incidents'])
+    const view = projectServiceForStatus(BASE_SERVICE, [inc], [], ['status', 'incidents'])
     const json = JSON.stringify(view)
     expect(json).not.toContain('rootCause')
     expect(json).not.toContain('privateMessage')
     expect(json).not.toContain('resolution')
-    // service access info
-    expect(json).not.toContain('providers')
-    expect(json).not.toContain('secretRef')
   })
 })

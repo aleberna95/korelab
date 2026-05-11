@@ -5,10 +5,8 @@ import { useRouter } from 'next/navigation'
 import { updateMonitor, toggleMonitor, deleteMonitor } from '../actions'
 
 const MONITOR_SOURCES = [
-  { value: 'internal-http', label: 'HTTP check (is the site up?)' },
-  { value: 'internal-ssl', label: 'SSL certificate expiry' },
-  { value: 'internal-dns', label: 'DNS records' },
-  { value: 'internal-domain', label: 'Domain expiry (requires WHOIS API key)' },
+  { value: 'internal-http', label: 'Controllo HTTP (sito raggiungibile?)' },
+  { value: 'internal-ssl', label: 'Scadenza certificato SSL' },
 ] as const
 
 /** Plain-object subset of Monitor — safe to pass from Server to Client Component */
@@ -26,7 +24,6 @@ export type MonitorData = {
   }
   alertChannels: {
     telegram: boolean
-    email: boolean
     clientNotify: boolean
   }
 }
@@ -47,7 +44,6 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
   const [expectStatus, setExpectStatus] = useState(monitor.config.expectStatus ?? '')
   const [expectBody, setExpectBody] = useState(monitor.config.expectBody ?? '')
   const [alertTelegram, setAlertTelegram] = useState(monitor.alertChannels.telegram)
-  const [alertEmail, setAlertEmail] = useState(monitor.alertChannels.email)
   const [alertClient, setAlertClient] = useState(monitor.alertChannels.clientNotify)
 
   function handleSubmit(e: React.FormEvent) {
@@ -56,7 +52,7 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
     startTransition(async () => {
       try {
         await updateMonitor(monitor.id, {
-          source: source as 'internal-http' | 'internal-ssl' | 'internal-dns' | 'internal-domain',
+          source: source as 'internal-http' | 'internal-ssl',
           config: {
             url: url.trim() || undefined,
             intervalSec: Number(intervalSec),
@@ -66,13 +62,12 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
           },
           alertChannels: {
             telegram: alertTelegram,
-            email: alertEmail,
             clientNotify: alertClient,
           },
         })
         router.push(`/admin/monitors/${monitor.id}`)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save')
+        setError(err instanceof Error ? err.message : 'Salvataggio fallito')
       }
     })
   }
@@ -85,7 +80,7 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
   }
 
   function handleDelete() {
-    if (!confirm('Delete this monitor permanently?')) return
+    if (!confirm('Eliminare questo monitor definitivamente?')) return
     startDelete(async () => {
       await deleteMonitor(monitor.id)
     })
@@ -99,17 +94,17 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
       {/* Meta info */}
       <div className="bg-gray-50 rounded-lg border border-gray-200 px-4 py-3 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
         <div>
-          <p className="text-xs text-gray-400">Source</p>
+          <p className="text-xs text-gray-400">Sorgente</p>
           <p className="font-medium capitalize">{monitor.source.replace(/-/g, ' ')}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400">Service</p>
+          <p className="text-xs text-gray-400">Servizio</p>
           <p className="font-medium">{serviceName}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400">Last result</p>
+          <p className="text-xs text-gray-400">Ultimo risultato</p>
           <p className={`font-medium ${monitor.lastResult === 'up' ? 'text-green-600' : monitor.lastResult === 'down' ? 'text-red-600' : 'text-gray-400'}`}>
-            {monitor.lastResult ?? 'pending'}
+            {monitor.lastResult ?? 'in attesa'}
           </p>
         </div>
       </div>
@@ -117,7 +112,7 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
       {/* Toggle active */}
       <div className="flex items-center gap-4">
         <span className={`text-sm font-medium ${monitor.active ? 'text-green-600' : 'text-gray-400'}`}>
-          {monitor.active ? 'Active' : 'Paused'}
+          {monitor.active ? 'Attivo' : 'In pausa'}
         </span>
         <button
           type="button"
@@ -125,7 +120,7 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
           disabled={isToggling}
           className="btn-secondary text-sm px-4 py-1.5"
         >
-          {isToggling ? '…' : monitor.active ? 'Pause' : 'Activate'}
+          {isToggling ? '…' : monitor.active ? 'Metti in pausa' : 'Attiva'}
         </button>
       </div>
 
@@ -133,14 +128,14 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Source */}
         <div>
-          <label className={labelCls}>Monitor type</label>
+          <label className={labelCls}>Tipo di monitor</label>
           <select value={source} onChange={(e) => setSource(e.target.value)} className={inputCls}>
             {MONITOR_SOURCES.map((s) => (
               <option key={s.value} value={s.value}>{s.label}</option>
             ))}
           </select>
           {source === 'internal-domain' && (
-            <p className="mt-1 text-xs text-amber-600">Requires the <code>whois-api-key</code> secret in Secret Manager.</p>
+            <p className="mt-1 text-xs text-amber-600">Richiede il secret <code>whois-api-key</code> in Secret Manager.</p>
           )}
         </div>
 
@@ -153,7 +148,7 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
         {/* Interval / Timeout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Interval (seconds)</label>
+            <label className={labelCls}>Intervallo (secondi)</label>
             <input type="number" value={intervalSec} onChange={(e) => setIntervalSec(Number(e.target.value))} min={30} className={inputCls} />
           </div>
           <div>
@@ -165,22 +160,21 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
         {/* Expect status / body */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Expected HTTP status</label>
+            <label className={labelCls}>Stato HTTP atteso</label>
             <input type="number" value={expectStatus} onChange={(e) => setExpectStatus(e.target.value)} placeholder="200" min={100} max={599} className={inputCls} />
           </div>
           <div>
-            <label className={labelCls}>Expected body fragment</label>
+            <label className={labelCls}>Testo atteso nel body</label>
             <input type="text" value={expectBody} onChange={(e) => setExpectBody(e.target.value)} placeholder="OK" className={inputCls} />
           </div>
         </div>
 
         {/* Alert channels */}
         <fieldset className="space-y-2">
-          <legend className="text-sm font-semibold text-gray-700 mb-2">Alert channels</legend>
+          <legend className="text-sm font-semibold text-gray-700 mb-2">Canali di allerta</legend>
           {[
             { label: 'Telegram', value: alertTelegram, set: setAlertTelegram },
-            { label: 'Email', value: alertEmail, set: setAlertEmail },
-            { label: 'Notify client', value: alertClient, set: setAlertClient },
+            { label: 'Notifica cliente', value: alertClient, set: setAlertClient },
           ].map(({ label, value, set }) => (
             <label key={label} className="flex items-center gap-2 cursor-pointer">
               <input
@@ -198,24 +192,24 @@ export function MonitorEditForm({ monitor, serviceName }: Props) {
 
         <div className="flex flex-col sm:flex-row gap-3">
           <button type="submit" disabled={isPending} className="btn-primary px-6 py-2.5">
-            {isPending ? 'Saving…' : 'Save changes'}
+            {isPending ? 'Salvataggio…' : 'Salva modifiche'}
           </button>
           <button type="button" onClick={() => router.push('/admin/monitors')} className="btn-secondary px-6 py-2.5">
-            Cancel
+            Annulla
           </button>
         </div>
       </form>
 
       {/* Danger zone */}
       <div className="border-t border-gray-200 pt-6">
-        <p className="text-xs text-gray-500 mb-3">Danger zone</p>
+        <p className="text-xs text-gray-500 mb-3">Zona pericolosa</p>
         <button
           type="button"
           onClick={handleDelete}
           disabled={isDeleting}
           className="btn-danger text-sm"
         >
-          {isDeleting ? 'Deleting…' : 'Delete monitor'}
+          {isDeleting ? 'Eliminazione…' : 'Elimina monitor'}
         </button>
       </div>
     </div>

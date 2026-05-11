@@ -6,14 +6,14 @@ import { updateService } from '../../actions'
 import type { Service } from '@/lib/domain/types'
 
 const SERVICE_TYPES = [
-  'static-site', 'landing', 'corporate-site', 'ecommerce', 'saas', 'api',
-  'mobile-backend', 'database', 'docker-service', 'k8s-deployment', 'cron',
-  'worker', 'firebase-project', 'external-saas', 'domain', 'email', 'other',
+  'static-site', 'landing', 'corporate-site', 'ecommerce', 'saas',
+  'api', 'mobile-backend', 'firebase-project', 'domain', 'other',
 ] as const
 
 export type ServiceFormData = Pick<
   Service,
-  'id' | 'name' | 'type' | 'environment' | 'criticality' | 'tags' | 'description' | 'urls' | 'access' | 'visibility'
+  | 'id' | 'name' | 'type' | 'environment' | 'criticality' | 'tags' | 'description'
+  | 'url' | 'healthcheckUrl' | 'statusPageVisibility'
 >
 
 type Props = { service: ServiceFormData }
@@ -30,21 +30,9 @@ export function ServiceForm({ service }: Props) {
   const [criticality, setCriticality] = useState(service.criticality)
   const [description, setDescription] = useState(service.description ?? '')
   const [tags, setTags] = useState(service.tags.join(', '))
-
-  // URLs
-  const [urlPrimary, setUrlPrimary] = useState(service.urls.primary ?? '')
-  const [urlAdmin, setUrlAdmin] = useState(service.urls.admin ?? '')
-  const [urlHealthcheck, setUrlHealthcheck] = useState(service.urls.healthcheck ?? '')
-  const [urlDocs, setUrlDocs] = useState(service.urls.docs ?? '')
-
-  // Access
-  const [accessLevel, setAccessLevel] = useState(service.access.level)
-  const [accessProviders, setAccessProviders] = useState(service.access.providers.join(', '))
-  const [accessNotes, setAccessNotes] = useState(service.access.notes ?? '')
-
-  // Visibility
-  const [statusPage, setStatusPage] = useState(service.visibility.statusPage)
-  const [reportSharing, setReportSharing] = useState(service.visibility.reportSharing)
+  const [url, setUrl] = useState(service.url ?? '')
+  const [healthcheckUrl, setHealthcheckUrl] = useState(service.healthcheckUrl ?? '')
+  const [statusPageVisibility, setStatusPageVisibility] = useState(service.statusPageVisibility)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -60,22 +48,13 @@ export function ServiceForm({ service }: Props) {
           criticality,
           description: description.trim(),
           tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-          urls: {
-            primary: urlPrimary.trim() || undefined,
-            admin: urlAdmin.trim() || undefined,
-            healthcheck: urlHealthcheck.trim() || undefined,
-            docs: urlDocs.trim() || undefined,
-          },
-          access: {
-            level: accessLevel,
-            providers: accessProviders.split(',').map((p) => p.trim()).filter(Boolean),
-            notes: accessNotes.trim(),
-          },
-          visibility: { statusPage, reportSharing },
+          url: url.trim() || undefined,
+          healthcheckUrl: healthcheckUrl.trim() || undefined,
+          statusPageVisibility,
         })
         router.push(`/admin/services/${service.id}`)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save')
+        setError(err instanceof Error ? err.message : 'Salvataggio fallito')
       }
     })
   }
@@ -88,14 +67,14 @@ export function ServiceForm({ service }: Props) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Name */}
       <div>
-        <label className={labelCls}>Name *</label>
+        <label className={labelCls}>Nome *</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className={inputCls} />
       </div>
 
       {/* Type / Env / Criticality */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className={labelCls}>Type</label>
+          <label className={labelCls}>Tipo</label>
           <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className={selectCls}>
             {SERVICE_TYPES.map((t) => (
               <option key={t} value={t}>{t.replace(/-/g, ' ')}</option>
@@ -103,118 +82,68 @@ export function ServiceForm({ service }: Props) {
           </select>
         </div>
         <div>
-          <label className={labelCls}>Environment</label>
+          <label className={labelCls}>Ambiente</label>
           <select value={environment} onChange={(e) => setEnvironment(e.target.value as typeof environment)} className={selectCls}>
-            <option value="production">Production</option>
+            <option value="production">Produzione</option>
             <option value="staging">Staging</option>
-            <option value="dev">Dev</option>
+            <option value="dev">Sviluppo</option>
           </select>
         </div>
         <div>
-          <label className={labelCls}>Criticality</label>
+          <label className={labelCls}>Criticità</label>
           <select value={criticality} onChange={(e) => setCriticality(e.target.value as typeof criticality)} className={selectCls}>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
+            <option value="low">Bassa</option>
+            <option value="medium">Media</option>
+            <option value="high">Alta</option>
+            <option value="critical">Critica</option>
           </select>
         </div>
       </div>
 
       {/* Description */}
       <div>
-        <label className={labelCls}>Description</label>
+          <label className={labelCls}>Descrizione</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className={`${inputCls} resize-y`} />
       </div>
 
       {/* Tags */}
       <div>
-        <label className={labelCls}>Tags (comma-separated)</label>
+          <label className={labelCls}>Tag (separati da virgola)</label>
         <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="ecommerce, auth" className={inputCls} />
       </div>
 
-      {/* URLs */}
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-gray-700">URLs</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className={labelCls}>Primary</label>
-            <input type="url" value={urlPrimary} onChange={(e) => setUrlPrimary(e.target.value)} placeholder="https://example.com" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Admin</label>
-            <input type="url" value={urlAdmin} onChange={(e) => setUrlAdmin(e.target.value)} placeholder="https://example.com/wp-admin" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Healthcheck</label>
-            <input type="url" value={urlHealthcheck} onChange={(e) => setUrlHealthcheck(e.target.value)} placeholder="https://example.com/health" className={inputCls} />
-          </div>
-          <div>
-            <label className={labelCls}>Docs</label>
-            <input type="url" value={urlDocs} onChange={(e) => setUrlDocs(e.target.value)} placeholder="https://docs.example.com" className={inputCls} />
-          </div>
-        </div>
-      </fieldset>
-
-      {/* Access */}
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-gray-700">Access</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label className={labelCls}>Level</label>
-            <select value={accessLevel} onChange={(e) => setAccessLevel(e.target.value as typeof accessLevel)} className={selectCls}>
-              <option value="none">None</option>
-              <option value="read-only">Read-only</option>
-              <option value="operational">Operational</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div className="sm:col-span-2">
-            <label className={labelCls}>Providers (comma-separated)</label>
-            <input type="text" value={accessProviders} onChange={(e) => setAccessProviders(e.target.value)} placeholder="GitHub, Vercel" className={inputCls} />
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className={labelCls}>URL principale</label>
+          <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>Access notes</label>
-          <input type="text" value={accessNotes} onChange={(e) => setAccessNotes(e.target.value)} className={inputCls} />
+          <label className={labelCls}>Healthcheck URL</label>
+          <input type="url" value={healthcheckUrl} onChange={(e) => setHealthcheckUrl(e.target.value)} placeholder="https://example.com/health" className={inputCls} />
         </div>
-      </fieldset>
+      </div>
 
-      {/* Visibility */}
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-semibold text-gray-700">Visibility</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Status page</label>
-            <select value={statusPage} onChange={(e) => setStatusPage(e.target.value as typeof statusPage)} className={selectCls}>
-              <option value="private">Private</option>
-              <option value="tokenized">Tokenized</option>
-              <option value="public">Public</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelCls}>Report sharing</label>
-            <select value={reportSharing} onChange={(e) => setReportSharing(e.target.value as typeof reportSharing)} className={selectCls}>
-              <option value="private">Private</option>
-              <option value="tokenized">Tokenized</option>
-              <option value="email">Email</option>
-            </select>
-          </div>
-        </div>
-      </fieldset>
+      <div>
+        <label className={labelCls}>Visibilità pagina stato</label>
+        <select value={statusPageVisibility} onChange={(e) => setStatusPageVisibility(e.target.value as typeof statusPageVisibility)} className={selectCls}>
+          <option value="private">Privata (solo admin)</option>
+          <option value="tokenized">Link segreto (tokenizzata)</option>
+          <option value="public">Pubblica</option>
+        </select>
+      </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <button type="submit" disabled={isPending} className="btn-primary px-6 py-2.5">
-          {isPending ? 'Saving…' : 'Save changes'}
+          {isPending ? 'Salvataggio…' : 'Salva modifiche'}
         </button>
         <button
           type="button"
           onClick={() => router.push(`/admin/services/${service.id}`)}
           className="btn-secondary px-6 py-2.5"
         >
-          Cancel
+          Annulla
         </button>
       </div>
     </form>

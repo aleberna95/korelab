@@ -25,19 +25,19 @@ export default async function IncidentsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       <header>
-        <h1 className="text-2xl font-bold text-gray-900">Incidents</h1>
-        <p className="text-sm text-gray-500 mt-1">Active incidents and recent history.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Incidenti</h1>
+        <p className="text-sm text-gray-500 mt-1">Incidenti attivi e storico recente.</p>
       </header>
 
       {/* Active */}
       <section>
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-          Active ({active.length})
+          Attivi ({active.length})
         </h2>
         <div className="bg-white rounded-lg border border-gray-200 px-4">
           <IncidentList
             incidents={active.map(toListItem)}
-            emptyMessage="No active incidents — all systems operational."
+            emptyMessage="Nessun incidente attivo — tutti i sistemi operativi."
           />
         </div>
       </section>
@@ -46,7 +46,7 @@ export default async function IncidentsPage() {
       {resolved.length > 0 && (
         <section>
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Recent ({resolved.length})
+            Recenti ({resolved.length})
           </h2>
           <div className="bg-white rounded-lg border border-gray-200 px-4">
             <IncidentList incidents={resolved.map(toListItem)} />

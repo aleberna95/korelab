@@ -25,9 +25,9 @@ export default async function EditServicePage({ params }: Props) {
     criticality: service.criticality,
     tags: service.tags,
     description: service.description,
-    urls: service.urls,
-    access: service.access,
-    visibility: service.visibility,
+    url: service.url,
+    healthcheckUrl: service.healthcheckUrl,
+    statusPageVisibility: service.statusPageVisibility,
   }
 
   return (
@@ -36,13 +36,13 @@ export default async function EditServicePage({ params }: Props) {
         <Link href={`/admin/services/${id}`} className="text-sm text-gray-500 hover:text-gray-700">
           ← {service.name}
         </Link>
-        <h1 className="mt-3 text-xl sm:text-2xl font-bold text-gray-900">Edit Service</h1>
+        <h1 className="mt-3 text-xl sm:text-2xl font-bold text-gray-900">Modifica Servizio</h1>
       </div>
 
       <ServiceForm service={serviceData} />
 
       <div className="border-t border-gray-200 pt-6">
-        <p className="text-xs text-gray-500 mb-3">Danger zone</p>
+        <p className="text-xs text-gray-500 mb-3">Zona pericolosa</p>
         <DeleteServiceButton serviceId={service.id} />
       </div>
     </div>

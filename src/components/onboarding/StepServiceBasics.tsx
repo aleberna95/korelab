@@ -19,8 +19,7 @@ function Field({ label, children, hint }: { label: string; children: React.React
 
 const SERVICE_TYPES = [
   'static-site', 'landing', 'corporate-site', 'ecommerce', 'saas',
-  'api', 'mobile-backend', 'database', 'docker-service', 'k8s-deployment',
-  'cron', 'worker', 'firebase-project', 'external-saas', 'domain', 'email', 'other',
+  'api', 'mobile-backend', 'firebase-project', 'domain', 'other',
 ]
 
 const ENVIRONMENTS = ['production', 'staging', 'dev']
@@ -108,12 +107,8 @@ export function StepServiceBasics() {
         />
       </Field>
 
-      <div className="space-y-3">
-        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          URLs
-        </label>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Primary URL">
+      <div className="grid grid-cols-2 gap-3">
+          <Field label="URL principale">
             <input
               value={s.primaryUrl}
               onChange={(e) => patch({ primaryUrl: e.target.value })}
@@ -122,16 +117,7 @@ export function StepServiceBasics() {
               type="url"
             />
           </Field>
-          <Field label="Admin URL">
-            <input
-              value={s.adminUrl}
-              onChange={(e) => patch({ adminUrl: e.target.value })}
-              placeholder="https://acme.com/wp-admin"
-              className={INPUT}
-              type="url"
-            />
-          </Field>
-          <Field label="Healthcheck URL" hint="Usato per controlli HTTP interni">
+          <Field label="Healthcheck URL" hint="Usato per controlli HTTP/SSL">
             <input
               value={s.healthcheckUrl}
               onChange={(e) => patch({ healthcheckUrl: e.target.value })}
@@ -140,17 +126,19 @@ export function StepServiceBasics() {
               type="url"
             />
           </Field>
-          <Field label="Docs URL">
-            <input
-              value={s.docsUrl}
-              onChange={(e) => patch({ docsUrl: e.target.value })}
-              placeholder="https://notion.so/..."
-              className={INPUT}
-              type="url"
-            />
-          </Field>
         </div>
-      </div>
+
+      <Field label="Visibilità pagina stato">
+        <select
+          value={s.statusPageVisibility}
+          onChange={(e) => patch({ statusPageVisibility: e.target.value })}
+          className={INPUT}
+        >
+          <option value="private">Privata (solo admin)</option>
+          <option value="tokenized">Link segreto (tokenizzata)</option>
+          <option value="public">Pubblica</option>
+        </select>
+      </Field>
     </div>
   )
 }

@@ -6,7 +6,7 @@ import {
   SESSION_KEY,
   reducer,
   INITIAL_STATE,
-  getActiveSteps,
+  ALL_STEPS,
   type WizardState,
 } from './state'
 
@@ -35,7 +35,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     }
   }, [state])
 
-  const activeSteps = getActiveSteps(state)
+  const activeSteps = ALL_STEPS
   const currentIndex = activeSteps.indexOf(state.currentStepId)
 
   function goNext() {

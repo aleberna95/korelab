@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { findCrossedThreshold, SSL_THRESHOLDS, DOMAIN_THRESHOLDS } from '@functions/checks/alertLadder'
+import { findCrossedThreshold, SSL_THRESHOLDS } from '@functions/checks/alertLadder'
 
 // ─── Alert Ladder ─────────────────────────────────────────────────────────
 
@@ -38,12 +38,10 @@ describe('findCrossedThreshold', () => {
   })
 
   it('works correctly for domain thresholds', () => {
-    // 25 days: walk [60,30,7] desc → 25<=60 first hit → 60
-    expect(findCrossedThreshold(25, DOMAIN_THRESHOLDS, [])).toBe(60)
-    // After 60 alerted, next would be 30 (25<=30)
-    expect(findCrossedThreshold(25, DOMAIN_THRESHOLDS, [60])).toBe(30)
-    // 6 days: 6<=60 alerted, 6<=30 alerted, 6<=7 → 7
-    expect(findCrossedThreshold(6, DOMAIN_THRESHOLDS, [60, 30])).toBe(7)
+    // SSL_THRESHOLDS = [30,14,7,2] in descending order; test similar edge cases
+    expect(findCrossedThreshold(25, SSL_THRESHOLDS, [])).toBe(30)
+    expect(findCrossedThreshold(25, SSL_THRESHOLDS, [30])).toBe(14)
+    expect(findCrossedThreshold(6, SSL_THRESHOLDS, [30, 14])).toBe(7)
   })
 
   it('returns null when daysToExpiry is negative and all thresholds already alerted', () => {
@@ -150,16 +148,5 @@ describe('checkHTTP', () => {
     const result = await checkHTTP(monitor)
     expect(result.result).toBe('down')
     expect(result.error).toContain('No URL')
-  })
-})
-
-// ─── DNS Checker ──────────────────────────────────────────────────────────
-
-describe('checkDNS', () => {
-  it('returns down when no URL configured', async () => {
-    const { checkDNS } = await import('@functions/checks/dns')
-    const monitor = { config: { intervalSec: 60 } } as Parameters<typeof checkDNS>[0]
-    const result = await checkDNS(monitor)
-    expect(result.result).toBe('down')
   })
 })

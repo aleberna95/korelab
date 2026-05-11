@@ -9,26 +9,15 @@ import { StepNav } from './StepNav'
 import { StepClient } from './StepClient'
 import { StepServiceBasics } from './StepServiceBasics'
 import { StepMonitoring } from './StepMonitoring'
-import { StepAccess } from './StepAccess'
-import { StepResources } from './StepResources'
-import { StepVisibility } from './StepVisibility'
-import { StepAutomation } from './StepAutomation'
-import { StepRunbook } from './StepRunbook'
 import { StepReview } from './StepReview'
 
 export type ClientOption = { id: string; name: string; supportPlan: string }
-export type RunbookOption = { id: string; title: string }
 
 type Props = {
   clientOptions: ClientOption[]
-  runbookOptions: RunbookOption[]
 }
 
-function STEP_COMPONENT(
-  stepId: StepId,
-  clientOptions: ClientOption[],
-  runbookOptions: RunbookOption[],
-) {
+function STEP_COMPONENT(stepId: StepId, clientOptions: ClientOption[]) {
   switch (stepId) {
     case 'client':
       return <StepClient clientOptions={clientOptions} />
@@ -36,22 +25,12 @@ function STEP_COMPONENT(
       return <StepServiceBasics />
     case 'monitoring':
       return <StepMonitoring />
-    case 'access':
-      return <StepAccess />
-    case 'resources':
-      return <StepResources />
-    case 'visibility':
-      return <StepVisibility />
-    case 'automation':
-      return <StepAutomation />
-    case 'runbook':
-      return <StepRunbook runbookOptions={runbookOptions} />
     case 'review':
       return <StepReview />
   }
 }
 
-function WizardInner({ clientOptions, runbookOptions }: Props) {
+function WizardInner({ clientOptions }: Props) {
   const { state, dispatch, activeSteps, currentIndex, goNext, goPrev } = useWizard()
   const router = useRouter()
 
@@ -94,7 +73,7 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
 
         {/* Step content */}
         <div className="flex-1 bg-white rounded-xl border border-gray-200 p-6">
-          {STEP_COMPONENT(state.currentStepId, clientOptions, runbookOptions)}
+          {STEP_COMPONENT(state.currentStepId, clientOptions)}
         </div>
 
         {/* Submit error */}
@@ -158,10 +137,10 @@ function WizardInner({ clientOptions, runbookOptions }: Props) {
   )
 }
 
-export function WizardShell({ clientOptions, runbookOptions }: Props) {
+export function WizardShell({ clientOptions }: Props) {
   return (
     <WizardProvider>
-      <WizardInner clientOptions={clientOptions} runbookOptions={runbookOptions} />
+      <WizardInner clientOptions={clientOptions} />
     </WizardProvider>
   )
 }

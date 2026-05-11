@@ -8,10 +8,8 @@ export const metadata: Metadata = { title: 'Clients — Command Center' }
 const PLAN_STYLES: Record<string, string> = {
   none: 'bg-gray-100 text-gray-500',
   'monitor-only': 'bg-blue-50 text-blue-700',
-  'reporting-only': 'bg-purple-50 text-purple-700',
-  'managed-support': 'bg-amber-50 text-amber-700',
-  'managed-infra': 'bg-orange-50 text-orange-700',
-  'auto-healing': 'bg-green-50 text-green-700',
+  'managed': 'bg-amber-50 text-amber-700',
+  'full': 'bg-green-50 text-green-700',
 }
 
 export default async function ClientsPage() {
@@ -23,20 +21,20 @@ export default async function ClientsPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-          <p className="text-sm text-gray-500 mt-1">{clients.length} active client{clients.length !== 1 ? 's' : ''}.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Clienti</h1>
+          <p className="text-sm text-gray-500 mt-1">{clients.length} client{clients.length !== 1 ? 'i' : 'e'} attiv{clients.length !== 1 ? 'i' : 'o'}.</p>
         </div>
         <Link
           href="/admin/onboarding"
           className="btn-primary text-sm"
         >
-          + Onboard client
+          + Onboarding cliente
         </Link>
       </header>
 
       <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
         {clients.length === 0 && (
-          <p className="px-4 py-10 text-center text-sm text-gray-400">No clients yet.</p>
+          <p className="px-4 py-10 text-center text-sm text-gray-400">Nessun cliente.</p>
         )}
         {clients.map((client) => (
           <Link

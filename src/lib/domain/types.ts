@@ -3,13 +3,7 @@ import type { Timestamp } from 'firebase-admin/firestore'
 
 // ─── Shared sub-types ──────────────────────────────────────────────────────
 
-export type SupportPlan =
-  | 'none'
-  | 'monitor-only'
-  | 'reporting-only'
-  | 'managed-support'
-  | 'managed-infra'
-  | 'auto-healing'
+export type SupportPlan = 'monitor-only' | 'managed' | 'full'
 
 export type Contact = {
   name: string
@@ -26,24 +20,11 @@ export interface Client {
   name: string
   businessType: 'agency' | 'ecommerce' | 'corporate' | 'startup' | 'other'
   contacts: Contact[]
-  notificationPrefs: {
-    email: boolean
-    emails: string[]
-    telegramChatId?: string
-    quietHours?: { start: string; end: string; tz: string }
-  }
+  telegramChatId?: string
   supportPlan: SupportPlan
-  contractRef?: {
-    docUrl: string
-    signedAt: Timestamp
-    clausesAcceptedIds: string[]
-  }
   consent: {
     monitoring: boolean
     notification: boolean
-    intervention: boolean
-    autoHealing: boolean
-    consentedAt?: Timestamp
   }
   tags: string[]
   notes: string
@@ -62,15 +43,8 @@ export type ServiceType =
   | 'saas'
   | 'api'
   | 'mobile-backend'
-  | 'database'
-  | 'docker-service'
-  | 'k8s-deployment'
-  | 'cron'
-  | 'worker'
   | 'firebase-project'
-  | 'external-saas'
   | 'domain'
-  | 'email'
   | 'other'
 
 export type ServiceStatusState =
@@ -90,28 +64,9 @@ export interface Service {
   criticality: 'low' | 'medium' | 'high' | 'critical'
   tags: string[]
   description: string
-  urls: {
-    primary?: string
-    admin?: string
-    healthcheck?: string
-    docs?: string
-  }
-  expectedHealth?: { statusCode: number; bodyContains?: string }
-  access: {
-    level: 'none' | 'read-only' | 'operational' | 'admin'
-    providers: string[]
-    notes: string
-  }
-  visibility: {
-    statusPage: 'private' | 'tokenized' | 'public'
-    reportSharing: 'private' | 'tokenized' | 'email'
-  }
-  automation: {
-    mode: 'disabled' | 'manual-only' | 'manual-approval' | 'auto-low-risk'
-    allowedActions: string[]
-    cooldownMinutes: number
-    maxRetries: number
-  }
+  url?: string
+  healthcheckUrl?: string
+  statusPageVisibility: 'private' | 'tokenized' | 'public'
   currentStatus: {
     state: ServiceStatusState
     since: Timestamp
@@ -120,8 +75,6 @@ export interface Service {
     uptime30d?: number
   }
   monitorIds: string[]
-  resourceIds: string[]
-  runbookIds: string[]
   createdAt: Timestamp
   updatedAt: Timestamp
 }
@@ -129,15 +82,11 @@ export interface Service {
 // ─── Resource ──────────────────────────────────────────────────────────────
 
 export type ResourceKind =
-  | 'docker-host'
-  | 'k8s-cluster'
   | 'db'
-  | 'dns-zone'
   | 'ssl-cert'
   | 'domain'
   | 'repo'
   | 'firebase-project'
-  | 'vps'
   | 'other'
 
 export interface Resource {
@@ -167,11 +116,8 @@ export interface Dependency {
 // ─── Monitor ───────────────────────────────────────────────────────────────
 
 export type MonitorSource =
-  | 'uptimerobot'
   | 'internal-http'
   | 'internal-ssl'
-  | 'internal-dns'
-  | 'internal-domain'
 
 export interface Monitor {
   id: string
@@ -219,7 +165,7 @@ export interface Incident {
   severity: IncidentSeverity
   startedAt: Timestamp
   resolvedAt?: Timestamp
-  source: 'uptimerobot' | 'internal-check' | 'manual'
+  source: 'internal-check' | 'manual'
   title: string
   publicMessage?: string
   privateMessage?: string

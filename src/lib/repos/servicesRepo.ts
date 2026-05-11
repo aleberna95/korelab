@@ -26,12 +26,8 @@ export type ServiceFilters = {
   tag?: string
   /** Services with empty monitorIds array */
   hasNoMonitor?: boolean
-  /** Services where access.level === 'none' */
-  hasNoAccess?: boolean
   /** Services with an active incident */
   hasActiveIncident?: boolean
-  /** Services where automation.mode !== 'disabled' */
-  autoHealingEnabled?: boolean
   limit?: number
 }
 
@@ -57,16 +53,12 @@ export const servicesRepo = {
     } else if (filters.hasNoMonitor) {
       // Firestore supports equality match on empty array
       q = q.where('monitorIds', '==', []).orderBy('name')
-    } else if (filters.hasNoAccess) {
-      q = q.where('access.level', '==', 'none').orderBy('name')
     } else if (filters.hasActiveIncident) {
       // '!=' is supported in Firestore — filters docs where field is not null/undefined
       q = q
         .where('currentStatus.activeIncidentId', '!=', null)
         .orderBy('currentStatus.activeIncidentId')
         .orderBy('name')
-    } else if (filters.autoHealingEnabled) {
-      q = q.where('automation.mode', '!=', 'disabled').orderBy('automation.mode').orderBy('name')
     } else {
       q = q.orderBy('name')
     }
@@ -103,22 +95,12 @@ export const servicesRepo = {
     return this.list({ hasNoMonitor: true })
   },
 
-  async listWithoutAccess(): Promise<Service[]> {
-    return this.list({ hasNoAccess: true })
-  },
-
   async listWithActiveIncident(): Promise<Service[]> {
     return this.list({ hasActiveIncident: true })
   },
 
-  async listAutoHealingEnabled(): Promise<Service[]> {
-    return this.list({ autoHealingEnabled: true })
-  },
-
   async create(input: CreateServiceInput, actorUid?: string): Promise<Service> {
     const validated = CreateServiceSchema.parse(input)
-    // Enforce MVP default regardless of input
-    validated.automation.mode = 'disabled'
 
     const ref = col().doc()
     const now = FieldValue.serverTimestamp()

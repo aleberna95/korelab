@@ -28,15 +28,15 @@ export default async function AuditPage({ searchParams }: Props) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-gray-900">Audit Log</h1>
-        <p className="text-sm text-gray-500 mt-1">Last 20 entries.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Log di Audit</h1>
+        <p className="text-sm text-gray-500 mt-1">Ultime 20 voci.</p>
       </header>
 
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
           <table className="min-w-full min-w-[520px] divide-y divide-gray-100">
           <thead className="bg-gray-50">
             <tr>
-              {['Time', 'Action', 'Actor', 'Target'].map((h) => (
+              {['Ora', 'Azione', 'Attore', 'Destinatario'].map((h) => (
                 <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   {h}
                 </th>
@@ -46,7 +46,7 @@ export default async function AuditPage({ searchParams }: Props) {
           <tbody className="divide-y divide-gray-50">
             {entries.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-400">No entries.</td>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-400">Nessuna voce.</td>
               </tr>
             )}
             {entries.map((e) => (

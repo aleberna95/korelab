@@ -1,7 +1,6 @@
 import { requireAdmin } from '@/lib/auth/guards'
 import { tasksRepo } from '@/lib/repos/tasksRepo'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
-import { runbooksRepo } from '@/lib/repos/runbooksRepo'
 import Link from 'next/link'
 import type { Task } from '@/lib/domain/types'
 import { CreateTaskForm } from './CreateTaskForm'
@@ -21,14 +20,12 @@ function formatTs(ts: { toDate(): Date } | undefined): string {
 export default async function TasksPage() {
   await requireAdmin()
 
-  const [openTasks, services, runbooks] = await Promise.all([
+  const [openTasks, services] = await Promise.all([
     tasksRepo.listOpen(),
     servicesRepo.list({ limit: 200 }),
-    runbooksRepo.list({ limit: 100 }),
   ])
 
-  const serviceMap = new Map(services.map((s) => [s.id, s.name]))
-  const runbookMap = new Map(runbooks.map((r) => [r.id, r.title]))
+  const serviceMap = new Map<string, string>(services.map((s) => [s.id, s.name]))
 
   const todo = openTasks.filter((t) => t.state === 'todo')
   const doing = openTasks.filter((t) => t.state === 'doing')
@@ -44,7 +41,6 @@ export default async function TasksPage() {
         <h2 className="text-sm font-semibold text-gray-700">Create task</h2>
         <CreateTaskForm
           services={services.map((s) => ({ id: s.id, name: s.name }))}
-          runbooks={runbooks.map((r) => ({ id: r.id, title: r.title }))}
         />
       </section>
 
@@ -54,7 +50,7 @@ export default async function TasksPage() {
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
             In progress ({doing.length})
           </h2>
-          <TaskList tasks={doing} serviceMap={serviceMap} runbookMap={runbookMap} />
+          <TaskList tasks={doing} serviceMap={serviceMap} />
         </section>
       )}
 
@@ -66,7 +62,7 @@ export default async function TasksPage() {
         {todo.length === 0 ? (
           <p className="text-gray-500 text-sm">No open tasks.</p>
         ) : (
-          <TaskList tasks={todo} serviceMap={serviceMap} runbookMap={runbookMap} />
+          <TaskList tasks={todo} serviceMap={serviceMap} />
         )}
       </section>
     </div>
@@ -76,11 +72,9 @@ export default async function TasksPage() {
 function TaskList({
   tasks,
   serviceMap,
-  runbookMap,
 }: {
   tasks: Task[]
   serviceMap: Map<string, string>
-  runbookMap: Map<string, string>
 }) {
   return (
     <div className="space-y-2">
@@ -98,7 +92,6 @@ function TaskList({
               )}
               <div className="flex flex-wrap gap-2 mt-1.5 text-xs text-gray-400">
                 {t.serviceId && <span>Service: {serviceMap.get(t.serviceId) ?? t.serviceId}</span>}
-                {t.runbookId && <span>Runbook: {runbookMap.get(t.runbookId) ?? t.runbookId}</span>}
                 {t.dueAt && <span>Due {formatTs(t.dueAt as unknown as { toDate(): Date })}</span>}
               </div>
             </div>

@@ -20,8 +20,8 @@ export default async function ServicesPage({ searchParams }: Props) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-5">
       <header>
-        <h1 className="text-2xl font-bold text-gray-900">Services</h1>
-        <p className="text-sm text-gray-500 mt-1">All services, filterable by state and client.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Servizi</h1>
+        <p className="text-sm text-gray-500 mt-1">Tutti i servizi, filtrabili per stato e cliente.</p>
       </header>
 
       {/* Filter bar is client component — wrap in Suspense for streaming */}

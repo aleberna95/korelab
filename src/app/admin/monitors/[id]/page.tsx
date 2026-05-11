@@ -35,7 +35,6 @@ export default async function MonitorDetailPage({ params }: Props) {
     },
     alertChannels: {
       telegram: monitor.alertChannels.telegram,
-      email: monitor.alertChannels.email,
       clientNotify: monitor.alertChannels.clientNotify,
     },
   }

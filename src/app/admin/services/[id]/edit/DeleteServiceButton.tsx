@@ -9,7 +9,7 @@ export function DeleteServiceButton({ serviceId }: Props) {
   const [isPending, startTransition] = useTransition()
 
   function handleClick() {
-    if (!confirm('Delete this service permanently? This cannot be undone.')) return
+    if (!confirm('Eliminare questo servizio definitivamente? L\'azione non può essere annullata.')) return
     startTransition(async () => {
       await deleteService(serviceId)
     })
@@ -21,7 +21,7 @@ export function DeleteServiceButton({ serviceId }: Props) {
       disabled={isPending}
       className="btn-danger text-sm"
     >
-      {isPending ? 'Deleting…' : 'Delete service'}
+      {isPending ? 'Eliminazione…' : 'Elimina servizio'}
     </button>
   )
 }

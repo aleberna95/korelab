@@ -75,14 +75,6 @@
       ]
     },
     {
-      "collectionGroup": "maintenanceWindows",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "serviceIds", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "endsAt", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "monitors",
       "queryScope": "COLLECTION",
       "fields": [

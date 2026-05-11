@@ -5,14 +5,11 @@ import { validateToken, recordTokenUse } from '@/lib/status/tokens'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { clientsRepo } from '@/lib/repos/clientsRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
-import { maintenanceRepo } from '@/lib/repos/maintenanceRepo'
-import { reportsRepo } from '@/lib/repos/reportsRepo'
 import { projectServiceForStatus, type AllowedSection } from '@/lib/status/projector'
 import { StatusHeader } from '@/components/status/StatusHeader'
 import { ServiceCard } from '@/components/status/ServiceCard'
 import { UptimeBar } from '@/components/status/UptimeBar'
 import { IncidentList } from '@/components/status/IncidentList'
-import { MaintenanceList } from '@/components/status/MaintenanceList'
 
 // Tokenized pages must never be cached by CDNs or stored
 export const dynamic = 'force-dynamic'
@@ -25,14 +22,10 @@ async function buildServiceView(serviceId: string, allowedSections: AllowedSecti
   const today = new Date().toISOString().slice(0, 10)
   const ninetyDaysAgo = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10)
 
-  const [service, incidents, rollups, maintenance, reports] = await Promise.all([
+  const [service, incidents, rollups] = await Promise.all([
     servicesRepo.getById(serviceId),
     incidentsRepo.listByService(serviceId, 20),
     servicesRepo.getDailyRollups(serviceId, ninetyDaysAgo, today),
-    maintenanceRepo.list({ serviceId, limit: 10 }),
-    allowedSections.includes('reports')
-      ? reportsRepo.list({ serviceId, visibility: 'tokenized', limit: 1 })
-      : Promise.resolve([]),
   ])
 
   if (!service) return null
@@ -41,9 +34,7 @@ async function buildServiceView(serviceId: string, allowedSections: AllowedSecti
     service,
     incidents,
     rollups,
-    maintenance,
     allowedSections,
-    reports[0],
   )
 
   return { service, view }
@@ -89,31 +80,10 @@ export default async function TokenizedStatusPage({ params }: Props) {
             </section>
           )}
 
-          {allowedSections.includes('maintenance') && view.maintenance.length > 0 && (
-            <section className="space-y-3">
-              <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Maintenance</h2>
-              <MaintenanceList windows={view.maintenance} />
-            </section>
-          )}
-
           {allowedSections.includes('incidents') && (
             <section className="space-y-3">
               <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Incidents</h2>
               <IncidentList active={view.activeIncident} recent={view.recentIncidents} />
-            </section>
-          )}
-
-          {allowedSections.includes('reports') && view.latestReport && (
-            <section className="space-y-2">
-              <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">Latest Report</h2>
-              <a
-                href={view.latestReport.url}
-                className="inline-block text-sm text-blue-400 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {view.latestReport.periodLabel} →
-              </a>
             </section>
           )}
 
@@ -131,7 +101,7 @@ export default async function TokenizedStatusPage({ params }: Props) {
 
   const clientServices = await servicesRepo.list({ clientId: tokenDoc.targetId, limit: 100 })
   const visibleServices = clientServices.filter(
-    (s) => s.visibility.statusPage === 'tokenized' || s.visibility.statusPage === 'public',
+    (s) => s.statusPageVisibility === 'tokenized' || s.statusPageVisibility === 'public',
   )
 
   const views = await Promise.all(

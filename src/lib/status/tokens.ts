@@ -7,9 +7,9 @@
  */
 
 import 'server-only'
+import { createHash } from 'crypto'
 import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminDb } from '@/lib/firebase/admin'
-import { statusTokensRepo } from '@/lib/repos/statusTokensRepo'
 import { auditLogRepo } from '@/lib/repos/auditLogRepo'
 import type { StatusToken } from '@/lib/domain/types'
 
@@ -20,7 +20,20 @@ import type { StatusToken } from '@/lib/domain/types'
  */
 export async function validateToken(rawToken: string): Promise<StatusToken | null> {
   if (!rawToken || rawToken.length < 8) return null
-  return statusTokensRepo.lookupByRawToken(rawToken)
+  const tokenHash = createHash('sha256').update(rawToken).digest('hex')
+  const db = getAdminDb()
+  const snap = await db
+    .collection('statusTokens')
+    .where('tokenHash', '==', tokenHash)
+    .limit(1)
+    .get()
+  if (snap.empty) return null
+  const doc = snap.docs[0]
+  const data = doc.data() as Omit<StatusToken, 'id'>
+  // Check revoked/expired
+  if (data.revokedAt) return null
+  if (data.expiresAt && data.expiresAt.toDate() < new Date()) return null
+  return { id: doc.id, ...data }
 }
 
 /**

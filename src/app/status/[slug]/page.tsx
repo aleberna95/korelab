@@ -3,13 +3,10 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
-import { maintenanceRepo } from '@/lib/repos/maintenanceRepo'
-import { reportsRepo } from '@/lib/repos/reportsRepo'
 import { projectServiceForStatus } from '@/lib/status/projector'
 import { StatusHeader } from '@/components/status/StatusHeader'
 import { UptimeBar } from '@/components/status/UptimeBar'
 import { IncidentList } from '@/components/status/IncidentList'
-import { MaintenanceList } from '@/components/status/MaintenanceList'
 
 export const revalidate = 60
 
@@ -29,25 +26,21 @@ export default async function ServiceStatusPage({ params }: Props) {
   const service = await servicesRepo.getById(slug)
 
   // Must be public to appear on this route
-  if (!service || service.visibility.statusPage !== 'public') notFound()
+  if (!service || service.statusPageVisibility !== 'public') notFound()
 
   const today = new Date().toISOString().slice(0, 10)
   const ninetyDaysAgo = new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10)
 
-  const [incidents, rollups, maintenance, reports] = await Promise.all([
+  const [incidents, rollups] = await Promise.all([
     incidentsRepo.listByService(service.id, 20),
     servicesRepo.getDailyRollups(service.id, ninetyDaysAgo, today),
-    maintenanceRepo.list({ serviceId: service.id, limit: 10 }),
-    reportsRepo.list({ serviceId: service.id, visibility: 'tokenized', limit: 1 }),
   ])
 
   const view = projectServiceForStatus(
     service,
     incidents,
     rollups,
-    maintenance,
-    ['status', 'incidents', 'maintenance', 'reports'],
-    reports[0],
+    ['status', 'incidents'],
   )
 
   return (
@@ -68,16 +61,6 @@ export default async function ServiceStatusPage({ params }: Props) {
             <p className="text-xs text-zinc-500 text-right">
               {view.uptime30d.toFixed(3)}% uptime over last 30 days
             </p>
-          </section>
-        )}
-
-        {/* Maintenance */}
-        {view.maintenance.length > 0 && (
-          <section className="space-y-3">
-            <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide">
-              Maintenance
-            </h2>
-            <MaintenanceList windows={view.maintenance} />
           </section>
         )}
 

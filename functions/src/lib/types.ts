@@ -2,13 +2,7 @@ import { Timestamp } from 'firebase-admin/firestore'
 
 // ─── Shared ────────────────────────────────────────────────────────────────
 
-export type SupportPlan =
-  | 'none'
-  | 'monitor-only'
-  | 'reporting-only'
-  | 'managed-support'
-  | 'managed-infra'
-  | 'auto-healing'
+export type SupportPlan = 'monitor-only' | 'managed' | 'full'
 
 export type ServiceStatusState =
   | 'operational'
@@ -28,11 +22,8 @@ export type IncidentState =
 export type IncidentSeverity = 'minor' | 'major' | 'critical'
 
 export type MonitorSource =
-  | 'uptimerobot'
   | 'internal-http'
   | 'internal-ssl'
-  | 'internal-dns'
-  | 'internal-domain'
 
 // ─── Documents ─────────────────────────────────────────────────────────────
 
@@ -40,19 +31,12 @@ export interface Client {
   id: string
   name: string
   businessType: 'agency' | 'ecommerce' | 'corporate' | 'startup' | 'other'
-  notificationPrefs: {
-    email: boolean
-    emails: string[]
-    telegramChatId?: string
-    quietHours?: { start: string; end: string; tz: string }
-  }
+  contacts: Array<{ name: string; email: string; phone?: string; role: string; primary: boolean }>
+  telegramChatId?: string
   supportPlan: SupportPlan
   consent: {
     monitoring: boolean
     notification: boolean
-    intervention: boolean
-    autoHealing: boolean
-    consentedAt?: Timestamp
   }
   tags: string[]
   status: 'active' | 'paused' | 'archived'
@@ -67,14 +51,9 @@ export interface Service {
   type: string
   environment: 'production' | 'staging' | 'dev'
   criticality: 'low' | 'medium' | 'high' | 'critical'
-  urls: { primary?: string; healthcheck?: string }
-  expectedHealth?: { statusCode: number; bodyContains?: string }
-  automation: {
-    mode: 'disabled' | 'manual-only' | 'manual-approval' | 'auto-low-risk'
-    allowedActions: string[]
-    cooldownMinutes: number
-    maxRetries: number
-  }
+  url?: string
+  healthcheckUrl?: string
+  statusPageVisibility: 'private' | 'tokenized' | 'public'
   currentStatus: {
     state: ServiceStatusState
     since: Timestamp
@@ -92,7 +71,6 @@ export interface Monitor {
   serviceId: string
   clientId: string
   source: MonitorSource
-  externalId?: string
   config: {
     intervalSec: number
     url?: string
@@ -102,13 +80,12 @@ export interface Monitor {
   }
   alertChannels: {
     telegram: boolean
-    email: boolean
     clientNotify: boolean
   }
   active: boolean
   lastCheckAt?: Timestamp
   lastResult?: 'up' | 'down' | 'degraded'
-  /** Threshold days already alerted (SSL/domain ladder) */
+  /** Threshold days already alerted (SSL ladder) */
   alertedThresholds?: number[]
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -122,7 +99,7 @@ export interface Incident {
   severity: IncidentSeverity
   startedAt: Timestamp
   resolvedAt?: Timestamp
-  source: 'uptimerobot' | 'internal-check' | 'manual'
+  source: 'internal-check' | 'manual'
   title: string
   publicMessage?: string
   notifiedClient: boolean

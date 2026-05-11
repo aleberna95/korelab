@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useWizard, type WizardContact } from '@/lib/onboarding/state'
@@ -15,12 +15,9 @@ const BUSINESS_TYPES = [
 ]
 
 const SUPPORT_PLANS = [
-  { value: 'none', label: 'Nessuno — nessun monitoraggio o supporto' },
   { value: 'monitor-only', label: 'Solo monitoraggio' },
-  { value: 'reporting-only', label: 'Solo reportistica' },
-  { value: 'managed-support', label: 'Supporto gestito' },
-  { value: 'managed-infra', label: 'Infrastruttura gestita' },
-  { value: 'auto-healing', label: 'Auto-healing' },
+  { value: 'managed', label: 'Supporto gestito' },
+  { value: 'full', label: 'Full service' },
 ]
 
 function ContactRow({
@@ -106,12 +103,9 @@ function AddContactForm({ onAdd }: { onAdd: (c: WizardContact) => void }) {
   )
 }
 
-const INPUT =
-  'input-base'
-const BTN_PRIMARY =
-  'px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md'
-const BTN_GHOST =
-  'px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800'
+const INPUT = 'input-base'
+const BTN_PRIMARY = 'px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md'
+const BTN_GHOST = 'px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-800'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -126,7 +120,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 export function StepClient({ clientOptions }: Props) {
   const { state, dispatch } = useWizard()
-
   const c = state.client
 
   function patchClient(patch: Partial<typeof c>) {
@@ -136,8 +129,8 @@ export function StepClient({ clientOptions }: Props) {
   return (
     <div className="space-y-6">
       <div>
-      <h2 className="text-xl font-bold text-gray-900">Cliente</h2>
-      <p className="text-sm text-gray-500 mt-1">Collega questo servizio a un cliente esistente o creane uno nuovo.</p>
+        <h2 className="text-xl font-bold text-gray-900">Cliente</h2>
+        <p className="text-sm text-gray-500 mt-1">Collega questo servizio a un cliente esistente o creane uno nuovo.</p>
       </div>
 
       {/* Mode selector */}
@@ -159,19 +152,12 @@ export function StepClient({ clientOptions }: Props) {
         ))}
       </div>
 
-      {/* ── Existing client picker ── */}
+      {/* Existing client picker */}
       {state.clientMode === 'existing' && (
         <Field label="Seleziona cliente *">
           <select
             value={state.existingClientId}
-            onChange={(e) => {
-              const selected = clientOptions.find((c) => c.id === e.target.value)
-              dispatch({
-                type: 'SET_EXISTING_CLIENT',
-                id: e.target.value,
-                supportPlan: selected?.supportPlan ?? '',
-              })
-            }}
+            onChange={(e) => dispatch({ type: 'SET_EXISTING_CLIENT', id: e.target.value })}
             className={INPUT}
           >
             <option value="">— choose —</option>
@@ -184,7 +170,7 @@ export function StepClient({ clientOptions }: Props) {
         </Field>
       )}
 
-      {/* ── New client form ── */}
+      {/* New client form */}
       {state.clientMode === 'new' && (
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
@@ -236,44 +222,18 @@ export function StepClient({ clientOptions }: Props) {
                 onRemove={() => dispatch({ type: 'REMOVE_CONTACT', index: i })}
               />
             ))}
-            <AddContactForm
-              onAdd={(contact) => dispatch({ type: 'ADD_CONTACT', contact })}
-            />
+            <AddContactForm onAdd={(contact) => dispatch({ type: 'ADD_CONTACT', contact })} />
           </div>
 
-          {/* Notification prefs */}
-          <div className="space-y-3">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Notifiche
-            </label>
-            <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={c.notificationEmail}
-                onChange={(e) => patchClient({ notificationEmail: e.target.checked })}
-                className="accent-blue-600"
-              />
-              Invia alert via email
-            </label>
-            {c.notificationEmail && (
-              <Field label="Email di alert (separate da virgola)">
-                <input
-                  value={c.notificationEmails}
-                  onChange={(e) => patchClient({ notificationEmails: e.target.value })}
-                  placeholder="ops@acme.com, cto@acme.com"
-                  className={INPUT}
-                />
-              </Field>
-            )}
-            <Field label="Telegram chat ID (optional)">
-              <input
-                value={c.telegramChatId}
-                onChange={(e) => patchClient({ telegramChatId: e.target.value })}
-                placeholder="-1001234567890"
-                className={INPUT}
-              />
-            </Field>
-          </div>
+          {/* Telegram */}
+          <Field label="Telegram chat ID (opzionale)">
+            <input
+              value={c.telegramChatId}
+              onChange={(e) => patchClient({ telegramChatId: e.target.value })}
+              placeholder="-1001234567890"
+              className={INPUT}
+            />
+          </Field>
 
           {/* Consent */}
           <div className="space-y-2">
@@ -284,8 +244,6 @@ export function StepClient({ clientOptions }: Props) {
               [
                 ['consentMonitoring', 'Monitoraggio'],
                 ['consentNotification', 'Notifiche incidenti'],
-                ['consentIntervention', 'Intervento manuale'],
-                ['consentAutoHealing', 'Azioni auto-healing'],
               ] as const
             ).map(([key, label]) => (
               <label key={key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
@@ -300,25 +258,14 @@ export function StepClient({ clientOptions }: Props) {
             ))}
           </div>
 
-          {/* Optional fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="URL contratto (opzionale)">
-              <input
-                value={c.contractUrl}
-                onChange={(e) => patchClient({ contractUrl: e.target.value })}
-                placeholder="https://notion.so/..."
-                className={INPUT}
-              />
-            </Field>
-            <Field label="Tag (separati da virgola)">
-              <input
-                value={c.tags}
-                onChange={(e) => patchClient({ tags: e.target.value })}
-                placeholder="agency, retainer"
-                className={INPUT}
-              />
-            </Field>
-          </div>
+          <Field label="Tag (separati da virgola)">
+            <input
+              value={c.tags}
+              onChange={(e) => patchClient({ tags: e.target.value })}
+              placeholder="agency, retainer"
+              className={INPUT}
+            />
+          </Field>
 
           <Field label="Note interne">
             <textarea

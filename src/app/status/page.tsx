@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
-import { maintenanceRepo } from '@/lib/repos/maintenanceRepo'
 import { projectServiceForStatus } from '@/lib/status/projector'
 import { ServiceCard } from '@/components/status/ServiceCard'
 import { StatusHeader } from '@/components/status/StatusHeader'
@@ -21,9 +20,9 @@ export default async function StatusPage() {
   void headersList // keep import alive; headers() is called to set cache on the response
 
   const services = await servicesRepo.list({ limit: 200 })
-  const publicServices = services.filter((s) => s.visibility.statusPage === 'public')
+  const publicServices = services.filter((s) => s.statusPageVisibility === 'public')
 
-  const ALL_SECTIONS = ['status', 'incidents', 'maintenance'] as const
+  const ALL_SECTIONS = ['status', 'incidents'] as const
 
   // Date range for 90d rollups
   const today = new Date().toISOString().slice(0, 10)
@@ -31,14 +30,13 @@ export default async function StatusPage() {
 
   const views = await Promise.all(
     publicServices.map(async (svc) => {
-      const [incidents, rollups, maintenance] = await Promise.all([
+      const [incidents, rollups] = await Promise.all([
         incidentsRepo.listByService(svc.id, 20),
         servicesRepo.getDailyRollups(svc.id, ninetyDaysAgo, today),
-        maintenanceRepo.list({ serviceId: svc.id, limit: 10 }),
       ])
       return {
         svc,
-        view: projectServiceForStatus(svc, incidents, rollups, maintenance, [...ALL_SECTIONS]),
+        view: projectServiceForStatus(svc, incidents, rollups, [...ALL_SECTIONS]),
       }
     }),
   )

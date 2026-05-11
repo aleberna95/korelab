@@ -7,7 +7,7 @@
  * The function is pure (no I/O) so it can be tested exhaustively without Firestore.
  */
 
-import type { Service, Incident, MaintenanceWindow, Report } from '@/lib/domain/types'
+import type { Service, Incident } from '@/lib/domain/types'
 
 type DailyRollupLike = { date: string; uptimePct: number; [k: string]: unknown }
 
@@ -27,19 +27,6 @@ export type PublicIncident = {
   severity: 'minor' | 'major' | 'critical'
 }
 
-export type PublicMaintenance = {
-  title: string
-  publicMessage: string
-  startsAt: Date
-  endsAt: Date
-}
-
-export type PublicReport = {
-  id: string
-  periodLabel: string
-  url: string
-}
-
 export type PublicServiceView = {
   name: string
   state: string
@@ -48,13 +35,11 @@ export type PublicServiceView = {
   daily90d: DailyBar[]
   activeIncident?: PublicIncident
   recentIncidents: PublicIncident[]
-  maintenance: PublicMaintenance[]
-  latestReport?: PublicReport
 }
 
-// ─── Allowed sections ──────────────────────────────────────────────────────
+// ── Allowed sections ──────────────────────────────────────────────────────────────
 
-export type AllowedSection = 'status' | 'incidents' | 'reports' | 'maintenance'
+export type AllowedSection = 'status' | 'incidents'
 
 // ─── Projector ────────────────────────────────────────────────────────────
 
@@ -66,9 +51,7 @@ export function projectServiceForStatus(
   service: Service,
   incidents: Incident[],
   dailyRollups: DailyRollupLike[],
-  maintenance: MaintenanceWindow[],
   allowedSections: AllowedSection[],
-  latestReport?: Report,
 ): PublicServiceView {
   const allowed = new Set(allowedSections)
 
@@ -114,29 +97,6 @@ export function projectServiceForStatus(
       }))
   }
 
-  // ── maintenance ───────────────────────────────────────────────────────────
-  let maintenanceView: PublicServiceView['maintenance'] = []
-
-  if (allowed.has('maintenance')) {
-    maintenanceView = maintenance.map((mw) => ({
-      title: mw.title,
-      publicMessage: mw.publicMessage,
-      startsAt: tsToDate(mw.startsAt as unknown as { toDate(): Date }),
-      endsAt: tsToDate(mw.endsAt as unknown as { toDate(): Date }),
-    }))
-  }
-
-  // ── reports ───────────────────────────────────────────────────────────────
-  let latestReportView: PublicServiceView['latestReport'] = undefined
-
-  if (allowed.has('reports') && latestReport) {
-    latestReportView = {
-      id: latestReport.id,
-      periodLabel: latestReport.period.label,
-      url: `/admin/reports/${latestReport.id}`, // tokenized link
-    }
-  }
-
   // ── Return ONLY the allowed fields ───────────────────────────────────────
   const view: PublicServiceView = {
     name: service.name,
@@ -146,8 +106,6 @@ export function projectServiceForStatus(
     daily90d,
     activeIncident,
     recentIncidents,
-    maintenance: maintenanceView,
-    latestReport: latestReportView,
   }
 
   return view
