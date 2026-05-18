@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/auth/guards'
 import { tasksRepo } from '@/lib/repos/tasksRepo'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
+import { cached, CACHE_TAGS } from '@/lib/cache'
 import Link from 'next/link'
 import type { Task } from '@/lib/domain/types'
 import { CreateTaskForm } from './CreateTaskForm'
@@ -21,8 +22,16 @@ export default async function TasksPage() {
   await requireAdmin()
 
   const [openTasks, services] = await Promise.all([
-    tasksRepo.listOpen(),
-    servicesRepo.list({ limit: 200 }),
+    cached(
+      () => tasksRepo.listOpen(),
+      ['tasks', 'open'],
+      { tags: [CACHE_TAGS.tasks], revalidate: 15 },
+    ),
+    cached(
+      () => servicesRepo.listNames(),
+      ['services', 'names'],
+      { tags: [CACHE_TAGS.services], revalidate: 60 },
+    ),
   ])
 
   const serviceMap = new Map<string, string>(services.map((s) => [s.id, s.name]))

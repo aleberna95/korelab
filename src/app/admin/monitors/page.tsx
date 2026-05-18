@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { requireAdmin } from '@/lib/auth/guards'
 import { monitorsRepo } from '@/lib/repos/monitorsRepo'
+import { cached, CACHE_TAGS } from '@/lib/cache'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Monitors — Command Center' }
@@ -13,7 +14,11 @@ function formatTime(ts: { toDate(): Date } | undefined): string {
 export default async function MonitorsPage() {
   await requireAdmin()
 
-  const monitors = await monitorsRepo.list({ limit: 200 })
+  const monitors = await cached(
+    () => monitorsRepo.list({ limit: 200 }),
+    ['monitors', 'list'],
+    { tags: [CACHE_TAGS.monitors], revalidate: 30 },
+  )
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">

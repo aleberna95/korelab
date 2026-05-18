@@ -99,6 +99,17 @@ export const servicesRepo = {
     return this.list({ hasActiveIncident: true })
   },
 
+  /** Lightweight lookup: returns only id + name (uses select() to reduce reads). */
+  async listNames(limit = 200): Promise<{ id: string; name: string }[]> {
+    const snap = await getAdminDb()
+      .collection(COLLECTION)
+      .select('name')
+      .orderBy('name')
+      .limit(limit)
+      .get()
+    return snap.docs.map((d) => ({ id: d.id, name: d.get('name') as string }))
+  },
+
   async create(input: CreateServiceInput, actorUid?: string): Promise<Service> {
     const validated = CreateServiceSchema.parse(input)
 

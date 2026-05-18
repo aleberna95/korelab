@@ -3,6 +3,7 @@
  *
  * All queries run in parallel with Promise.all — never N+1.
  * Called exclusively from RSC pages.
+ * Results are cached (30s TTL) so repeated navigations don't hit Firestore.
  */
 
 import 'server-only'
@@ -10,6 +11,7 @@ import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
 import { auditLogRepo } from '@/lib/repos/auditLogRepo'
 import { monitorsRepo } from '@/lib/repos/monitorsRepo'
+import { cached, CACHE_TAGS } from '@/lib/cache'
 import type { Service, ServiceStatusState } from '@/lib/domain/types'
 
 export type OverviewStats = {
@@ -23,10 +25,26 @@ export type OverviewStats = {
 /** Fetch all data needed for the overview page in one Promise.all */
 export async function getOverviewStats(): Promise<OverviewStats> {
   const [allServices, activeIncidents, withoutMonitor, recentAudit] = await Promise.all([
-    servicesRepo.list({ limit: 500 }),
-    incidentsRepo.listActive(),
-    servicesRepo.listWithoutMonitor(),
-    auditLogRepo.list({ limit: 10 }),
+    cached(
+      () => servicesRepo.list({ limit: 500 }),
+      ['overview', 'services'],
+      { tags: [CACHE_TAGS.services], revalidate: 30 },
+    ),
+    cached(
+      () => incidentsRepo.listActive(),
+      ['overview', 'active-incidents'],
+      { tags: [CACHE_TAGS.incidents], revalidate: 15 },
+    ),
+    cached(
+      () => servicesRepo.listWithoutMonitor(),
+      ['overview', 'no-monitor'],
+      { tags: [CACHE_TAGS.services, CACHE_TAGS.monitors], revalidate: 60 },
+    ),
+    cached(
+      () => auditLogRepo.list({ limit: 10 }),
+      ['overview', 'audit'],
+      { tags: [CACHE_TAGS.audit], revalidate: 15 },
+    ),
   ])
 
   const byState: Record<ServiceStatusState, number> = {

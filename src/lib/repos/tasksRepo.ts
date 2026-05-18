@@ -60,12 +60,14 @@ export const tasksRepo = {
     const now = FieldValue.serverTimestamp()
 
     const { dueAt, ...rest } = validated
-    await ref.set({
+    const doc: Record<string, unknown> = {
       ...rest,
       id: ref.id,
-      dueAt: dueAt ? new Date(dueAt) : undefined,
       createdAt: now,
-    } as unknown as Task)
+    }
+    if (dueAt) doc.dueAt = new Date(dueAt)
+
+    await ref.set(doc as unknown as Task)
 
     await auditLogRepo.write({
       actorUid,

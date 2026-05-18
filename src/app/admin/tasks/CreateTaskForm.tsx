@@ -6,16 +6,17 @@ import { createTask } from './actions'
 
 type Props = {
   services: { id: string; name: string }[]
+  defaultServiceId?: string
 }
 
-export function CreateTaskForm({ services }: Props) {
+export function CreateTaskForm({ services, defaultServiceId }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [serviceId, setServiceId] = useState('')
+  const [serviceId, setServiceId] = useState(defaultServiceId ?? '')
   const [dueAt, setDueAt] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
@@ -75,7 +76,7 @@ export function CreateTaskForm({ services }: Props) {
         <select
           value={serviceId}
           onChange={(e) => setServiceId(e.target.value)}
-          className="input-base"
+          className={`input-base${defaultServiceId ? ' hidden' : ''}`}
         >
           <option value="">— Service —</option>
           {services.map((s) => (

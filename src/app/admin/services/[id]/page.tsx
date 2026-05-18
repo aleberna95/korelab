@@ -5,9 +5,13 @@ import { requireAdmin } from '@/lib/auth/guards'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { monitorsRepo } from '@/lib/repos/monitorsRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
+import { tasksRepo } from '@/lib/repos/tasksRepo'
+import { cached, CACHE_TAGS } from '@/lib/cache'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
 import { IncidentList, type IncidentListItem } from '@/components/incidents/IncidentList'
 import { AddMonitorForm } from './AddMonitorForm'
+import { CreateTaskForm } from '@/app/admin/tasks/CreateTaskForm'
+import type { Task } from '@/lib/domain/types'
 
 export const metadata: Metadata = { title: 'Service — Command Center' }
 
@@ -20,10 +24,18 @@ export default async function ServiceDetailPage({ params }: Props) {
   const service = await servicesRepo.getById(id)
   if (!service) notFound()
 
-  const [monitors, incidents] = await Promise.all([
+  const [monitors, incidents, tasks] = await Promise.all([
     monitorsRepo.listByIds(service.monitorIds),
     incidentsRepo.listByService(id, 20),
+    cached(
+      () => tasksRepo.list({ serviceId: id, limit: 50 }),
+      ['tasks', 'by-service', id],
+      { tags: [CACHE_TAGS.tasks], revalidate: 15 },
+    ),
   ])
+
+  const openTasks = tasks.filter((t) => t.state === 'todo' || t.state === 'doing')
+  const doneTasks = tasks.filter((t) => t.state === 'done' || t.state === 'cancelled')
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
@@ -133,6 +145,64 @@ export default async function ServiceDetailPage({ params }: Props) {
                 emptyMessage="Nessun incidente registrato."
               />
             </div>
+          </section>
+
+          {/* Tasks */}
+          <section>
+            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Tasks ({openTasks.length} aperti)
+            </h2>
+
+            {/* Quick create */}
+            <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 mb-3">
+              <CreateTaskForm
+                services={[{ id: service.id, name: service.name }]}
+                defaultServiceId={service.id}
+              />
+            </div>
+
+            {/* Open tasks */}
+            {openTasks.length > 0 && (
+              <div className="space-y-1.5 mb-3">
+                {openTasks.map((t) => (
+                  <Link
+                    key={t.id}
+                    href={`/admin/tasks/${t.id}`}
+                    className="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-gray-300 hover:shadow-sm transition-all"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{t.title}</p>
+                      {t.description && (
+                        <p className="text-xs text-gray-400 line-clamp-1">{t.description}</p>
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                        t.state === 'doing'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {t.state}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {openTasks.length === 0 && (
+              <p className="text-sm text-gray-400 px-1">Nessun task aperto.</p>
+            )}
+
+            {/* Closed tasks (collapsed) */}
+            {doneTasks.length > 0 && (
+              <p className="text-xs text-gray-400 px-1">
+                + {doneTasks.length} completati/annullati —{' '}
+                <Link href={`/admin/tasks?service=${id}`} className="hover:underline text-gray-500">
+                  vedi tutti
+                </Link>
+              </p>
+            )}
           </section>
         </div>
 

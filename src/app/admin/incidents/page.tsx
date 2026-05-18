@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { requireAdmin } from '@/lib/auth/guards'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
+import { cached, CACHE_TAGS } from '@/lib/cache'
 import { IncidentList, type IncidentListItem } from '@/components/incidents/IncidentList'
 import type { Incident } from '@/lib/domain/types'
 
@@ -14,8 +15,16 @@ export default async function IncidentsPage() {
   await requireAdmin()
 
   const [active, recent] = await Promise.all([
-    incidentsRepo.listActive(),
-    incidentsRepo.list({ limit: 30 }),
+    cached(
+      () => incidentsRepo.listActive(),
+      ['incidents', 'active'],
+      { tags: [CACHE_TAGS.incidents], revalidate: 15 },
+    ),
+    cached(
+      () => incidentsRepo.list({ limit: 30 }),
+      ['incidents', 'recent'],
+      { tags: [CACHE_TAGS.incidents], revalidate: 15 },
+    ),
   ])
 
   // Dedupe: recent may include active ones — separate them
