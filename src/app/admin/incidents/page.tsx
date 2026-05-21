@@ -34,16 +34,16 @@ export default async function IncidentsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
       <header>
-        <h1 className="text-2xl font-bold text-gray-900">Incidenti</h1>
-        <p className="text-sm text-gray-500 mt-1">Incidenti attivi e storico recente.</p>
+        <h1 className="text-display font-bold text-[var(--color-fg)]">Incidenti</h1>
+        <p className="text-sm text-[var(--color-fg-muted)] mt-1">Incidenti attivi e storico recente.</p>
       </header>
 
       {/* Active */}
       <section>
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+        <h2 className="text-xs font-semibold text-[var(--color-fg-muted)] uppercase tracking-widest mb-3">
           Attivi ({active.length})
         </h2>
-        <div className="bg-white rounded-lg border border-gray-200 px-4">
+        <div className="bg-[var(--color-surface)] rounded-[var(--radius)] border border-[var(--color-border)] px-4">
           <IncidentList
             incidents={active.map(toListItem)}
             emptyMessage="Nessun incidente attivo — tutti i sistemi operativi."
@@ -54,10 +54,10 @@ export default async function IncidentsPage() {
       {/* Recent resolved */}
       {resolved.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+          <h2 className="text-xs font-semibold text-[var(--color-fg-muted)] uppercase tracking-widest mb-3">
             Recenti ({resolved.length})
           </h2>
-          <div className="bg-white rounded-lg border border-gray-200 px-4">
+          <div className="bg-[var(--color-surface)] rounded-[var(--radius)] border border-[var(--color-border)] px-4">
             <IncidentList incidents={resolved.map(toListItem)} />
           </div>
         </section>

@@ -28,12 +28,9 @@ export const CreateIncidentSchema = z.object({
   severity: IncidentSeveritySchema,
   source: IncidentSourceSchema,
   title: z.string().min(1),
-  publicMessage: z.string().optional(),
   privateMessage: z.string().optional(),
   rootCause: z.string().optional(),
   resolution: z.string().optional(),
-  visibility: z.enum(['private', 'tokenized', 'public']).default('private'),
-  notifiedClient: z.boolean().default(false),
   metrics: z.object({
     downtimeSec: z.number().int().min(0).optional(),
   }),

@@ -8,8 +8,7 @@ import {
   type CreateClientInput,
   type UpdateClientInput,
 } from '@/lib/domain/schemas/client'
-import type { Client, SupportPlan } from '@/lib/domain/types'
-import { auditLogRepo } from './auditLogRepo'
+import type { Client } from '@/lib/domain/types'
 
 const COLLECTION = 'clients'
 const converter = makeDocConverter<Client>()
@@ -20,7 +19,6 @@ function col() {
 
 export type ClientFilters = {
   status?: Client['status']
-  supportPlan?: SupportPlan
   tag?: string
   limit?: number
 }
@@ -35,7 +33,6 @@ export const clientsRepo = {
     let q = col().orderBy('name') as FirebaseFirestore.Query<Client>
 
     if (filters.status) q = q.where('status', '==', filters.status)
-    if (filters.supportPlan) q = q.where('supportPlan', '==', filters.supportPlan)
     if (filters.tag) q = q.where('tags', 'array-contains', filters.tag)
     q = q.limit(filters.limit ?? 100)
 
@@ -58,14 +55,6 @@ export const clientsRepo = {
       updatedAt: now,
     } as unknown as Client)
 
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'clients.create',
-      targetCollection: COLLECTION,
-      targetId: ref.id,
-    })
-
     const created = await ref.get()
     return created.data()!
   },
@@ -79,28 +68,11 @@ export const clientsRepo = {
     await col()
       .doc(id)
       .update({ ...validated, updatedAt: FieldValue.serverTimestamp() })
-
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'clients.update',
-      targetCollection: COLLECTION,
-      targetId: id,
-      metadata: { fields: Object.keys(validated) },
-    })
   },
 
   async archive(id: string, actorUid?: string): Promise<void> {
     await col()
       .doc(id)
       .update({ status: 'archived', updatedAt: FieldValue.serverTimestamp() })
-
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'clients.archive',
-      targetCollection: COLLECTION,
-      targetId: id,
-    })
   },
 }

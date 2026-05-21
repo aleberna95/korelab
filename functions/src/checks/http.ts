@@ -5,7 +5,7 @@
  * Uses native fetch (Node 22+) with a hard timeout.
  */
 
-import type { Monitor } from '../lib/types'
+import type { ServiceCheck } from '../lib/types'
 
 export interface HttpCheckResult {
   result: 'up' | 'down' | 'degraded'
@@ -16,15 +16,16 @@ export interface HttpCheckResult {
 
 const DEFAULT_TIMEOUT_MS = 5_000
 
-export async function checkHTTP(monitor: Monitor): Promise<HttpCheckResult> {
-  const url = monitor.config.url
+export async function checkHTTP(check: ServiceCheck): Promise<HttpCheckResult> {
+  const url = check.url
+
   if (!url) {
     return { result: 'down', responseMs: 0, error: 'No URL configured' }
   }
 
-  const timeoutMs = monitor.config.timeoutMs ?? DEFAULT_TIMEOUT_MS
-  const expectStatus = monitor.config.expectStatus ?? 200
-  const expectBody = monitor.config.expectBody
+  const timeoutMs = check.timeoutMs ?? DEFAULT_TIMEOUT_MS
+  const expectStatus = check.expectStatus ?? 200
+  const expectBody = check.expectBody
 
   const start = Date.now()
 

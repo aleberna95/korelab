@@ -114,27 +114,5 @@ async function sendIncidentAlerts(
     )
   }
 
-  // Client Telegram: only on investigating (first alert) or resolved
-  const alertClient = toState === 'investigating' || toState === 'resolved'
-  if (alertClient && incident.notifiedClient && incident.clientId) {
-    const clientSnap = await db.collection('clients').doc(incident.clientId).get()
-    const client = clientSnap.data()
-
-    if (client?.consent?.notification && client?.telegramChatId) {
-      const publicMsg = incident.publicMessage
-        ? `\n${escapeHtml(incident.publicMessage)}`
-        : ''
-      const clientText =
-        `${emoji} <b>${escapeHtml(incident.title ?? '')}</b>${publicMsg}`
-
-      alerts.push(
-        sendTelegramMessage({
-          chatId: client.telegramChatId,
-          text: clientText,
-        }).catch((e) => console.error('[onIncidentWrite] client telegram:', e)),
-      )
-    }
-  }
-
   await Promise.allSettled(alerts)
 }

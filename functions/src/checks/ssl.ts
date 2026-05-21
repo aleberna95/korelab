@@ -8,7 +8,7 @@
  */
 
 import * as tls from 'tls'
-import type { Monitor } from '../lib/types'
+import type { ServiceCheck } from '../lib/types'
 
 export interface SSLCheckResult {
   result: 'up' | 'down' | 'degraded'
@@ -35,14 +35,11 @@ function parseHost(url: string): { host: string; port: number } {
   }
 }
 
-export async function checkSSL(monitor: Monitor): Promise<SSLCheckResult> {
-  const url = monitor.config.url
-  if (!url) {
-    return { result: 'down', responseMs: 0, error: 'No URL configured' }
-  }
+export async function checkSSL(check: ServiceCheck): Promise<SSLCheckResult> {
+  const url = check.url
 
   const { host, port } = parseHost(url)
-  const timeoutMs = monitor.config.timeoutMs ?? DEFAULT_TIMEOUT_MS
+  const timeoutMs = check.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const start = Date.now()
 
   return new Promise<SSLCheckResult>((resolve) => {

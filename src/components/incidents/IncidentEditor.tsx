@@ -22,12 +22,9 @@ export function IncidentEditor({ incident, onSaved }: Props) {
   const [state, setState] = useState(incident.state)
   const [severity, setSeverity] = useState(incident.severity)
   const [title, setTitle] = useState(incident.title)
-  const [publicMessage, setPublicMessage] = useState(incident.publicMessage ?? '')
   const [privateMessage, setPrivateMessage] = useState(incident.privateMessage ?? '')
   const [rootCause, setRootCause] = useState(incident.rootCause ?? '')
   const [resolution, setResolution] = useState(incident.resolution ?? '')
-  const [visibility, setVisibility] = useState(incident.visibility)
-  const [notifiedClient, setNotifiedClient] = useState(incident.notifiedClient)
   const [comment, setComment] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -47,12 +44,9 @@ export function IncidentEditor({ incident, onSaved }: Props) {
           state,
           severity,
           title,
-          publicMessage,
           privateMessage,
           rootCause,
           resolution,
-          visibility,
-          notifiedClient,
           comment: comment.trim() || undefined,
         }),
       })
@@ -114,19 +108,6 @@ export function IncidentEditor({ incident, onSaved }: Props) {
         />
       </div>
 
-      {/* Public message */}
-      <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Messaggio pubblico <span className="font-normal text-gray-400">(visibile sulla pagina di stato)</span>
-        </label>
-        <textarea
-          value={publicMessage}
-          onChange={(e) => setPublicMessage(e.target.value)}
-          rows={2}
-          className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-      </div>
-
       {/* Private message */}
       <div>
         <label className="block text-xs font-medium text-gray-700 mb-1">Note private</label>
@@ -157,33 +138,6 @@ export function IncidentEditor({ incident, onSaved }: Props) {
             rows={2}
             className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-        </div>
-      </div>
-
-      {/* Visibility + notified client */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">Visibilità</label>
-          <select
-            value={visibility}
-            onChange={(e) => setVisibility(e.target.value as Incident['visibility'])}
-            className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="private">Privato</option>
-            <option value="tokenized">Tokenizzato</option>
-            <option value="public">Pubblico</option>
-          </select>
-        </div>
-        <div className="flex items-end pb-1">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={notifiedClient}
-              onChange={(e) => setNotifiedClient(e.target.checked)}
-              className="rounded border-gray-300"
-            />
-            <span className="text-sm text-gray-700">Notifica cliente</span>
-          </label>
         </div>
       </div>
 

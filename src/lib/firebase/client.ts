@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app'
+import { initializeFirestore, persistentLocalCache } from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -11,7 +12,10 @@ const firebaseConfig = {
 
 function getClientApp(): FirebaseApp {
   if (getApps().length > 0) return getApp()
-  return initializeApp(firebaseConfig)
+  const app = initializeApp(firebaseConfig)
+  // Enable IndexedDB offline persistence — writes are queued when offline
+  initializeFirestore(app, { localCache: persistentLocalCache() })
+  return app
 }
 
 export const clientApp = getClientApp()

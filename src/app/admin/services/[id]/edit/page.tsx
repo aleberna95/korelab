@@ -26,8 +26,6 @@ export default async function EditServicePage({ params }: Props) {
     tags: service.tags,
     description: service.description,
     url: service.url,
-    healthcheckUrl: service.healthcheckUrl,
-    statusPageVisibility: service.statusPageVisibility,
   }
 
   return (

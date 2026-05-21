@@ -1,13 +1,17 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/guards'
 import { clientsRepo } from '@/lib/repos/clientsRepo'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
-import { StatusBadge } from '@/components/dashboard/StatusBadge'
-import { TestClientTelegramButton } from './TestClientTelegramButton'
+import { incidentsRepo } from '@/lib/repos/incidentsRepo'
+import {
+  ClientDetail,
+  type ClientData,
+  type ServiceRow,
+  type IncidentRow,
+} from './ClientDetail'
 
-export const metadata: Metadata = { title: 'Client — Command Center' }
+export const metadata: Metadata = { title: 'Cliente — Command Center' }
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -15,150 +19,50 @@ export default async function ClientDetailPage({ params }: Props) {
   await requireAdmin()
   const { id } = await params
 
-  const [client, services] = await Promise.all([
+  const [client, services, recentIncidents] = await Promise.all([
     clientsRepo.getById(id),
     servicesRepo.list({ clientId: id, limit: 100 }),
+    incidentsRepo.list({ clientId: id, limit: 5 }),
   ])
 
   if (!client) notFound()
 
+  const clientData: ClientData = {
+    id: client.id,
+    name: client.name,
+    email: client.email,
+    phone: client.phone,
+    notes: client.notes,
+    tags: client.tags,
+    status: client.status,
+  }
+
+  const serviceRows: ServiceRow[] = services.map((svc) => ({
+    id: svc.id,
+    name: svc.name,
+    state: svc.currentStatus.state,
+    sinceMs: svc.currentStatus.since?.toMillis() ?? 0,
+    checkUrl: svc.check?.url,
+  }))
+
+  const incidentRows: IncidentRow[] = recentIncidents.map((inc) => ({
+    id: inc.id,
+    serviceId: inc.serviceId,
+    state: inc.state,
+    title: inc.title,
+    startedAtMs: inc.startedAt.toMillis(),
+    resolvedAtMs: inc.resolvedAt?.toMillis(),
+  }))
+
+  const serviceNameMap: Record<string, string> = {}
+  for (const svc of services) serviceNameMap[svc.id] = svc.name
+
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-      {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500">
-        <Link href="/admin/clients" className="hover:underline">Clients</Link>
-        {' '}/{' '}
-        <span className="text-gray-900">{client.name}</span>
-      </nav>
-
-      {/* Header */}
-      <header className="flex items-start gap-4">
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
-          <p className="text-sm text-gray-500 mt-1 capitalize">
-            {client.businessType} · {client.supportPlan.replace(/-/g, ' ')} ·{' '}
-            <span className={client.status === 'active' ? 'text-green-600' : 'text-gray-400'}>
-              {client.status}
-            </span>
-          </p>
-        </div>
-        <Link
-          href={`/admin/clients/${id}/edit`}
-          className="btn-secondary text-sm px-4 py-2"
-        >
-          Modifica
-        </Link>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: meta */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Contacts */}
-          <section>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Contatti
-            </h2>
-            <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
-              {client.contacts.map((c, i) => (
-                <div key={i} className="px-4 py-3 flex items-start gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{c.name}</p>
-                    <p className="text-xs text-gray-500">{c.role}</p>
-                  </div>
-                  <div className="text-right">
-                    <a href={`mailto:${c.email}`} className="text-xs text-blue-600 hover:underline block">
-                      {c.email}
-                    </a>
-                    {c.phone && <p className="text-xs text-gray-400">{c.phone}</p>}
-                    {c.primary && <span className="text-xs text-green-600">Principale</span>}
-                  </div>
-                </div>
-              ))}
-              {client.contacts.length === 0 && (
-                <p className="px-4 py-6 text-sm text-gray-400 text-center">Nessun contatto.</p>
-              )}
-            </div>
-          </section>
-
-          {/* Services */}
-          <section>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Servizi ({services.length})
-            </h2>
-            <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
-              {services.map((svc) => (
-                <Link
-                  key={svc.id}
-                  href={`/admin/services/${svc.id}`}
-                  className="flex items-center gap-4 px-4 py-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">{svc.name}</p>
-                    <p className="text-xs text-gray-400 capitalize">{svc.environment} · {svc.type.replace(/-/g, ' ')}</p>
-                  </div>
-                  <StatusBadge state={svc.currentStatus.state} size="sm" />
-                </Link>
-              ))}
-              {services.length === 0 && (
-                <p className="px-4 py-6 text-sm text-gray-400 text-center">Nessun servizio.</p>
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Right: consent + notification */}
-        <div className="space-y-6">
-          {/* Consent matrix */}
-          <section>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Consensi
-            </h2>
-            <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 space-y-2">
-              {Object.entries(client.consent)
-                .filter(([k]) => k !== 'consentedAt')
-                .map(([k, v]) => (
-                  <div key={k} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 capitalize">{k.replace(/([A-Z])/g, ' $1')}</span>
-                    <span className={`text-xs font-medium ${v ? 'text-green-600' : 'text-gray-400'}`}>
-                      {v ? 'Sì' : 'No'}
-                    </span>
-                  </div>
-                ))}
-            </div>
-          </section>
-
-          {/* Notification prefs */}
-          <section>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              Notifiche
-            </h2>
-            <div className="bg-white rounded-lg border border-gray-200 px-4 py-3 space-y-1.5 text-sm">
-              {client.telegramChatId ? (
-                <div className="flex items-center gap-3 flex-wrap">
-                  <p className="text-gray-600">
-                    Telegram: <span className="font-mono text-xs">{client.telegramChatId}</span>
-                  </p>
-                  <TestClientTelegramButton clientId={id} hasChatId={true} />
-                </div>
-              ) : (
-                <p className="text-gray-400 italic text-xs">Nessun Telegram configurato</p>
-              )}
-            </div>
-          </section>
-
-          {/* Notes */}
-          {client.notes && (
-            <section>
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-                Note
-              </h2>
-              <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{client.notes}</p>
-              </div>
-            </section>
-          )}
-        </div>
-      </div>
-    </div>
+    <ClientDetail
+      client={clientData}
+      initialServices={serviceRows}
+      recentIncidents={incidentRows}
+      serviceNameMap={serviceNameMap}
+    />
   )
 }

@@ -1,12 +1,13 @@
 /**
- * incidentHelper.ts — lightweight incident create/close for Cloud Functions.
+ * incidentHelper.ts — lightweight incident create/resolve for Cloud Functions.
  *
  * Mirrors the logic of src/lib/incidents/engine.ts but uses raw Firestore
  * (no @/ imports, since functions is a separate TS project).
  *
  * Only handles the simple cases needed by internal checks:
  *  - ensureIncident: open a new incident if none is active
- *  - resolveIncident: close the active incident for a service
+ *  - resolveIncident: resolve the active incident directly to 'resolved'
+ *  - closeIncident: legacy — transitions to 'monitoring' (kept for reference)
  */
 
 import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore'
@@ -19,13 +20,11 @@ const db = getFirestore()
 export type IncidentSeverity = 'minor' | 'major' | 'critical'
 
 export interface EnsureIncidentOptions {
-  monitorId: string
   serviceId: string
   clientId: string
   title: string
   severity: IncidentSeverity
   source: string
-  publicMessage?: string
 }
 
 /**
@@ -34,7 +33,7 @@ export interface EnsureIncidentOptions {
  * Returns the incident id (new or existing).
  */
 export async function ensureIncident(opts: EnsureIncidentOptions): Promise<string> {
-  const { monitorId, serviceId, clientId, title, severity, source, publicMessage } = opts
+  const { serviceId, clientId, title, severity, source } = opts
 
   // Check for existing active incident
   const activeSnap = await db
@@ -62,11 +61,7 @@ export async function ensureIncident(opts: EnsureIncidentOptions): Promise<strin
     startedAt: now,
     source,
     title,
-    publicMessage: publicMessage ?? '',
-    visibility: 'public',
-    notifiedClient: false,
     metrics: {},
-    monitorId,
   })
 
   // Update service status
@@ -80,8 +75,45 @@ export async function ensureIncident(opts: EnsureIncidentOptions): Promise<strin
 }
 
 /**
- * Transitions the active incident for a service to 'monitoring' or resolves it.
- * Called when a check comes back 'up'.
+ * Resolves the active incident for a service directly to 'resolved'.
+ * Called by automated check recovery (DOWN→UP transition).
+ * Always resets service.currentStatus to operational, even if no incident found.
+ */
+export async function resolveIncident(serviceId: string): Promise<void> {
+  const activeSnap = await db
+    .collection('incidents')
+    .where('serviceId', '==', serviceId)
+    .where('state', 'in', ['investigating', 'identified', 'monitoring'])
+    .limit(1)
+    .get()
+
+  const batch = db.batch()
+
+  if (!activeSnap.empty) {
+    const incDoc = activeSnap.docs[0]
+    const startedAt: Timestamp = incDoc.data().startedAt
+    const now = Timestamp.now()
+    const downtimeSec = Math.round((now.toMillis() - startedAt.toMillis()) / 1000)
+
+    batch.update(incDoc.ref, {
+      state: 'resolved',
+      resolvedAt: FieldValue.serverTimestamp(),
+      'metrics.downtimeSec': downtimeSec,
+    })
+  }
+
+  batch.update(db.collection('services').doc(serviceId), {
+    'currentStatus.state': 'operational',
+    'currentStatus.since': FieldValue.serverTimestamp(),
+    'currentStatus.activeIncidentId': null,
+  })
+
+  await batch.commit()
+}
+
+/**
+ * @deprecated Use resolveIncident instead.
+ * Transitions the active incident to 'monitoring' (not fully resolved).
  */
 export async function closeIncident(serviceId: string): Promise<void> {
   const activeSnap = await db
@@ -109,10 +141,8 @@ export async function closeIncident(serviceId: string): Promise<void> {
     'currentStatus.state': 'operational',
     'currentStatus.since': FieldValue.serverTimestamp(),
     'currentStatus.activeIncidentId': null,
-    'currentStatus.uptime30d': null, // will be recalculated by dailyRollup
   })
 
-  // Record downtime in metrics
   batch.update(incDoc.ref, {
     'metrics.downtimeSec': downtimeSec,
   })

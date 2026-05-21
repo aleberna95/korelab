@@ -9,8 +9,6 @@ export const CACHE_TAGS = {
   services: 'services',
   tasks: 'tasks',
   incidents: 'incidents',
-  monitors: 'monitors',
-  audit: 'audit',
 } as const
 
 /**

@@ -1,6 +1,6 @@
 import { cache } from 'react'
 import { requireAdmin } from '@/lib/auth/guards'
-import { AdminShell } from '@/components/layout/AdminShell'
+import { AppShell } from '@/components/layout/AppShell'
 
 /**
  * Cached per-request lookup of the admin user's email.
@@ -28,5 +28,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await requireAdmin()
   const userEmail = await getAdminEmail(session.uid)
 
-  return <AdminShell userEmail={userEmail}>{children}</AdminShell>
+  return <AppShell userEmail={userEmail}>{children}</AppShell>
 }

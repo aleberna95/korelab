@@ -22,6 +22,18 @@ export const ServiceStatusStateSchema = z.enum([
   'unknown',
 ])
 
+export const ServiceCheckSchema = z.object({
+  enabled: z.boolean().default(true),
+  url: z.string().url(),
+  intervalSec: z.number().int().min(60).default(300),
+  timeoutMs: z.number().int().min(1000).default(10000),
+  expectStatus: z.number().int().min(100).max(599).optional(),
+  expectBody: z.string().optional(),
+  sslCheck: z.boolean().default(false),
+  sslAlertDays: z.array(z.number().int()).default([30, 14, 7, 1]),
+  alertedThresholds: z.array(z.number().int()).default([]),
+})
+
 export const CreateServiceSchema = z.object({
   clientId: z.string().min(1),
   name: z.string().min(1, 'Name is required'),
@@ -31,15 +43,13 @@ export const CreateServiceSchema = z.object({
   tags: z.array(z.string()).default([]),
   description: z.string().default(''),
   url: z.string().url().optional(),
-  healthcheckUrl: z.string().url().optional(),
-  statusPageVisibility: z.enum(['private', 'tokenized', 'public']).default('private'),
+  check: ServiceCheckSchema.optional(),
   /** currentStatus.since and activeIncidentId are set by the server */
   currentStatus: z.object({
     state: ServiceStatusStateSchema.default('unknown'),
     activeIncidentId: z.string().optional(),
     uptime30d: z.number().min(0).max(100).optional(),
   }),
-  monitorIds: z.array(z.string()).default([]),
 })
 
 export const UpdateServiceSchema = CreateServiceSchema.partial()

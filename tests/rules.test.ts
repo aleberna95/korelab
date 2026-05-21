@@ -98,7 +98,7 @@ const validMonitor = {
   clientId: 'client-1',
   source: 'internal-http',
   config: { intervalSec: 60 },
-  alertChannels: { telegram: true, clientNotify: false },
+  alertChannels: { telegram: true },
   active: true,
   createdAt: new Date(),
   updatedAt: new Date(),

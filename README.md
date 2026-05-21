@@ -7,8 +7,8 @@ Private operational dashboard for managing clients, services, infrastructure, mo
 - **Frontend**: Next.js 15 (App Router), TypeScript (strict), Tailwind CSS v4
 - **Backend**: Firebase (Firestore, Auth, Cloud Functions, App Check, Secret Manager)
 - **Hosting**: Vercel (Next.js app), Firebase (Functions)
-- **Monitoring**: UptimeRobot + custom internal checks
-- **Alerts**: Telegram + Resend (email)
+- **Monitoring**: Custom internal checks (HTTP + SSL)
+- **Alerts**: Telegram
 
 ---
 
@@ -130,9 +130,6 @@ The following collections have TTL enabled. Set the TTL policy in the Firebase c
 
 | Collection         | Field      | TTL     |
 |--------------------|------------|---------|
-| `webhookEvents`    | expiresAt  | 30 days |
-| `uptimeSamples`    | expiresAt  | 30 days |
-| `processedEvents`  | expiresAt  | 30 days |
 | `alertDedup`       | expiresAt  | 1 hour  |
 
 Navigate to: Firebase Console → Firestore → Indexes → TTL policies.
@@ -156,7 +153,6 @@ Deployed Cloud Functions:
 
 | Function | Trigger | Schedule |
 |---|---|---|
-| `syncUptimeRobotMonitor` | Firestore `monitors/{id}` write | — |
 | `onIncidentWrite` | Firestore `incidents/{id}` write | — |
 | `resolveStableUp` | Scheduler | every 1 minute |
 | `dailyRollup` | Scheduler | 00:05 UTC daily |
@@ -174,16 +170,12 @@ Required Google Secret Manager secrets (in the Firebase project):
 | Secret name | Used by |
 |---|---|
 | `telegram-bot-token` | `onIncidentWrite`, `internalChecks`, `weeklyHealthCheck` |
-| `resend-api-key` | `onIncidentWrite`, `weeklyHealthCheck` |
-| `uptimerobot-api-key` | `syncUptimeRobotMonitor`, `weeklyHealthCheck` |
-| `whois-api-key` | `internalChecks` (domain checker) |
 
 Cloud Function environment variables (set via `firebase functions:config` or `.env` in `functions/`):
 
 | Var | Description |
 |---|---|
 | `ADMIN_TELEGRAM_CHAT_ID` | Your personal Telegram chat ID for admin alerts |
-| `ALERT_FROM_EMAIL` | From address for Resend emails (default: `alerts@alessiobernardini.dev`) |
 
 ---
 
@@ -196,7 +188,6 @@ See `COMMAND_CENTER_ARCHITECTURE.md` for the full architecture document and phas
 | 1  | ✅ Done | Project setup, Auth, Base layout |
 | 2  | ✅ Done | Firestore schema, rules, typed repos |
 | 3  | ✅ Done | Onboarding wizard |
-| 4  | ✅ Done | UptimeRobot integration |
 | 5  | ✅ Done | Incident management |
 | 6  | ✅ Done | Private dashboard |
 | 10 | ✅ Done | Internal checks (SSL, DNS, domain, HTTP) |

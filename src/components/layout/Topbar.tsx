@@ -1,14 +1,18 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Sun, Moon, LogOut } from 'lucide-react'
+import { useTheme } from '@/components/theme/ThemeProvider'
+import { Button } from '@/components/ui/button'
+import { t } from '@/lib/i18n/it'
 
 interface TopbarProps {
   userEmail: string
-  onToggleSidebar: () => void
 }
 
-export function Topbar({ userEmail, onToggleSidebar }: TopbarProps) {
+export function Topbar({ userEmail }: TopbarProps) {
   const router = useRouter()
+  const { resolvedTheme, setTheme } = useTheme()
 
   async function handleLogout() {
     await fetch('/api/auth/session', { method: 'DELETE' })
@@ -17,31 +21,41 @@ export function Topbar({ userEmail, onToggleSidebar }: TopbarProps) {
   }
 
   return (
-    <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6">
-      {/* Left — hamburger on mobile */}
-      <button
-        onClick={onToggleSidebar}
-        className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
-        aria-label="Apri menu"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
-      {/* Desktop left spacer */}
+    <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 md:px-6 bg-[var(--color-surface)] border-b border-[var(--color-border)] shrink-0">
+      {/* Logo — visible on mobile only (sidebar has it on desktop) */}
+      <span className="md:hidden font-semibold text-[15px] text-[var(--color-fg)]">
+        KoreLab
+      </span>
       <div className="hidden md:block" />
 
-      {/* Right — user info + logout */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-500 hidden sm:inline">{userEmail}</span>
-        <button
-          onClick={handleLogout}
-          className="btn-secondary text-sm px-3 py-1.5 min-h-[44px]"
+      {/* Right actions */}
+      <div className="flex items-center gap-1">
+        <span className="hidden sm:block text-[13px] text-[var(--color-fg-muted)] mr-2">
+          {userEmail}
+        </span>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          aria-label={t.common.changeTheme}
         >
-          Disconnetti
-        </button>
+          {resolvedTheme === 'dark'
+            ? <Sun className="size-5" />
+            : <Moon className="size-5" />
+          }
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleLogout}
+          aria-label={t.common.logout}
+        >
+          <LogOut className="size-5" />
+        </Button>
       </div>
     </header>
   )
 }
+

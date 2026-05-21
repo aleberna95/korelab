@@ -1,17 +1,17 @@
 /**
  * alertLadder.ts — threshold-based alert deduplication.
  *
- * Prevents repeated alerts when a SSL cert or domain stays below a threshold.
- * Each monitor doc stores `alertedThresholds: number[]` — a set of days-values
- * that have already triggered an alert.
+ * Prevents repeated alerts when a SSL cert stays below a threshold.
+ * Each service doc stores `check.alertedThresholds: number[]` — a set of
+ * days-values that have already triggered an alert.
  *
  * Usage:
  *   const threshold = findCrossedThreshold(currentDays, THRESHOLDS, alertedThresholds)
  *   if (threshold !== null) {
  *     // send alert
- *     await recordThreshold(db, monitorId, threshold)
+ *     await recordThreshold(db, serviceId, threshold)
  *   }
- *   // On recovery: await clearThresholds(db, monitorId)
+ *   // On recovery: await clearThresholds(db, serviceId)
  */
 
 import type { Firestore } from 'firebase-admin/firestore'
@@ -21,7 +21,7 @@ export const SSL_THRESHOLDS = [30, 14, 7, 2]
 
 /**
  * Returns the highest threshold that has been crossed by `currentDays`
- * but has NOT yet been recorded in `alreadyAlertedt`, or null if none.
+ * but has NOT yet been recorded in `alreadyAlerted`, or null if none.
  *
  * "crossed" means currentDays <= threshold.
  */
@@ -41,24 +41,24 @@ export function findCrossedThreshold(
   return null
 }
 
-/** Append a threshold to the monitor's alertedThresholds array. */
+/** Append a threshold to the service's check.alertedThresholds array. */
 export async function recordThreshold(
   db: Firestore,
-  monitorId: string,
+  serviceId: string,
   threshold: number,
 ): Promise<void> {
   const { FieldValue } = await import('firebase-admin/firestore')
-  await db.collection('monitors').doc(monitorId).update({
-    alertedThresholds: FieldValue.arrayUnion(threshold),
+  await db.collection('services').doc(serviceId).update({
+    'check.alertedThresholds': FieldValue.arrayUnion(threshold),
   })
 }
 
 /** Clear all recorded thresholds (called on recovery). */
 export async function clearThresholds(
   db: Firestore,
-  monitorId: string,
+  serviceId: string,
 ): Promise<void> {
-  await db.collection('monitors').doc(monitorId).update({
-    alertedThresholds: [],
+  await db.collection('services').doc(serviceId).update({
+    'check.alertedThresholds': [],
   })
 }

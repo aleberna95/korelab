@@ -11,7 +11,6 @@ import {
   type IncidentTimelineEventInput,
 } from '@/lib/domain/schemas/incident'
 import type { Incident, IncidentState, IncidentTimelineEvent } from '@/lib/domain/types'
-import { auditLogRepo } from './auditLogRepo'
 
 const COLLECTION = 'incidents'
 const converter = makeDocConverter<Incident>()
@@ -85,14 +84,6 @@ export const incidentsRepo = {
       byUid: actorUid,
     })
 
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'incidents.create',
-      targetCollection: COLLECTION,
-      targetId: ref.id,
-    })
-
     const created = await ref.get()
     return created.data()!
   },
@@ -120,15 +111,6 @@ export const incidentsRepo = {
         byUid: actorUid,
       })
     }
-
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'incidents.update',
-      targetCollection: COLLECTION,
-      targetId: id,
-      metadata: { fields: Object.keys(validated) },
-    })
   },
 
   async appendTimelineEvent(

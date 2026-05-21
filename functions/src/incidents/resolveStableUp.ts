@@ -2,10 +2,9 @@
  * resolveStableUp — scheduled every 1 minute.
  *
  * Scans all incidents in 'monitoring' state. For each:
- * 1. Check if ALL active monitors for the service report lastResult='up'
- * 2. Check if the incident has been in 'monitoring' state for ≥ 5 minutes
+ * 1. Check if the incident has been in 'monitoring' state for ≥ 5 minutes
  *    (tracked via monitoringAt field set by the engine)
- * 3. If both conditions met → transition to 'resolved', compute downtimeSec,
+ * 2. If condition met → transition to 'resolved', compute downtimeSec,
  *    update service.currentStatus.state = 'operational'
  */
 
@@ -38,26 +37,10 @@ export const resolveStableUp = onSchedule(
 
       // ── Check stability window ────────────────────────────────────────────
       const monitoringAt: FirebaseFirestore.Timestamp | undefined = incident.monitoringAt
-      if (!monitoringAt) continue // no monitoringAt set yet — skip
+      if (!monitoringAt) continue
 
       const monitoringAgeMs = now - monitoringAt.toDate().getTime()
-      if (monitoringAgeMs < STABLE_UP_MS) continue // not yet 5 minutes stable
-
-      // ── Check all active monitors for this service ────────────────────────
-      const monitorsSnap = await db
-        .collection('monitors')
-        .where('serviceId', '==', incident.serviceId)
-        .where('active', '==', true)
-        .get()
-
-      if (monitorsSnap.empty) continue
-
-      const allUp = monitorsSnap.docs.every((d) => {
-        const m = d.data()
-        return m.lastResult === 'up'
-      })
-
-      if (!allUp) continue
+      if (monitoringAgeMs < STABLE_UP_MS) continue
 
       // ── Resolve the incident ──────────────────────────────────────────────
       const startedAt: FirebaseFirestore.Timestamp | undefined = incident.startedAt
@@ -84,7 +67,7 @@ export const resolveStableUp = onSchedule(
         id: timelineRef.id,
         at: FieldValue.serverTimestamp(),
         kind: 'resolved',
-        message: `All monitors stable for ${STABLE_UP_MIN} minutes — automatically resolved`,
+        message: `Stable for ${STABLE_UP_MIN} minutes — automatically resolved`,
       })
 
       batch.update(db.collection('services').doc(incident.serviceId), {

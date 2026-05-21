@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: 'Panoramica — Command Center' }
 export default async function AdminOverviewPage() {
   await requireAdmin()
 
-  const { byState, total, activeIncidents, withoutMonitor, recentAudit } =
+  const { byState, total, activeIncidents, withoutCheck } =
     await getOverviewStats()
 
   const unhealthy =
@@ -73,13 +73,13 @@ export default async function AdminOverviewPage() {
       </section>
 
       {/* Attention required */}
-      {withoutMonitor.length > 0 && (
+      {withoutCheck.length > 0 && (
         <section>
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Servizi senza monitor ({withoutMonitor.length})
+            Servizi senza check ({withoutCheck.length})
           </h2>
           <div className="bg-white rounded-lg border border-amber-200 px-4 divide-y divide-gray-50">
-            {withoutMonitor.slice(0, 10).map((svc) => (
+            {withoutCheck.slice(0, 10).map((svc) => (
               <Link
                 key={svc.id}
                 href={`/admin/services/${svc.id}`}
@@ -93,33 +93,6 @@ export default async function AdminOverviewPage() {
         </section>
       )}
 
-      {/* Recent audit */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-            Attività Recente
-          </h2>
-          <Link href="/admin/audit" className="text-xs text-blue-600 hover:underline">
-            Vedi tutti →
-          </Link>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-50">
-          {recentAudit.length === 0 && (
-            <p className="px-4 py-6 text-sm text-gray-400 text-center">Nessun evento di audit.</p>
-          )}
-          {recentAudit.map((entry) => (
-            <div key={entry.id} className="px-4 py-2.5 flex items-center gap-4">
-              <span className="font-mono text-xs text-blue-700 shrink-0">{entry.action}</span>
-              <span className="text-xs text-gray-500 flex-1 truncate">
-                {entry.targetCollection}/{entry.targetId}
-              </span>
-              <span className="text-xs text-gray-400 shrink-0">
-                {entry.actorKind === 'user' ? '👤' : '⚙️'} {entry.actorUid ?? 'system'}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   )
 }

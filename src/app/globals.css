@@ -1,51 +1,262 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
+@theme {
+  /* Neutri (zinc warm) */
+  --color-bg:        oklch(0.985 0.002 270);
+  --color-surface:   oklch(1.000 0.000 0);
+  --color-border:    oklch(0.92  0.004 270);
+  --color-fg:        oklch(0.18  0.01  270);
+  --color-fg-muted:  oklch(0.55  0.01  270);
+  --color-fg-faint:  oklch(0.72  0.008 270);
+
+  /* Accent unico */
+  --color-accent:        oklch(0.62 0.19 258);
+  --color-accent-fg:     oklch(0.985 0.002 270);
+  --color-accent-soft:   oklch(0.95 0.04 258);
+
+  /* Semantici */
+  --color-success:   oklch(0.72 0.16 150);
+  --color-warning:   oklch(0.82 0.17 85);
+  --color-danger:    oklch(0.62 0.22 25);
+
+  /* Palette task (pastelli accesi) */
+  --color-task-yellow:  oklch(0.94 0.10 95);
+  --color-task-pink:    oklch(0.90 0.08 10);
+  --color-task-blue:    oklch(0.91 0.07 240);
+  --color-task-green:   oklch(0.93 0.09 145);
+  --color-task-purple:  oklch(0.91 0.07 300);
+  --color-task-orange:  oklch(0.92 0.10 60);
+  --color-task-gray:    oklch(0.94 0.005 270);
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius:    0.875rem;
+  --radius-lg: 1.25rem;
+
+  /* Motion */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --dur-fast:  120ms;
+  --dur-base:  180ms;
+  --dur-slow:  260ms;
+
+  /* Tipografia custom */
+  --text-display:      1.75rem;
+  --text-display--line-height: 2rem;
+  --text-h1:           1.375rem;
+  --text-h1--line-height: 1.75rem;
+  --text-h2:           1.0625rem;
+  --text-h2--line-height: 1.5rem;
+  --text-body:         0.9375rem;
+  --text-body--line-height: 1.375rem;
+  --text-sm:           0.8125rem;
+  --text-sm--line-height: 1.125rem;
+  --text-xs:           0.6875rem;
+  --text-xs--line-height: 0.875rem;
+}
+
+/* ─── Dark mode ──────────────────────────────────────────────────────────── */
+.dark {
+  --color-bg:       oklch(0.16 0.01 270);
+  --color-surface:  oklch(0.21 0.012 270);
+  --color-border:   oklch(0.30 0.012 270);
+  --color-fg:       oklch(0.98 0.003 270);
+  --color-fg-muted: oklch(0.72 0.012 270);
+  --color-fg-faint: oklch(0.50 0.012 270);
+  --color-accent:   oklch(0.72 0.18 258);
+  --color-accent-soft: oklch(0.30 0.05 258);
+
+  --color-task-yellow: oklch(0.55 0.13 95);
+  --color-task-pink:   oklch(0.50 0.13 10);
+  --color-task-blue:   oklch(0.50 0.12 240);
+  --color-task-green:  oklch(0.52 0.13 145);
+  --color-task-purple: oklch(0.50 0.12 300);
+  --color-task-orange: oklch(0.55 0.14 60);
+  --color-task-gray:   oklch(0.30 0.005 270);
+}
+
+/* ─── shadcn/ui CSS variable bridge ─────────────────────────────────────── */
+/* Maps our tokens to the variables shadcn expects */
 :root {
-  --background: #ffffff;
-  --foreground: #111827;       /* gray-900 */
-  --muted: #f9fafb;            /* gray-50 */
-  --muted-foreground: #6b7280; /* gray-500 */
-  --border: #e5e7eb;           /* gray-200 */
-  --ring: #3b82f6;             /* blue-500 */
-  --accent: #3b82f6;           /* blue-500 */
-  --accent-hover: #2563eb;     /* blue-600 */
-  --destructive: #ef4444;      /* red-500 */
-  --success: #22c55e;          /* green-500 */
-  --warning: #f59e0b;          /* amber-500 */
-  --sidebar-bg: #ffffff;
-  --sidebar-border: #e5e7eb;
-  --sidebar-active: #eff6ff;      /* blue-50 */
-  --sidebar-active-text: #1d4ed8; /* blue-700 */
-  --topbar-bg: #ffffff;
-  --topbar-border: #e5e7eb;
+  --background:          var(--color-bg);
+  --foreground:          var(--color-fg);
+  --card:                var(--color-surface);
+  --card-foreground:     var(--color-fg);
+  --popover:             var(--color-surface);
+  --popover-foreground:  var(--color-fg);
+  --primary:             var(--color-accent);
+  --primary-foreground:  var(--color-accent-fg);
+  --secondary:           var(--color-accent-soft);
+  --secondary-foreground: var(--color-fg);
+  --muted:               oklch(0.94 0.003 270);
+  --muted-foreground:    var(--color-fg-muted);
+  --accent:              var(--color-accent-soft);
+  --accent-foreground:   var(--color-fg);
+  --destructive:         var(--color-danger);
+  --destructive-foreground: var(--color-accent-fg);
+  --border:              var(--color-border);
+  --input:               var(--color-border);
+  --ring:                var(--color-accent);
+  --radius:              var(--radius);
+}
+
+.dark {
+  --muted: oklch(0.26 0.01 270);
+}
+
+/* ─── Shadows ────────────────────────────────────────────────────────────── */
+:root {
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.04), 0 1px 1px oklch(0 0 0 / 0.03);
+  --shadow-pop:  0 8px 24px -8px oklch(0 0 0 / 0.18);
+}
+
+/* ─── Base styles ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  border-color: var(--color-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer components {
-  .input-base {
-    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm
-           text-gray-900 placeholder:text-gray-400
-           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
-  }
+/* Focus ring globale */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
-  .btn-primary {
-    @apply rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white
-           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500
-           disabled:opacity-50 disabled:cursor-not-allowed;
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
+}
+
+/* ─── Typography scale ───────────────────────────────────────────────────── */
+@layer utilities {
+  .text-display {
+    font-size: 1.75rem;
+    line-height: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  @media (min-width: 768px) {
+    .text-display {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+  }
+  .text-h1 {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+  }
+  @media (min-width: 768px) {
+    .text-h1 {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
+  .text-h2 {
+    font-size: 1.0625rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+  }
+  @media (min-width: 768px) {
+    .text-h2 {
+      font-size: 1.125rem;
+      line-height: 1.625rem;
+    }
+  }
+}
+
+/* ─── Component utilities ────────────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-accent);
+    color: var(--color-accent-fg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: var(--text-sm--line-height);
+    border: none;
+    cursor: pointer;
+    transition: opacity var(--dur-fast);
+  }
+  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .btn-secondary {
-    @apply rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium
-           text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--color-fg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: var(--text-sm--line-height);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background-color var(--dur-fast);
+  }
+  .btn-secondary:hover:not(:disabled) { background-color: var(--color-accent-soft); }
+  .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .input-base {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-fg);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    outline: none;
+    transition: border-color var(--dur-fast);
+  }
+  .input-base:focus { border-color: var(--color-accent); }
+  .input-base::placeholder { color: var(--color-fg-faint); }
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes taskAppear {
+  from { opacity: 0; transform: scale(0.95) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@layer utilities {
+  .task-appear {
+    animation: taskAppear 200ms var(--ease-out) both;
   }
 
-  .btn-danger {
-    @apply rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white
-           hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500;
+  .card-lift {
+    transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-pop);
   }
 }

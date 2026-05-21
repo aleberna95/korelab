@@ -1,21 +1,21 @@
 /**
  * internalChecks.ts — Scheduled Cloud Function, runs every 15 minutes.
  *
- * Fetches all active monitors with source in:
- *   ['internal-http', 'internal-ssl']
+ * Negative-model: only writes to Firestore on UP↔DOWN transitions.
+ * No uptimeSamples, no lastCheckAt updates.
  *
- * For each monitor:
- *  1. Runs the appropriate checker.
- *  2. Writes an uptimeSample document.
- *  3. Updates monitor.lastResult + lastCheckAt.
- *  4. Opens or closes an incident via incidentHelper if result changed.
- *  5. For SSL: applies alert ladder.
+ * HTTP transitions:
+ *  - not major-outage → down/degraded: open incident + Telegram alert
+ *  - major-outage → up: resolve incident + Telegram recovery
+ *  - steady state (up→up or down→down): zero writes
+ *
+ * SSL: alertLadder still fires for certificate expiry warnings (unchanged).
  */
 
 import { onSchedule } from 'firebase-functions/v2/scheduler'
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { getFirestore } from 'firebase-admin/firestore'
 import { getApps, initializeApp } from 'firebase-admin/app'
-import type { Monitor } from '../lib/types'
+import type { Service, ServiceCheck, ServiceStatusState } from '../lib/types'
 import { checkSSL } from './ssl'
 import { checkHTTP } from './http'
 import {
@@ -24,46 +24,41 @@ import {
   clearThresholds,
   SSL_THRESHOLDS,
 } from './alertLadder'
-import { ensureIncident, closeIncident } from './incidentHelper'
+import { ensureIncident, resolveIncident } from './incidentHelper'
 import { sendTelegramMessage } from '../alerts/telegram'
+import { determineHttpAction } from './transitions'
 
 if (!getApps().length) initializeApp()
 
 const db = getFirestore()
 
-const INTERNAL_SOURCES = ['internal-http', 'internal-ssl']
 const ADMIN_CHAT_ID = process.env.ADMIN_TELEGRAM_CHAT_ID ?? ''
+
+// ─── Cloud Function ────────────────────────────────────────────────────────
 
 export const internalChecks = onSchedule(
   { schedule: 'every 15 minutes', timeoutSeconds: 540, maxInstances: 1 },
   async () => {
-    // Firestore 'in' supports up to 10 values
-    let monitorsSnap: FirebaseFirestore.QuerySnapshot
+    let servicesSnap: FirebaseFirestore.QuerySnapshot
     try {
-      monitorsSnap = await db
-        .collection('monitors')
-        .where('active', '==', true)
-        .where('source', 'in', INTERNAL_SOURCES)
+      servicesSnap = await db
+        .collection('services')
+        .where('check.enabled', '==', true)
         .get()
     } catch (err) {
       console.error('internalChecks: Firestore query failed:', err)
       throw err
     }
 
-    console.log(`internalChecks: ${monitorsSnap.size} active monitors found`)
-    monitorsSnap.docs.forEach((d) => {
-      const data = d.data()
-      console.log(`  monitor ${d.id}: source=${data.source} url=${data.config?.url} active=${data.active}`)
-    })
+    console.log(`internalChecks: ${servicesSnap.size} services with checks enabled`)
 
-    // Process monitors concurrently but cap parallelism to avoid thundering herd
     const CONCURRENCY = 10
-    const docs = monitorsSnap.docs
+    const docs = servicesSnap.docs
     for (let i = 0; i < docs.length; i += CONCURRENCY) {
       await Promise.allSettled(
         docs.slice(i, i + CONCURRENCY).map((doc) =>
-          processMonitor({ ...doc.data(), id: doc.id } as Monitor).catch((err) =>
-            console.error(`internalChecks: error for monitor ${doc.id}:`, err),
+          processService({ ...doc.data(), id: doc.id } as Service).catch((err) =>
+            console.error(`internalChecks: error for service ${doc.id}:`, err),
           ),
         ),
       )
@@ -73,134 +68,87 @@ export const internalChecks = onSchedule(
   },
 )
 
-async function processMonitor(monitor: Monitor): Promise<void> {
-  const { id: monitorId, serviceId, clientId, source } = monitor
+async function processService(service: Service): Promise<void> {
+  const { id: serviceId, clientId, check } = service
+  if (!check) return
 
-  // ── 1. Run the right checker ─────────────────────────────────────────────
-  type GenericResult = { result: 'up' | 'down' | 'degraded'; responseMs: number; error?: string; daysToExpiry?: number }
+  const currentState: ServiceStatusState = service.currentStatus?.state ?? 'unknown'
 
-  let checkResult: GenericResult
+  // ── HTTP check ────────────────────────────────────────────────────────────
+  const { result, error } = await checkHTTP(check)
+  const action = determineHttpAction(result, currentState, check, error)
 
-  switch (source) {
-    case 'internal-ssl':
-      checkResult = await checkSSL(monitor)
-      break
-    case 'internal-http':
-      checkResult = await checkHTTP(monitor)
-      break
-    default:
-      return
-  }
-
-  const { result, responseMs, error, daysToExpiry } = checkResult
-  const now = Timestamp.now()
-  // Firestore TTL: uptimeSamples expire after 30 days
-  const expiresAt = Timestamp.fromMillis(Date.now() + 30 * 24 * 60 * 60 * 1000)
-
-  // ── 2. Write uptimeSample ─────────────────────────────────────────────────
-  await db.collection('uptimeSamples').add({
-    monitorId,
-    serviceId,
-    clientId,
-    result,
-    responseMs,
-    recordedAt: now,
-    expiresAt,
-    source,
-    ...(error && { error }),
-    ...(daysToExpiry !== undefined && { daysToExpiry }),
-  })
-
-  // ── 3. Update monitor ─────────────────────────────────────────────────────
-  await db.collection('monitors').doc(monitorId).update({
-    lastResult: result,
-    lastCheckAt: now,
-  })
-
-  const previousResult = monitor.lastResult
-
-  // ── 4. Incident management ────────────────────────────────────────────────
-  if (result === 'down') {
+  if (action.type === 'open_incident') {
     await ensureIncident({
-      monitorId,
       serviceId,
       clientId,
-      title: buildTitle(source, monitor, error),
+      title: action.title,
       severity: 'major',
       source: 'internal-check',
     })
-  } else if (result === 'degraded') {
-    // degraded → open minor incident
-    await ensureIncident({
-      monitorId,
-      serviceId,
-      clientId,
-      title: buildTitle(source, monitor, error, daysToExpiry),
-      severity: 'minor',
-      source: 'internal-check',
-    })
-  } else if (result === 'up' && (previousResult === 'down' || previousResult === 'degraded')) {
-    // Recovery from failure
-    await closeIncident(serviceId)
-    await clearThresholds(db, monitorId)
-  } else if (result === 'up') {
-    // Healthy check — ensure service status is operational (handles first-run and unknown state)
-    const svcSnap = await db.collection('services').doc(serviceId).get()
-    const currentState = (svcSnap.data() as { currentStatus?: { state?: string } } | undefined)
-      ?.currentStatus?.state
-    if (currentState !== 'operational') {
-      await db.collection('services').doc(serviceId).update({
-        'currentStatus.state': 'operational',
-        'currentStatus.since': now,
-        'currentStatus.activeIncidentId': null,
-      })
+    if (ADMIN_CHAT_ID) {
+      await sendTelegramMessage({
+        chatId: ADMIN_CHAT_ID,
+        text: `🔴 <b>HTTP check failed</b>\n${check.url}\n${error ?? result}`,
+      }).catch((err) => console.error('Telegram alert failed:', err))
+    }
+  } else if (action.type === 'close_incident') {
+    await resolveIncident(serviceId)
+    if (ADMIN_CHAT_ID) {
+      await sendTelegramMessage({
+        chatId: ADMIN_CHAT_ID,
+        text: `✅ <b>Recovery</b>\n${check.url} is back online`,
+      }).catch((err) => console.error('Telegram recovery alert failed:', err))
     }
   }
+  // action.type === 'none' → zero writes
 
-  // ── 5. Alert ladder for SSL ────────────────────────────────────────────
-  if (daysToExpiry !== undefined && source === 'internal-ssl') {
-    const alreadyAlerted = monitor.alertedThresholds ?? []
-    const threshold = findCrossedThreshold(daysToExpiry, SSL_THRESHOLDS, alreadyAlerted)
+  // ── SSL check ─────────────────────────────────────────────────────────────
+  if (check.sslCheck) {
+    await processSSLCheck(service, check)
+  }
+}
+
+async function processSSLCheck(service: Service, check: ServiceCheck): Promise<void> {
+  const { id: serviceId, clientId } = service
+
+  const { result: sslStatus, daysToExpiry, error } = await checkSSL(check)
+
+  // SSL alert ladder — fires on cert expiry warnings
+  if (daysToExpiry !== undefined) {
+    const alreadyAlerted = check.alertedThresholds ?? []
+    const alertDays = check.sslAlertDays?.length ? check.sslAlertDays : SSL_THRESHOLDS
+    const threshold = findCrossedThreshold(daysToExpiry, alertDays, alreadyAlerted)
 
     if (threshold !== null) {
-      await recordThreshold(db, monitorId, threshold)
+      await recordThreshold(db, serviceId, threshold)
 
       if (ADMIN_CHAT_ID) {
-        const label = 'SSL certificate'
-        const url = monitor.config.url ?? monitorId
         await sendTelegramMessage({
           chatId: ADMIN_CHAT_ID,
-          text: `⚠️ <b>${label} expiry warning</b>\n<b>${url}</b> expires in <b>${daysToExpiry} days</b> (threshold: ${threshold}d)`,
+          text: `⚠️ <b>SSL certificate expiry warning</b>\n<b>${check.url}</b> expires in <b>${daysToExpiry} days</b> (threshold: ${threshold}d)`,
         }).catch((err) => console.error('Telegram alert failed:', err))
       }
     }
   }
 
-  // ── 6. Notify on first failure ────────────────────────────────────────────
-  if (result !== 'up' && previousResult === 'up' && ADMIN_CHAT_ID) {
-    const label = source.replace('internal-', '').toUpperCase()
-    const url = monitor.config.url ?? monitorId
-    await sendTelegramMessage({
-      chatId: ADMIN_CHAT_ID,
-      text: `🔴 <b>${label} check failed</b>\n${url}\n${error ?? result}`,
-    }).catch((err) => console.error('Telegram alert failed:', err))
+  if (sslStatus === 'down' || sslStatus === 'degraded') {
+    await ensureIncident({
+      serviceId,
+      clientId,
+      title: buildSSLTitle(check, daysToExpiry, error),
+      severity: sslStatus === 'down' ? 'major' : 'minor',
+      source: 'internal-check',
+    })
+  } else if (sslStatus === 'up') {
+    if ((check.alertedThresholds ?? []).length > 0) {
+      await clearThresholds(db, serviceId)
+    }
   }
 }
 
-function buildTitle(
-  source: string,
-  monitor: Monitor,
-  error?: string,
-  daysToExpiry?: number,
-): string {
-  const url = monitor.config.url ?? 'unknown'
-  const label = source.replace('internal-', '').toUpperCase()
-
-  if (daysToExpiry !== undefined) {
-    return `${label} expiring in ${daysToExpiry} days — ${url}`
-  }
-  if (error) {
-    return `${label} check failed — ${url}`
-  }
-  return `${label} check degraded — ${url}`
+function buildSSLTitle(check: ServiceCheck, daysToExpiry?: number, error?: string): string {
+  if (daysToExpiry !== undefined) return `SSL expiring in ${daysToExpiry} days — ${check.url}`
+  if (error) return `SSL check failed — ${check.url}`
+  return `SSL check degraded — ${check.url}`
 }

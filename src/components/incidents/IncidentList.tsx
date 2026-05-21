@@ -3,18 +3,24 @@
 import type { IncidentState, IncidentSeverity } from '@/lib/domain/types'
 import Link from 'next/link'
 
-const STATE_COLORS: Record<string, string> = {
-  investigating: 'bg-red-100 text-red-800',
-  identified: 'bg-orange-100 text-orange-800',
-  monitoring: 'bg-yellow-100 text-yellow-800',
-  resolved: 'bg-green-100 text-green-800',
-  'false-positive': 'bg-gray-100 text-gray-600',
+const STATE_COLOR: Record<string, string> = {
+  investigating: 'var(--color-danger)',
+  identified:    'var(--color-warning)',
+  monitoring:    'var(--color-warning)',
+  resolved:      'var(--color-success)',
+  'false-positive': 'var(--color-fg-faint)',
 }
 
-const SEVERITY_COLORS: Record<string, string> = {
-  critical: 'text-red-600 font-bold',
-  major: 'text-orange-600 font-semibold',
-  minor: 'text-yellow-600',
+const SEVERITY_COLOR: Record<string, string> = {
+  critical: 'var(--color-danger)',
+  major:    'var(--color-warning)',
+  minor:    'var(--color-fg-muted)',
+}
+
+const SEVERITY_WEIGHT: Record<string, string> = {
+  critical: 'font-bold',
+  major:    'font-semibold',
+  minor:    '',
 }
 
 export type IncidentListItem = {
@@ -33,43 +39,59 @@ type Props = {
 
 export function IncidentList({ incidents, emptyMessage = 'Nessun incidente trovato.' }: Props) {
   if (incidents.length === 0) {
-    return <p className="text-sm text-gray-500 py-6 text-center">{emptyMessage}</p>
+    return (
+      <div className="flex flex-col items-center justify-center py-12 gap-2">
+        <span className="text-4xl select-none">✅</span>
+        <p className="text-sm text-[var(--color-fg-faint)] text-center">{emptyMessage}</p>
+      </div>
+    )
   }
 
   return (
-    <div className="divide-y divide-gray-100">
-      {incidents.map((inc) => (
-        <Link
-          key={inc.id}
-          href={`/admin/incidents/${inc.id}`}
-          className="flex items-center gap-4 py-3 px-1 hover:bg-gray-50 transition-colors group"
-        >
-          {/* State badge */}
-          <span
-            className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATE_COLORS[inc.state] ?? 'bg-gray-100 text-gray-600'}`}
+    <div className="divide-y divide-[var(--color-border)]">
+      {incidents.map((inc) => {
+        const stateColor = STATE_COLOR[inc.state] ?? 'var(--color-fg-faint)'
+        const severityColor = SEVERITY_COLOR[inc.severity] ?? 'var(--color-fg-muted)'
+        return (
+          <Link
+            key={inc.id}
+            href={`/admin/incidents/${inc.id}`}
+            className="flex items-center gap-4 py-3 px-1 hover:bg-[var(--color-accent-soft)] transition-colors group rounded-sm"
           >
-            {inc.state}
-          </span>
+            {/* State badge */}
+            <span
+              className="shrink-0 text-xs font-medium px-2 py-0.5 rounded-full capitalize"
+              style={{
+                background: `color-mix(in oklch, ${stateColor} 18%, transparent)`,
+                color: stateColor,
+              }}
+            >
+              {inc.state}
+            </span>
 
-          {/* Title + service */}
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">
-              {inc.title}
-            </p>
-            <p className="text-xs text-gray-500 truncate">Servizio: {inc.serviceId}</p>
-          </div>
+            {/* Title + service */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-[var(--color-fg)] truncate group-hover:text-[var(--color-accent)]">
+                {inc.title}
+              </p>
+              <p className="text-xs text-[var(--color-fg-faint)] truncate">Servizio: {inc.serviceId}</p>
+            </div>
 
-          {/* Severity */}
-          <span className={`shrink-0 text-xs capitalize ${SEVERITY_COLORS[inc.severity] ?? ''}`}>
-            {inc.severity}
-          </span>
+            {/* Severity */}
+            <span
+              className={`shrink-0 text-xs capitalize ${SEVERITY_WEIGHT[inc.severity] ?? ''}`}
+              style={{ color: severityColor }}
+            >
+              {inc.severity}
+            </span>
 
-          {/* Time */}
-          <span className="shrink-0 text-xs text-gray-400">
-            {formatTime(inc.startedAt)}
-          </span>
-        </Link>
-      ))}
+            {/* Time */}
+            <span className="shrink-0 text-xs text-[var(--color-fg-faint)]">
+              {formatTime(inc.startedAt)}
+            </span>
+          </Link>
+        )
+      })}
     </div>
   )
 }

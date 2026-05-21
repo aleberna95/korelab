@@ -9,7 +9,6 @@ import {
   type UpdateServiceInput,
 } from '@/lib/domain/schemas/service'
 import type { Service, ServiceStatusState } from '@/lib/domain/types'
-import { auditLogRepo } from './auditLogRepo'
 
 const COLLECTION = 'services'
 const converter = makeDocConverter<Service>()
@@ -24,8 +23,8 @@ export type ServiceFilters = {
   criticality?: Service['criticality']
   state?: ServiceStatusState
   tag?: string
-  /** Services with empty monitorIds array */
-  hasNoMonitor?: boolean
+  /** Services with no check configured */
+  hasNoCheck?: boolean
   /** Services with an active incident */
   hasActiveIncident?: boolean
   limit?: number
@@ -50,9 +49,9 @@ export const servicesRepo = {
       q = q
         .where('currentStatus.state', '==', filters.state)
         .orderBy('currentStatus.since', 'desc')
-    } else if (filters.hasNoMonitor) {
-      // Firestore supports equality match on empty array
-      q = q.where('monitorIds', '==', []).orderBy('name')
+    } else if (filters.hasNoCheck) {
+      // Services where check is not set — Firestore equality match on undefined-ish
+      q = q.where('check', '==', null).orderBy('name')
     } else if (filters.hasActiveIncident) {
       // '!=' is supported in Firestore — filters docs where field is not null/undefined
       q = q
@@ -91,8 +90,8 @@ export const servicesRepo = {
     return snap.docs.map((d) => d.data())
   },
 
-  async listWithoutMonitor(): Promise<Service[]> {
-    return this.list({ hasNoMonitor: true })
+  async listWithoutCheck(): Promise<Service[]> {
+    return this.list({ hasNoCheck: true })
   },
 
   async listWithActiveIncident(): Promise<Service[]> {
@@ -128,14 +127,6 @@ export const servicesRepo = {
       updatedAt: now,
     } as unknown as Service)
 
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'services.create',
-      targetCollection: COLLECTION,
-      targetId: ref.id,
-    })
-
     const created = await ref.get()
     return created.data()!
   },
@@ -145,15 +136,6 @@ export const servicesRepo = {
     await col()
       .doc(id)
       .update({ ...validated, updatedAt: FieldValue.serverTimestamp() })
-
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'services.update',
-      targetCollection: COLLECTION,
-      targetId: id,
-      metadata: { fields: Object.keys(validated) },
-    })
   },
 
   async updateStatus(
@@ -180,51 +162,9 @@ export const servicesRepo = {
     await col()
       .doc(id)
       .update({ status: 'archived', updatedAt: FieldValue.serverTimestamp() })
-
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'services.archive',
-      targetCollection: COLLECTION,
-      targetId: id,
-    })
   },
 
   async delete(id: string, actorUid?: string): Promise<void> {
     await col().doc(id).delete()
-
-    await auditLogRepo.write({
-      actorUid,
-      actorKind: actorUid ? 'user' : 'function',
-      action: 'services.delete',
-      targetCollection: COLLECTION,
-      targetId: id,
-    })
-  },
-
-  async addMonitorId(serviceId: string, monitorId: string): Promise<void> {
-    await getAdminDb()
-      .collection(COLLECTION)
-      .doc(serviceId)
-      .update({
-        monitorIds: FieldValue.arrayUnion(monitorId),
-        updatedAt: FieldValue.serverTimestamp(),
-      })
-  },
-
-  async getDailyRollups(
-    serviceId: string,
-    fromDate: string,
-    toDate: string,
-  ): Promise<Array<{ date: string; uptimePct: number; downtimeSec: number }>> {
-    const snap = await getAdminDb()
-      .collection(COLLECTION)
-      .doc(serviceId)
-      .collection('daily')
-      .where('date', '>=', fromDate)
-      .where('date', '<=', toDate)
-      .orderBy('date', 'asc')
-      .get()
-    return snap.docs.map((d) => d.data() as { date: string; uptimePct: number; downtimeSec: number })
   },
 }

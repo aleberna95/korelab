@@ -1,16 +1,6 @@
-/**
- * Dashboard aggregation queries.
- *
- * All queries run in parallel with Promise.all — never N+1.
- * Called exclusively from RSC pages.
- * Results are cached (30s TTL) so repeated navigations don't hit Firestore.
- */
-
 import 'server-only'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
-import { auditLogRepo } from '@/lib/repos/auditLogRepo'
-import { monitorsRepo } from '@/lib/repos/monitorsRepo'
 import { cached, CACHE_TAGS } from '@/lib/cache'
 import type { Service, ServiceStatusState } from '@/lib/domain/types'
 
@@ -18,13 +8,12 @@ export type OverviewStats = {
   byState: Record<ServiceStatusState, number>
   total: number
   activeIncidents: Awaited<ReturnType<typeof incidentsRepo.listActive>>
-  withoutMonitor: Service[]
-  recentAudit: Awaited<ReturnType<typeof auditLogRepo.list>>
+  withoutCheck: Service[]
 }
 
 /** Fetch all data needed for the overview page in one Promise.all */
 export async function getOverviewStats(): Promise<OverviewStats> {
-  const [allServices, activeIncidents, withoutMonitor, recentAudit] = await Promise.all([
+  const [allServices, activeIncidents, withoutCheck] = await Promise.all([
     cached(
       () => servicesRepo.list({ limit: 500 }),
       ['overview', 'services'],
@@ -36,14 +25,9 @@ export async function getOverviewStats(): Promise<OverviewStats> {
       { tags: [CACHE_TAGS.incidents], revalidate: 15 },
     ),
     cached(
-      () => servicesRepo.listWithoutMonitor(),
-      ['overview', 'no-monitor'],
-      { tags: [CACHE_TAGS.services, CACHE_TAGS.monitors], revalidate: 60 },
-    ),
-    cached(
-      () => auditLogRepo.list({ limit: 10 }),
-      ['overview', 'audit'],
-      { tags: [CACHE_TAGS.audit], revalidate: 15 },
+      () => servicesRepo.listWithoutCheck(),
+      ['overview', 'no-check'],
+      { tags: [CACHE_TAGS.services], revalidate: 60 },
     ),
   ])
 
@@ -65,8 +49,7 @@ export async function getOverviewStats(): Promise<OverviewStats> {
     byState,
     total: allServices.length,
     activeIncidents,
-    withoutMonitor,
-    recentAudit,
+    withoutCheck,
   }
 }
 
@@ -95,8 +78,7 @@ export function parseServiceFilters(
     state,
     criticality,
     tag,
-    hasNoMonitor: filter === 'no-monitor' ? true : undefined,
-    hasNoAccess: filter === 'no-access' ? true : undefined,
+    hasNoCheck: filter === 'no-check' ? true : undefined,
     hasActiveIncident: filter === 'active-incident' ? true : undefined,
   }
 }

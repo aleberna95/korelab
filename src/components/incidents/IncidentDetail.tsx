@@ -57,8 +57,6 @@ export function IncidentDetail({ incident, initialTimeline }: Props) {
         {/* Meta grid */}
         <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
           <MetaItem label="Sorgente" value={incident.source} />
-          <MetaItem label="Visibilità" value={incident.visibility} />
-          <MetaItem label="Cliente notificato" value={incident.notifiedClient ? 'Sì' : 'No'} />
           <MetaItem label="Iniziato" value={formatTime(incident.startedAt as unknown as { toDate(): Date })} />
           {incident.resolvedAt && (
             <MetaItem

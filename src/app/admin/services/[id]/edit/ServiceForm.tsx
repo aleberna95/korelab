@@ -13,7 +13,7 @@ const SERVICE_TYPES = [
 export type ServiceFormData = Pick<
   Service,
   | 'id' | 'name' | 'type' | 'environment' | 'criticality' | 'tags' | 'description'
-  | 'url' | 'healthcheckUrl' | 'statusPageVisibility'
+  | 'url'
 >
 
 type Props = { service: ServiceFormData }
@@ -31,8 +31,6 @@ export function ServiceForm({ service }: Props) {
   const [description, setDescription] = useState(service.description ?? '')
   const [tags, setTags] = useState(service.tags.join(', '))
   const [url, setUrl] = useState(service.url ?? '')
-  const [healthcheckUrl, setHealthcheckUrl] = useState(service.healthcheckUrl ?? '')
-  const [statusPageVisibility, setStatusPageVisibility] = useState(service.statusPageVisibility)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -49,8 +47,6 @@ export function ServiceForm({ service }: Props) {
           description: description.trim(),
           tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
           url: url.trim() || undefined,
-          healthcheckUrl: healthcheckUrl.trim() || undefined,
-          statusPageVisibility,
         })
         router.push(`/admin/services/${service.id}`)
       } catch (err) {
@@ -117,19 +113,6 @@ export function ServiceForm({ service }: Props) {
           <label className={labelCls}>URL principale</label>
           <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" className={inputCls} />
         </div>
-        <div>
-          <label className={labelCls}>Healthcheck URL</label>
-          <input type="url" value={healthcheckUrl} onChange={(e) => setHealthcheckUrl(e.target.value)} placeholder="https://example.com/health" className={inputCls} />
-        </div>
-      </div>
-
-      <div>
-        <label className={labelCls}>Visibilità pagina stato</label>
-        <select value={statusPageVisibility} onChange={(e) => setStatusPageVisibility(e.target.value as typeof statusPageVisibility)} className={selectCls}>
-          <option value="private">Privata (solo admin)</option>
-          <option value="tokenized">Link segreto (tokenizzata)</option>
-          <option value="public">Pubblica</option>
-        </select>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

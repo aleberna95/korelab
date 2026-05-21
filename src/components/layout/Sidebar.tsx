@@ -5,13 +5,10 @@ import { usePathname } from 'next/navigation'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Panoramica', icon: '⬛' },
-  { href: '/admin/onboarding', label: 'Onboarding', icon: '➕' },
   { href: '/admin/clients', label: 'Clienti', icon: '👥' },
   { href: '/admin/services', label: 'Servizi', icon: '🔧' },
   { href: '/admin/incidents', label: 'Incidenti', icon: '🚨' },
-  { href: '/admin/monitors', label: 'Monitor', icon: '📡' },
   { href: '/admin/tasks', label: 'Attività', icon: '✅' },
-  { href: '/admin/audit', label: 'Log di Audit', icon: '🔍' },
   { href: '/admin/settings', label: 'Impostazioni', icon: '⚙️' },
 ]
 

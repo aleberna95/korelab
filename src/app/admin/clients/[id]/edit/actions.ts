@@ -10,7 +10,6 @@ export async function updateClient(id: string, patch: UpdateClientInput): Promis
   const { uid } = await requireAdmin()
   await clientsRepo.update(id, patch, uid)
   revalidateTag(CACHE_TAGS.services)
-  revalidateTag(CACHE_TAGS.audit)
   revalidatePath('/admin/clients')
   revalidatePath(`/admin/clients/${id}`)
 }

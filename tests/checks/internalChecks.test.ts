@@ -1,11 +1,10 @@
 /**
- * Tests for Phase 10 internal checks.
+ * Tests for internal checks.
  *
  * Coverage:
  *  - alertLadder: threshold crossing logic + already-alerted deduplication
- *  - ssl checker: happy path, expiry, cert expired, timeout handling
- *  - http checker: status match, body fragment, wrong status, timeout
- *  - dns checker: no expected records, drift detection, match success
+ *  - http checker: status match, body fragment, wrong status, no URL
+ *  - determineHttpAction: transition logic (UP↔DOWN, zero writes on steady state)
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -38,9 +37,12 @@ describe('findCrossedThreshold', () => {
   })
 
   it('works correctly for domain thresholds', () => {
-    // SSL_THRESHOLDS = [30,14,7,2] in descending order; test similar edge cases
+    // SSL_THRESHOLDS = [30,14,7,2] in descending order
+    // 25 days: crosses 30 → fires at 30
     expect(findCrossedThreshold(25, SSL_THRESHOLDS, [])).toBe(30)
-    expect(findCrossedThreshold(25, SSL_THRESHOLDS, [30])).toBe(14)
+    // 25 days, already alerted at 30: 25 > 14 so 14 not yet crossed → null
+    expect(findCrossedThreshold(25, SSL_THRESHOLDS, [30])).toBeNull()
+    // 6 days, alerted at 30+14: 6 <= 7 and not alerted → fires at 7
     expect(findCrossedThreshold(6, SSL_THRESHOLDS, [30, 14])).toBe(7)
   })
 
@@ -71,11 +73,18 @@ describe('checkHTTP', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const { checkHTTP } = await import('@functions/checks/http')
-    const monitor = {
-      config: { url: 'https://example.com', expectStatus: 200, intervalSec: 60 },
-    } as Parameters<typeof checkHTTP>[0]
+    const check = {
+      enabled: true,
+      url: 'https://example.com',
+      expectStatus: 200,
+      intervalSec: 60,
+      timeoutMs: 5000,
+      sslCheck: false,
+      sslAlertDays: [],
+      alertedThresholds: [],
+    }
 
-    const result = await checkHTTP(monitor)
+    const result = await checkHTTP(check)
     expect(result.result).toBe('up')
     expect(result.statusCode).toBe(200)
   })
@@ -88,11 +97,18 @@ describe('checkHTTP', () => {
     } as unknown as Response))
 
     const { checkHTTP } = await import('@functions/checks/http')
-    const monitor = {
-      config: { url: 'https://example.com', expectStatus: 200, intervalSec: 60 },
-    } as Parameters<typeof checkHTTP>[0]
+    const check = {
+      enabled: true,
+      url: 'https://example.com',
+      expectStatus: 200,
+      intervalSec: 60,
+      timeoutMs: 5000,
+      sslCheck: false,
+      sslAlertDays: [],
+      alertedThresholds: [],
+    }
 
-    const result = await checkHTTP(monitor)
+    const result = await checkHTTP(check)
     expect(result.result).toBe('down')
     expect(result.statusCode).toBe(503)
   })
@@ -105,16 +121,19 @@ describe('checkHTTP', () => {
     } as unknown as Response))
 
     const { checkHTTP } = await import('@functions/checks/http')
-    const monitor = {
-      config: {
-        url: 'https://example.com',
-        expectStatus: 200,
-        expectBody: 'EXPECTED_TEXT',
-        intervalSec: 60,
-      },
-    } as Parameters<typeof checkHTTP>[0]
+    const check = {
+      enabled: true,
+      url: 'https://example.com',
+      expectStatus: 200,
+      expectBody: 'EXPECTED_TEXT',
+      intervalSec: 60,
+      timeoutMs: 5000,
+      sslCheck: false,
+      sslAlertDays: [],
+      alertedThresholds: [],
+    }
 
-    const result = await checkHTTP(monitor)
+    const result = await checkHTTP(check)
     expect(result.result).toBe('degraded')
   })
 
@@ -126,27 +145,84 @@ describe('checkHTTP', () => {
     } as unknown as Response))
 
     const { checkHTTP } = await import('@functions/checks/http')
-    const monitor = {
-      config: {
-        url: 'https://example.com',
-        expectStatus: 200,
-        expectBody: 'EXPECTED_TEXT',
-        intervalSec: 60,
-      },
-    } as Parameters<typeof checkHTTP>[0]
+    const check = {
+      enabled: true,
+      url: 'https://example.com',
+      expectStatus: 200,
+      expectBody: 'EXPECTED_TEXT',
+      intervalSec: 60,
+      timeoutMs: 5000,
+      sslCheck: false,
+      sslAlertDays: [],
+      alertedThresholds: [],
+    }
 
-    const result = await checkHTTP(monitor)
+    const result = await checkHTTP(check)
     expect(result.result).toBe('up')
   })
 
   it('returns down when no URL configured', async () => {
     const { checkHTTP } = await import('@functions/checks/http')
-    const monitor = {
-      config: { intervalSec: 60 },
-    } as Parameters<typeof checkHTTP>[0]
+    const check = {
+      enabled: true,
+      url: '',
+      intervalSec: 60,
+      timeoutMs: 5000,
+      sslCheck: false,
+      sslAlertDays: [],
+      alertedThresholds: [],
+    }
 
-    const result = await checkHTTP(monitor)
+    const result = await checkHTTP(check)
     expect(result.result).toBe('down')
     expect(result.error).toContain('No URL')
+  })
+})
+
+// ─── determineHttpAction (transition logic) ───────────────────────────────
+
+describe('determineHttpAction', () => {
+  const check = {
+    enabled: true,
+    url: 'https://example.com',
+    intervalSec: 60,
+    timeoutMs: 5000,
+    sslCheck: false,
+    sslAlertDays: [],
+    alertedThresholds: [],
+  }
+
+  it('UP→UP: returns none (zero writes)', async () => {
+    const { determineHttpAction } = await import('@functions/checks/transitions')
+    expect(determineHttpAction('up', 'operational', check)).toEqual({ type: 'none' })
+  })
+
+  it('UP→DOWN: returns open_incident with title', async () => {
+    const { determineHttpAction } = await import('@functions/checks/transitions')
+    const action = determineHttpAction('down', 'operational', check, 'connection refused')
+    expect(action.type).toBe('open_incident')
+    expect((action as { type: string; title: string }).title).toContain('https://example.com')
+  })
+
+  it('DOWN→DOWN: returns none (zero writes)', async () => {
+    const { determineHttpAction } = await import('@functions/checks/transitions')
+    expect(determineHttpAction('down', 'major-outage', check)).toEqual({ type: 'none' })
+  })
+
+  it('DOWN→UP: returns close_incident', async () => {
+    const { determineHttpAction } = await import('@functions/checks/transitions')
+    expect(determineHttpAction('up', 'major-outage', check)).toEqual({ type: 'close_incident' })
+  })
+
+  it('degraded when operational: returns open_incident', async () => {
+    const { determineHttpAction } = await import('@functions/checks/transitions')
+    const action = determineHttpAction('degraded', 'operational', check)
+    expect(action.type).toBe('open_incident')
+  })
+
+  it('unknown state + down: returns open_incident', async () => {
+    const { determineHttpAction } = await import('@functions/checks/transitions')
+    const action = determineHttpAction('down', 'unknown', check)
+    expect(action.type).toBe('open_incident')
   })
 })
