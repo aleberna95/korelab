@@ -91,7 +91,8 @@ export function ServiceCard({ id, name, checkUrl, initialState, uptime }: Props)
     Promise.all([
       import('@/lib/firebase/client'),
       import('firebase/firestore'),
-    ]).then(([{ clientApp }, firestore]) => {
+    ]).then(async ([{ clientApp, waitForAuth }, firestore]) => {
+      await waitForAuth()
       if (!active) return
       const db = firestore.getFirestore(clientApp)
       unsubscribe = firestore.onSnapshot(

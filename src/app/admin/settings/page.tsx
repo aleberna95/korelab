@@ -3,6 +3,7 @@ import React from 'react'
 import { requireAdmin } from '@/lib/auth/guards'
 import { verifySessionCookie } from '@/lib/auth/session'
 import { TestTelegramButton } from './TestTelegramButton'
+import { version } from '../../../../package.json'
 
 export const metadata: Metadata = { title: 'Settings — Command Center' }
 
@@ -80,6 +81,14 @@ export default async function SettingsPage() {
         <p className="text-xs text-gray-400 mt-2">
           Connectivity check uses placeholder credentials — a reachable endpoint (200/401) confirms the service is up.
         </p>
+      </section>
+
+      {/* App info */}
+      <section>
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Applicazione</h2>
+        <div className="bg-white rounded-lg border border-gray-200 px-5 py-4 text-sm">
+          <p className="text-gray-600">Versione: <span className="font-mono text-gray-900">v{version}</span></p>
+        </div>
       </section>
     </div>
   )

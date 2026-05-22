@@ -4,6 +4,8 @@ import { requireAdmin } from '@/lib/auth/guards'
 import { clientsRepo } from '@/lib/repos/clientsRepo'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
+import { tasksRepo } from '@/lib/repos/tasksRepo'
+import type { SerializedTask } from '@/lib/repos/tasksSnapshot'
 import {
   ClientDetail,
   type ClientData,
@@ -19,10 +21,13 @@ export default async function ClientDetailPage({ params }: Props) {
   await requireAdmin()
   const { id } = await params
 
-  const [client, services, recentIncidents] = await Promise.all([
+  const [client, services, recentIncidents, tasks, allClients, allServices] = await Promise.all([
     clientsRepo.getById(id),
     servicesRepo.list({ clientId: id, limit: 100 }),
     incidentsRepo.list({ clientId: id, limit: 5 }),
+    tasksRepo.listTasksByClient(id),
+    clientsRepo.list(),
+    servicesRepo.list(),
   ])
 
   if (!client) notFound()
@@ -41,7 +46,7 @@ export default async function ClientDetailPage({ params }: Props) {
     id: svc.id,
     name: svc.name,
     state: svc.currentStatus.state,
-    sinceMs: svc.currentStatus.since?.toMillis() ?? 0,
+    sinceMs: svc.currentStatus.since ? new Date(svc.currentStatus.since).getTime() : 0,
     checkUrl: svc.check?.url,
   }))
 
@@ -50,12 +55,25 @@ export default async function ClientDetailPage({ params }: Props) {
     serviceId: inc.serviceId,
     state: inc.state,
     title: inc.title,
-    startedAtMs: inc.startedAt.toMillis(),
-    resolvedAtMs: inc.resolvedAt?.toMillis(),
+    startedAtMs: new Date(inc.startedAt).getTime(),
+    resolvedAtMs: inc.resolvedAt ? new Date(inc.resolvedAt).getTime() : undefined,
   }))
 
   const serviceNameMap: Record<string, string> = {}
   for (const svc of services) serviceNameMap[svc.id] = svc.name
+
+  const initialTasks: SerializedTask[] = tasks.map((t) => ({
+    id: t.id,
+    text: t.text,
+    color: t.color,
+    order: t.order,
+    done: t.done,
+    doneAtMs: t.doneAt ? new Date(t.doneAt).getTime() : undefined,
+    clientIds: t.clientIds ?? [],
+    serviceIds: t.serviceIds ?? [],
+    createdAtMs: new Date(t.createdAt).getTime(),
+    updatedAtMs: new Date(t.updatedAt).getTime(),
+  }))
 
   return (
     <ClientDetail
@@ -63,6 +81,9 @@ export default async function ClientDetailPage({ params }: Props) {
       initialServices={serviceRows}
       recentIncidents={incidentRows}
       serviceNameMap={serviceNameMap}
+      initialTasks={initialTasks}
+      availableClients={allClients.map((c) => ({ id: c.id, name: c.name }))}
+      availableServices={allServices.map((s) => ({ id: s.id, name: s.name }))}
     />
   )
 }

@@ -33,7 +33,7 @@ export function IncidentTimeline({ timeline }: Props) {
             <div>
               <p className="text-sm text-gray-800">{ev.message}</p>
               <p className="text-xs text-gray-400 mt-0.5">
-                {formatTime(ev.at as unknown as { toDate(): Date })}
+                {formatTime(ev.at)}
                 {ev.byUid ? ` · ${ev.byUid}` : ''}
               </p>
             </div>
@@ -44,10 +44,10 @@ export function IncidentTimeline({ timeline }: Props) {
   )
 }
 
-function formatTime(ts: { toDate(): Date } | undefined): string {
-  if (!ts?.toDate) return '—'
+function formatTime(ts: string | undefined): string {
+  if (!ts) return '—'
   return new Intl.DateTimeFormat('it-IT', {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(ts.toDate())
+  }).format(new Date(ts))
 }

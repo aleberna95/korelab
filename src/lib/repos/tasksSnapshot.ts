@@ -8,7 +8,7 @@ import {
   orderBy,
   onSnapshot,
 } from 'firebase/firestore'
-import { clientApp } from '@/lib/firebase/client'
+import { clientApp, waitForAuth } from '@/lib/firebase/client'
 import type { TaskColor } from '@/lib/domain/types'
 
 export type SerializedTask = {
@@ -18,6 +18,8 @@ export type SerializedTask = {
   order: number
   done: boolean
   doneAtMs?: number
+  clientIds: string[]
+  serviceIds: string[]
   createdAtMs: number
   updatedAtMs: number
 }
@@ -29,24 +31,32 @@ export type SerializedTask = {
 export function onTasksSnapshot(
   callback: (tasks: SerializedTask[]) => void,
 ): () => void {
-  const db = getFirestore(clientApp)
-  const q = query(collection(db, 'tasks'), orderBy('order', 'desc'))
+  let unsub: (() => void) | undefined
 
-  return onSnapshot(q, (snap) => {
-    callback(
-      snap.docs.map((doc) => {
-        const d = doc.data()
-        return {
-          id: doc.id,
-          text: d.text as string,
-          color: d.color as TaskColor,
-          order: d.order as number,
-          done: d.done as boolean,
-          doneAtMs: (d.doneAt as { toMillis?: () => number } | undefined)?.toMillis?.(),
-          createdAtMs: (d.createdAt as { toMillis?: () => number } | undefined)?.toMillis?.() ?? 0,
-          updatedAtMs: (d.updatedAt as { toMillis?: () => number } | undefined)?.toMillis?.() ?? 0,
-        }
-      }),
-    )
+  waitForAuth().then(() => {
+    const db = getFirestore(clientApp)
+    const q = query(collection(db, 'tasks'), orderBy('order', 'desc'))
+
+    unsub = onSnapshot(q, (snap) => {
+      callback(
+        snap.docs.map((doc) => {
+          const d = doc.data()
+          return {
+            id: doc.id,
+            text: d.text as string,
+            color: d.color as TaskColor,
+            order: d.order as number,
+            done: d.done as boolean,
+            doneAtMs: (d.doneAt as { toMillis?: () => number } | undefined)?.toMillis?.(),
+            clientIds: (d.clientIds as string[] | undefined) ?? [],
+            serviceIds: (d.serviceIds as string[] | undefined) ?? [],
+            createdAtMs: (d.createdAt as { toMillis?: () => number } | undefined)?.toMillis?.() ?? 0,
+            updatedAtMs: (d.updatedAt as { toMillis?: () => number } | undefined)?.toMillis?.() ?? 0,
+          }
+        }),
+      )
+    })
   })
+
+  return () => unsub?.()
 }

@@ -4,8 +4,12 @@ import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/guards'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
+import { tasksRepo } from '@/lib/repos/tasksRepo'
+import { clientsRepo } from '@/lib/repos/clientsRepo'
+import type { SerializedTask } from '@/lib/repos/tasksSnapshot'
 import { StatusBadge } from '@/components/dashboard/StatusBadge'
 import { IncidentList, type IncidentListItem } from '@/components/incidents/IncidentList'
+import { TaskInlineSection } from '@/components/tasks/TaskInlineSection'
 
 export const metadata: Metadata = { title: 'Servizio — Command Center' }
 
@@ -15,10 +19,27 @@ export default async function ServiceDetailPage({ params }: Props) {
   await requireAdmin()
   const { id } = await params
 
-  const service = await servicesRepo.getById(id)
+  const [service, incidents, tasks, allClients, allServices] = await Promise.all([
+    servicesRepo.getById(id),
+    incidentsRepo.listByService(id, 20),
+    tasksRepo.listTasksByService(id),
+    clientsRepo.list(),
+    servicesRepo.list(),
+  ])
   if (!service) notFound()
 
-  const incidents = await incidentsRepo.listByService(id, 20)
+  const initialTasks: SerializedTask[] = tasks.map((t) => ({
+    id: t.id,
+    text: t.text,
+    color: t.color,
+    order: t.order,
+    done: t.done,
+    doneAtMs: t.doneAt ? new Date(t.doneAt).getTime() : undefined,
+    clientIds: t.clientIds ?? [],
+    serviceIds: t.serviceIds ?? [],
+    createdAtMs: new Date(t.createdAt).getTime(),
+    updatedAtMs: new Date(t.updatedAt).getTime(),
+  }))
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
@@ -94,12 +115,22 @@ export default async function ServiceDetailPage({ params }: Props) {
               severity: i.severity,
               title: i.title,
               serviceId: i.serviceId,
-              startedAt: i.startedAt.toDate().toISOString(),
+              startedAt: i.startedAt,
             }))}
             emptyMessage="Nessun incidente registrato."
           />
         </div>
       </section>
+
+      {/* Task inline section */}
+      <TaskInlineSection
+        entityId={id}
+        entityType="service"
+        entityName={service.name}
+        initialTasks={initialTasks}
+        availableClients={allClients.map((c) => ({ id: c.id, name: c.name }))}
+        availableServices={allServices.map((s) => ({ id: s.id, name: s.name }))}
+      />
     </div>
   )
 }

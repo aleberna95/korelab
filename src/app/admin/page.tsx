@@ -65,7 +65,7 @@ export default async function AdminOverviewPage() {
               severity: i.severity,
               title: i.title,
               serviceId: i.serviceId,
-              startedAt: i.startedAt.toDate().toISOString(),
+              startedAt: i.startedAt,
             }))}
             emptyMessage="Nessun incidente attivo — tutti i sistemi operativi."
           />

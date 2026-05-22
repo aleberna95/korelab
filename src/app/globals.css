@@ -20,15 +20,6 @@
   --color-warning:   oklch(0.82 0.17 85);
   --color-danger:    oklch(0.62 0.22 25);
 
-  /* Palette task (pastelli accesi) */
-  --color-task-yellow:  oklch(0.94 0.10 95);
-  --color-task-pink:    oklch(0.90 0.08 10);
-  --color-task-blue:    oklch(0.91 0.07 240);
-  --color-task-green:   oklch(0.93 0.09 145);
-  --color-task-purple:  oklch(0.91 0.07 300);
-  --color-task-orange:  oklch(0.92 0.10 60);
-  --color-task-gray:    oklch(0.94 0.005 270);
-
   /* Radius */
   --radius-sm: 0.5rem;
   --radius:    0.875rem;
@@ -66,7 +57,19 @@
   --color-fg-faint: oklch(0.50 0.012 270);
   --color-accent:   oklch(0.72 0.18 258);
   --color-accent-soft: oklch(0.30 0.05 258);
+}
 
+/* ─── Task palette (CSS vars fuori da @theme — evita tree-shaking Tailwind v4) ── */
+:root {
+  --color-task-yellow: oklch(0.94 0.10 95);
+  --color-task-pink:   oklch(0.90 0.08 10);
+  --color-task-blue:   oklch(0.91 0.07 240);
+  --color-task-green:  oklch(0.93 0.09 145);
+  --color-task-purple: oklch(0.91 0.07 300);
+  --color-task-orange: oklch(0.92 0.10 60);
+  --color-task-gray:   oklch(0.94 0.005 270);
+}
+.dark {
   --color-task-yellow: oklch(0.55 0.13 95);
   --color-task-pink:   oklch(0.50 0.13 10);
   --color-task-blue:   oklch(0.50 0.12 240);

@@ -52,34 +52,41 @@ service cloud.firestore {
     }
 
     // ─── Admin-only collections ──────────────────────────────────────────────
-    // All reads and writes require admin role + App Check token.
-    // Create/update operations additionally validate document shape.
+    // Reads require admin role only (auth + custom claim is sufficient for reads).
+    // Writes and deletes additionally require a valid App Check token.
     match /clients/{docId} {
-      allow read, delete: if isAdminWithAppCheck();
+      allow read: if isAdmin();
+      allow delete: if isAdminWithAppCheck();
       allow create: if isAdminWithAppCheck() && validClientShape();
       allow update: if isAdminWithAppCheck() && validClientShape();
     }
     match /services/{docId} {
-      allow read, delete: if isAdminWithAppCheck();
+      allow read: if isAdmin();
+      allow delete: if isAdminWithAppCheck();
       allow create: if isAdminWithAppCheck() && validServiceShape();
       allow update: if isAdminWithAppCheck() && validServiceShape();
       match /daily/{day} {
-        allow read, write: if isAdminWithAppCheck();
+        allow read: if isAdmin();
+        allow write: if isAdminWithAppCheck();
       }
       match /timeline/{eventId} {
-        allow read, write: if isAdminWithAppCheck();
+        allow read: if isAdmin();
+        allow write: if isAdminWithAppCheck();
       }
     }
     match /incidents/{docId} {
-      allow read, delete: if isAdminWithAppCheck();
+      allow read: if isAdmin();
+      allow delete: if isAdminWithAppCheck();
       allow create: if isAdminWithAppCheck() && validIncidentShape();
       allow update: if isAdminWithAppCheck() && validIncidentShape();
       match /timeline/{eventId} {
-        allow read, write: if isAdminWithAppCheck();
+        allow read: if isAdmin();
+        allow write: if isAdminWithAppCheck();
       }
     }
     match /tasks/{docId} {
-      allow read, write: if isAdminWithAppCheck();
+      allow read: if isAdmin();
+      allow write: if isAdminWithAppCheck();
     }
     match /alertDedup/{key} {
       // Alert deduplication — written by Cloud Functions (Admin SDK) only

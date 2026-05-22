@@ -1,5 +1,4 @@
 import 'server-only'
-import type { Timestamp } from 'firebase-admin/firestore'
 
 // ─── Client ────────────────────────────────────────────────────────────────
 
@@ -11,8 +10,8 @@ export interface Client {
   notes?: string
   tags: string[]
   status: 'active' | 'archived'
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: string
+  updatedAt: string
 }
 
 // ─── Service ───────────────────────────────────────────────────────────────
@@ -62,13 +61,13 @@ export interface Service {
   check?: ServiceCheck
   currentStatus: {
     state: ServiceStatusState
-    since: Timestamp
+    since: string
     activeIncidentId?: string
-    lastCheckAt?: Timestamp
+    lastCheckAt?: string
     uptime30d?: number
   }
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  createdAt: string
+  updatedAt: string
 }
 
 // ─── Incident ──────────────────────────────────────────────────────────────
@@ -88,8 +87,8 @@ export interface Incident {
   clientId: string
   state: IncidentState
   severity: IncidentSeverity
-  startedAt: Timestamp
-  resolvedAt?: Timestamp
+  startedAt: string
+  resolvedAt?: string
   source: 'internal-check' | 'manual'
   title: string
   privateMessage?: string
@@ -100,7 +99,7 @@ export interface Incident {
 
 export interface IncidentTimelineEvent {
   id: string
-  at: Timestamp
+  at: string
   kind: 'detected' | 'updated' | 'comment' | 'resolved' | 'reopened'
   message: string
   byUid?: string
@@ -118,9 +117,11 @@ export interface Task {
   /** Integer sort key, descending (higher = top). Midpoint reorder; rebalance if delta < 1. */
   order: number
   done: boolean
-  doneAt?: Timestamp
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  doneAt?: string
+  clientIds?: string[]
+  serviceIds?: string[]
+  createdAt: string
+  updatedAt: string
 }
 
 

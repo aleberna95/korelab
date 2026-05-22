@@ -1,6 +1,8 @@
 ﻿import type { Metadata } from 'next'
 import { requireAdmin } from '@/lib/auth/guards'
 import { tasksRepo } from '@/lib/repos/tasksRepo'
+import { clientsRepo } from '@/lib/repos/clientsRepo'
+import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { TaskBoard } from '@/components/tasks/TaskBoard'
 import type { SerializedTask } from '@/lib/repos/tasksSnapshot'
 
@@ -10,7 +12,11 @@ export const metadata: Metadata = { title: 'Note — KoreLab' }
 export default async function TasksPage() {
   await requireAdmin()
 
-  const tasks = await tasksRepo.listTasks()
+  const [tasks, clients, services] = await Promise.all([
+    tasksRepo.listTasks(),
+    clientsRepo.list(),
+    servicesRepo.list(),
+  ])
 
   // Serialize Timestamps to plain numbers before passing to client component
   const initialTasks: SerializedTask[] = tasks.map((t) => ({
@@ -19,9 +25,11 @@ export default async function TasksPage() {
     color: t.color,
     order: t.order,
     done: t.done,
-    doneAtMs: t.doneAt?.toMillis(),
-    createdAtMs: t.createdAt.toMillis(),
-    updatedAtMs: t.updatedAt.toMillis(),
+    doneAtMs: t.doneAt ? new Date(t.doneAt).getTime() : undefined,
+    clientIds: t.clientIds ?? [],
+    serviceIds: t.serviceIds ?? [],
+    createdAtMs: new Date(t.createdAt).getTime(),
+    updatedAtMs: new Date(t.updatedAt).getTime(),
   }))
 
   return (
@@ -32,7 +40,11 @@ export default async function TasksPage() {
           {tasks.filter((t) => !t.done).length}
         </span>
       </header>
-      <TaskBoard initialTasks={initialTasks} />
+      <TaskBoard
+        initialTasks={initialTasks}
+        availableClients={clients.map((c) => ({ id: c.id, name: c.name }))}
+        availableServices={services.map((s) => ({ id: s.id, name: s.name }))}
+      />
     </div>
   )
 }

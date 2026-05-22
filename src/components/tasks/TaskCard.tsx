@@ -5,6 +5,8 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { TaskColor } from '@/lib/domain/types'
 import type { SerializedTask } from '@/lib/repos/tasksSnapshot'
+import { TaskLinkSheet, type LinkItem } from './TaskLinkSheet'
+import { TaskLinkChips } from './TaskLinkChips'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -18,11 +20,15 @@ type Props = {
   task: SerializedTask
   isEditing: boolean
   dimmed: boolean
+  overlay?: boolean
+  availableClients?: LinkItem[]
+  availableServices?: LinkItem[]
   onStartEdit: () => void
   onSave: (id: string, text: string) => void
   onDelete: (id: string) => void
   onDone: (id: string, done: boolean) => void
   onColorChange: (id: string, color: TaskColor) => void
+  onLinkChange?: (id: string, clientIds: string[], serviceIds: string[]) => void
 }
 
 // ─── Grip icon ────────────────────────────────────────────────────────────────
@@ -43,14 +49,19 @@ export function TaskCard({
   task,
   isEditing,
   dimmed,
+  overlay = false,
+  availableClients = [],
+  availableServices = [],
   onStartEdit,
   onSave,
   onDelete,
   onDone,
   onColorChange,
+  onLinkChange,
 }: Props) {
   const [localText, setLocalText] = useState(task.text)
   const [showMenu, setShowMenu] = useState(false)
+  const [showLinkSheet, setShowLinkSheet] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -63,7 +74,7 @@ export function TaskCard({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id })
+  } = useSortable({ id: task.id, disabled: overlay })
 
   // Touch tracking for swipe + long-press
   const touchStartX = useRef(0)
@@ -179,20 +190,47 @@ export function TaskCard({
 
   const bgColor = task.done ? 'var(--color-task-gray)' : `var(--color-task-${task.color})`
 
-  const cardStyle: React.CSSProperties = {
-    background: bgColor,
-    transform: `${CSS.Transform.toString(transform) ?? ''} translateX(${swipeX}px)`,
-    transition: swipeX !== 0 ? 'none' : transition ?? undefined,
-    opacity: isDragging ? 0.45 : dimmed ? 0.35 : 1,
-    zIndex: isDragging ? 999 : undefined,
-  }
+  const cardStyle: React.CSSProperties = overlay
+    ? {
+        background: bgColor,
+        transform: 'rotate(1.5deg) scale(1.02)',
+        boxShadow: 'var(--shadow-pop)',
+        cursor: 'grabbing',
+        opacity: 1,
+      }
+    : {
+        background: bgColor,
+        transform: `${CSS.Transform.toString(transform) ?? ''} translateX(${swipeX}px)`,
+        transition: swipeX !== 0 ? 'none' : transition ?? undefined,
+        opacity: isDragging ? 0.3 : dimmed ? 0.35 : 1,
+        zIndex: isDragging ? 999 : undefined,
+      }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={cardStyle}
-      className="task-appear group/card relative rounded-[var(--radius-lg)] p-5 [box-shadow:var(--shadow-card)] touch-pan-y select-none"
-    >
+    <>
+      <div
+        ref={setNodeRef}
+        style={cardStyle}
+        className="task-appear group/card relative rounded-[var(--radius-lg)] p-5 [box-shadow:var(--shadow-card)] touch-pan-y select-none"
+      >
+      {/* Swipe affordance overlays */}
+      {!overlay && !isEditing && swipeX > 20 && (
+        <div
+          className="absolute inset-0 rounded-[var(--radius-lg)] flex items-center pl-4 pointer-events-none z-[2]"
+          style={{ background: 'var(--color-success)', opacity: Math.min(0.88, swipeX / 80) }}
+        >
+          <span className="text-white text-[13px] font-semibold">✓ Fatto</span>
+        </div>
+      )}
+      {!overlay && !isEditing && swipeX < -20 && (
+        <div
+          className="absolute inset-0 rounded-[var(--radius-lg)] flex items-center justify-end pr-4 pointer-events-none z-[2]"
+          style={{ background: 'var(--color-danger)', opacity: Math.min(0.88, -swipeX / 80) }}
+        >
+          <span className="text-white text-[13px] font-semibold">Elimina 🗑</span>
+        </div>
+      )}
+
       {/* Drag grip handle — always visible on mobile, hover on desktop */}
       {!task.done && (
         <button
@@ -240,6 +278,14 @@ export function TaskCard({
           >
             {task.text}
           </p>
+          <TaskLinkChips
+            clientIds={task.clientIds}
+            serviceIds={task.serviceIds}
+            availableClients={availableClients}
+            availableServices={availableServices}
+            onRemoveClient={onLinkChange ? (id) => onLinkChange(task.id, task.clientIds.filter((x) => x !== id), task.serviceIds) : undefined}
+            onRemoveService={onLinkChange ? (id) => onLinkChange(task.id, task.clientIds, task.serviceIds.filter((x) => x !== id)) : undefined}
+          />
         </div>
       )}
 
@@ -260,23 +306,49 @@ export function TaskCard({
                 style={{ background: `var(--color-task-${c})` }}
                 onClick={() => {
                   onColorChange(task.id, c)
+                  navigator.vibrate?.(10)
                   setShowMenu(false)
                 }}
                 aria-label={c}
               />
             ))}
           </div>
-          <button
-            className="text-[13px] text-[var(--color-danger)] hover:underline w-full text-left pt-1"
-            onClick={() => {
-              setShowMenu(false)
-              onDelete(task.id)
-            }}
-          >
-            Elimina
-          </button>
+          <div className="border-t border-[var(--color-border)] mt-1 pt-1 flex flex-col gap-0.5">
+            <button
+              className="text-[13px] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] w-full text-left py-1.5"
+              onClick={() => { onDone(task.id, !task.done); setShowMenu(false) }}
+            >
+              {task.done ? '↩ Riapri' : '✓ Fatto'}
+            </button>
+            {onLinkChange && (
+              <button
+                className="text-[13px] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] w-full text-left py-1.5"
+                onClick={() => { setShowMenu(false); setShowLinkSheet(true) }}
+              >
+                🔗 Collega…
+              </button>
+            )}
+            <button
+              className="text-[13px] text-[var(--color-danger)] hover:underline w-full text-left py-1.5"
+              onClick={() => { setShowMenu(false); onDelete(task.id) }}
+            >
+              Elimina
+            </button>
+          </div>
         </div>
       )}
     </div>
+
+      {showLinkSheet && onLinkChange && (
+        <TaskLinkSheet
+          initialClientIds={task.clientIds}
+          initialServiceIds={task.serviceIds}
+          availableClients={availableClients}
+          availableServices={availableServices}
+          onSubmit={(cIds, sIds) => onLinkChange(task.id, cIds, sIds)}
+          onClose={() => setShowLinkSheet(false)}
+        />
+      )}
+    </>
   )
 }

@@ -13,7 +13,7 @@
  */
 
 import { onSchedule } from 'firebase-functions/v2/scheduler'
-import { getFirestore } from 'firebase-admin/firestore'
+import { getFirestore, FieldValue } from 'firebase-admin/firestore'
 import { getApps, initializeApp } from 'firebase-admin/app'
 import type { Service, ServiceCheck, ServiceStatusState } from '../lib/types'
 import { checkSSL } from './ssl'
@@ -100,8 +100,15 @@ async function processService(service: Service): Promise<void> {
         text: `✅ <b>Recovery</b>\n${check.url} is back online`,
       }).catch((err) => console.error('Telegram recovery alert failed:', err))
     }
+  } else if (result === 'up' && currentState !== 'operational') {
+    // Service is UP but state is unknown/degraded/etc. — set operational directly.
+    // This happens for new services that have never had an incident.
+    await db.collection('services').doc(serviceId).update({
+      'currentStatus.state': 'operational',
+      'currentStatus.since': FieldValue.serverTimestamp(),
+    })
+    console.log(`internalChecks: ${serviceId} → operational (first confirmed up)`)
   }
-  // action.type === 'none' → zero writes
 
   // ── SSL check ─────────────────────────────────────────────────────────────
   if (check.sslCheck) {

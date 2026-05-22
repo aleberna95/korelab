@@ -25,6 +25,14 @@ export async function deleteTask(id: string): Promise<void> {
   revalidateTag(CACHE_TAGS.tasks)
 }
 
+/** Alias semantico per aggiornare solo i link cliente/servizio di una task. */
+export async function updateTaskLinks(
+  id: string,
+  links: { clientIds: string[]; serviceIds: string[] },
+): Promise<void> {
+  return updateTask(id, links)
+}
+
 /** Update the order field directly (optimistic reorder). */
 export async function reorderTask(id: string, newOrder: number): Promise<void> {
   await requireAdmin()

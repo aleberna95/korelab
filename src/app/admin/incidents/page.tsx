@@ -6,7 +6,7 @@ import { IncidentList, type IncidentListItem } from '@/components/incidents/Inci
 import type { Incident } from '@/lib/domain/types'
 
 function toListItem(i: Incident): IncidentListItem {
-  return { id: i.id, state: i.state, severity: i.severity, title: i.title, serviceId: i.serviceId, startedAt: i.startedAt.toDate().toISOString() }
+  return { id: i.id, state: i.state, severity: i.severity, title: i.title, serviceId: i.serviceId, startedAt: i.startedAt }
 }
 
 export const metadata: Metadata = { title: 'Incidents — Command Center' }

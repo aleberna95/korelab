@@ -3,6 +3,9 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import type { ServiceStatusState, IncidentState } from '@/lib/domain/types'
+import type { SerializedTask } from '@/lib/repos/tasksSnapshot'
+import type { LinkItem } from '@/components/tasks/TaskLinkSheet'
+import { TaskInlineSection } from '@/components/tasks/TaskInlineSection'
 
 // ─── Serializable prop types (Timestamps converted to ms on server) ─────────
 
@@ -80,19 +83,25 @@ type Props = {
   initialServices: ServiceRow[]
   recentIncidents: IncidentRow[]
   serviceNameMap: Record<string, string>
+  initialTasks: SerializedTask[]
+  availableClients: LinkItem[]
+  availableServices: LinkItem[]
 }
 
-export function ClientDetail({ client, initialServices, recentIncidents, serviceNameMap }: Props) {
+export function ClientDetail({ client, initialServices, recentIncidents, serviceNameMap, initialTasks, availableClients, availableServices }: Props) {
   const [services, setServices] = useState<ServiceRow[]>(initialServices)
 
   // Realtime services subscription
   useEffect(() => {
+    let active = true
     let unsub: (() => void) | undefined
 
     Promise.all([
       import('@/lib/firebase/client'),
       import('firebase/firestore'),
-    ]).then(([{ clientApp }, firestore]) => {
+    ]).then(async ([{ clientApp, waitForAuth }, firestore]) => {
+      await waitForAuth()
+      if (!active) return
       const { getFirestore, collection, query, where, onSnapshot } = firestore
       const db = getFirestore(clientApp)
       const q = query(collection(db, 'services'), where('clientId', '==', client.id))
@@ -119,6 +128,7 @@ export function ClientDetail({ client, initialServices, recentIncidents, service
     document.addEventListener('visibilitychange', handleVisibility)
 
     return () => {
+      active = false
       unsub?.()
       document.removeEventListener('visibilitychange', handleVisibility)
     }
@@ -175,13 +185,23 @@ export function ClientDetail({ client, initialServices, recentIncidents, service
         )}
       </header>
 
-      {/* Notes */}
+      {/* Static notes field */}
       {client.notes && (
         <section>
           <h2 className="text-h2 text-[var(--color-fg)] mb-2">Note</h2>
           <p className="text-sm text-[var(--color-fg-muted)] whitespace-pre-wrap">{client.notes}</p>
         </section>
       )}
+
+      {/* Task inline section */}
+      <TaskInlineSection
+        entityId={client.id}
+        entityType="client"
+        entityName={client.name}
+        initialTasks={initialTasks}
+        availableClients={availableClients}
+        availableServices={availableServices}
+      />
 
       {/* Services — realtime */}
       <section>
@@ -201,7 +221,7 @@ export function ClientDetail({ client, initialServices, recentIncidents, service
                 {svc.name}
               </span>
               {svc.sinceMs > 0 && (
-                <span className="text-xs text-[var(--color-fg-faint)] shrink-0">
+                <span suppressHydrationWarning className="text-xs text-[var(--color-fg-faint)] shrink-0">
                   {formatRelativeMs(svc.sinceMs)}
                 </span>
               )}

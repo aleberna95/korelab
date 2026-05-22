@@ -57,11 +57,11 @@ export function IncidentDetail({ incident, initialTimeline }: Props) {
         {/* Meta grid */}
         <dl className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
           <MetaItem label="Sorgente" value={incident.source} />
-          <MetaItem label="Iniziato" value={formatTime(incident.startedAt as unknown as { toDate(): Date })} />
+          <MetaItem label="Iniziato" value={formatTime(incident.startedAt)} />
           {incident.resolvedAt && (
             <MetaItem
               label="Risolto"
-              value={formatTime(incident.resolvedAt as unknown as { toDate(): Date })}
+              value={formatTime(incident.resolvedAt)}
             />
           )}
           {incident.metrics.downtimeSec != null && (
@@ -98,12 +98,12 @@ function MetaItem({ label, value }: { label: string; value: string }) {
   )
 }
 
-function formatTime(ts: { toDate(): Date } | undefined): string {
-  if (!ts?.toDate) return '—'
+function formatTime(ts: string | undefined): string {
+  if (!ts) return '—'
   return new Intl.DateTimeFormat('it-IT', {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(ts.toDate())
+  }).format(new Date(ts))
 }
 
 function formatDuration(sec: number): string {

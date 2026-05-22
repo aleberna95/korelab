@@ -1,102 +1,235 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "clientId", "order": "ASCENDING" },
-        { "fieldPath": "criticality", "order": "DESCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "currentStatus.state", "order": "ASCENDING" },
-        { "fieldPath": "currentStatus.since", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "tags", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "criticality", "order": "ASCENDING" },
-        { "fieldPath": "currentStatus.state", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "currentStatus.activeIncidentId", "order": "ASCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "incidents",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "state", "order": "ASCENDING" },
-        { "fieldPath": "startedAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "incidents",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "clientId", "order": "ASCENDING" },
-        { "fieldPath": "startedAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "incidents",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "serviceId", "order": "ASCENDING" },
-        { "fieldPath": "startedAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "tasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "state", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "tasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "serviceId", "order": "ASCENDING" },
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "services",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "check.enabled", "order": "ASCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "clients",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "status", "order": "ASCENDING" },
-        { "fieldPath": "name", "order": "ASCENDING" }
-      ]
-    }
-  ],
-  "fieldOverrides": []
+    "indexes":  [
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "clientId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "criticality",
+                                           "order":  "DESCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "currentStatus.state",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "currentStatus.since",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "tags",
+                                           "arrayConfig":  "CONTAINS"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "criticality",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "currentStatus.state",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "currentStatus.activeIncidentId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "check.enabled",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "services",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "check",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "incidents",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "state",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startedAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "incidents",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "clientId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startedAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "incidents",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "serviceId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startedAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "incidents",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "serviceId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startedAt",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "clients",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "status",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "clients",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "tags",
+                                           "arrayConfig":  "CONTAINS"
+                                       },
+                                       {
+                                           "fieldPath":  "name",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "tasks",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "done",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "order",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "tasks",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "clientIds",
+                                           "arrayConfig":  "CONTAINS"
+                                       },
+                                       {
+                                           "fieldPath":  "order",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "tasks",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "serviceIds",
+                                           "arrayConfig":  "CONTAINS"
+                                       },
+                                       {
+                                           "fieldPath":  "order",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    }
+                ],
+    "fieldOverrides":  [
+
+                       ]
 }

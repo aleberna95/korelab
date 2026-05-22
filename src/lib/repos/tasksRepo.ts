@@ -35,11 +35,31 @@ export const tasksRepo = {
       color: validated.color,
       order: validated.order,
       done: false,
+      clientIds: validated.clientIds ?? [],
+      serviceIds: validated.serviceIds ?? [],
       createdAt: now,
       updatedAt: now,
     } as unknown as Task)
     const snap = await ref.get()
     return snap.data()!
+  },
+
+  async listTasksByClient(clientId: string): Promise<Task[]> {
+    const snap = await col()
+      .where('clientIds', 'array-contains', clientId)
+      .orderBy('order', 'desc')
+      .limit(200)
+      .get()
+    return snap.docs.map((d) => d.data())
+  },
+
+  async listTasksByService(serviceId: string): Promise<Task[]> {
+    const snap = await col()
+      .where('serviceIds', 'array-contains', serviceId)
+      .orderBy('order', 'desc')
+      .limit(200)
+      .get()
+    return snap.docs.map((d) => d.data())
   },
 
   async updateTask(id: string, patch: UpdateTaskInput): Promise<void> {
