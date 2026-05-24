@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/guards'
 import { verifySessionCookie } from '@/lib/auth/session'
 import { TestTelegramButton } from './TestTelegramButton'
+import { ResetPasswordButton } from './ResetPasswordButton'
 import pkg from '../../../../package.json'
 
 export const metadata: Metadata = { title: 'Settings — Command Center' }
@@ -51,6 +52,9 @@ export default async function SettingsPage() {
           <p className="text-gray-600">UID: <span className="font-mono text-gray-900">{session?.uid ?? '—'}</span></p>
           <p className="text-gray-600">Ruolo: <span className="font-medium text-gray-900">{session?.role ?? '—'}</span></p>
           <p className="text-gray-500 text-xs">MFA status is managed via Firebase Authentication console.</p>
+          <div className="pt-2 border-t border-gray-100">
+            <ResetPasswordButton />
+          </div>
         </div>
       </section>
 

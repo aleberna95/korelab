@@ -36,7 +36,12 @@ export const verifySessionCookie = cache(async (): Promise<{
 
   try {
     const auth = getAdminAuth()
-    const decoded = await auth.verifySessionCookie(sessionCookie, true)
+    // checkRevoked: false — skip the Firebase network round-trip for revocation
+    // status. The JWT signature + expiry are verified cryptographically (offline).
+    // With checkRevoked: true, any transient Firebase/network error during the
+    // revocation lookup is caught below and returns null, causing a spurious
+    // redirect to /login during normal navigation.
+    const decoded = await auth.verifySessionCookie(sessionCookie, false)
     return {
       uid: decoded.uid,
       role: decoded.role as string | undefined,
