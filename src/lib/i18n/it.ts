@@ -2,6 +2,8 @@ export const t = {
   nav: {
     dashboard: 'Dashboard',
     clients: 'Clienti',
+    quotes: 'Preventivi',
+    payments: 'Pagamenti',
     tasks: 'Note',
     services: 'Servizi',
     settings: 'Impostazioni',

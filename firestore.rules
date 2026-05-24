@@ -93,6 +93,43 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ─── Quotes ─────────────────────────────────────────────────────────────
+    // Writes use isAdminWithAppCheck().
+    // create: only bozza status allowed from client SDK.
+    // update: cannot touch an already-approved quote, nor approve from client SDK.
+    //         (approveQuote server action uses Admin SDK, which bypasses rules.)
+    match /quotes/{docId} {
+      allow read: if isAdmin();
+      allow create: if isAdminWithAppCheck()
+          && request.resource.data.status == 'bozza';
+      allow update: if isAdminWithAppCheck()
+          && resource.data.status != 'approvato'
+          && request.resource.data.status != 'approvato';
+      allow delete: if isAdminWithAppCheck()
+          && resource.data.status == 'bozza';
+    }
+
+    // ─── Payments ───────────────────────────────────────────────────────────
+    // Created and mutated exclusively by server actions via Admin SDK.
+    // Client SDK: read-only for admin, zero writes.
+    match /payments/{docId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ─── Counters ───────────────────────────────────────────────────────────
+    // Atomic sequence counters. Managed exclusively by Admin SDK (runTransaction).
+    match /counters/{year} {
+      allow read, write: if false;
+    }
+
+    // ─── User settings subcollection ────────────────────────────────────────
+    // Stores company info, PDF preferences, etc. at users/{uid}/settings/{docId}.
+    // The existing /users/{uid} rule covers only the top-level doc.
+    match /users/{uid}/settings/{docId} {
+      allow read, write: if isAdminWithAppCheck() && request.auth.uid == uid;
+    }
+
     // ─── Deny everything else ───────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;

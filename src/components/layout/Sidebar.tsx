@@ -8,6 +8,8 @@ const NAV_ITEMS = [
   { href: '/admin/clients', label: 'Clienti', icon: '👥' },
   { href: '/admin/services', label: 'Servizi', icon: '🔧' },
   { href: '/admin/incidents', label: 'Incidenti', icon: '🚨' },
+  { href: '/admin/quotes', label: 'Preventivi', icon: '📄' },
+  { href: '/admin/payments', label: 'Pagamenti', icon: '💳' },
   { href: '/admin/tasks', label: 'Attività', icon: '✅' },
   { href: '/admin/settings', label: 'Impostazioni', icon: '⚙️' },
 ]

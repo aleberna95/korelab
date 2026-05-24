@@ -1,8 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, StickyNote, Activity, Settings } from 'lucide-react'
+import { LayoutDashboard, Users, StickyNote, Activity, Settings, FileText, CreditCard } from 'lucide-react'
 import { Topbar } from './Topbar'
 import { BottomNav } from './BottomNav'
 import { t } from '@/lib/i18n/it'
@@ -10,6 +11,8 @@ import { t } from '@/lib/i18n/it'
 const SIDEBAR_ITEMS = [
   { href: '/admin', label: t.nav.dashboard, icon: LayoutDashboard, exact: true },
   { href: '/admin/clients', label: t.nav.clients, icon: Users, exact: false },
+  { href: '/admin/quotes', label: t.nav.quotes, icon: FileText, exact: false },
+  { href: '/admin/payments', label: t.nav.payments, icon: CreditCard, exact: false },
   { href: '/admin/tasks', label: t.nav.tasks, icon: StickyNote, exact: false },
   { href: '/admin/services', label: t.nav.services, icon: Activity, exact: false },
   { href: '/admin/settings', label: t.nav.settings, icon: Settings, exact: false },
@@ -22,6 +25,8 @@ interface AppShellProps {
 
 export function AppShell({ children, userEmail }: AppShellProps) {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   return (
     <div className="flex min-h-screen bg-[var(--color-bg)]">
@@ -35,9 +40,9 @@ export function AppShell({ children, userEmail }: AppShellProps) {
         {/* Nav */}
         <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
           {SIDEBAR_ITEMS.map((item) => {
-            const isActive = item.exact
+            const isActive = mounted && (item.exact
               ? pathname === item.href
-              : pathname.startsWith(item.href)
+              : pathname.startsWith(item.href))
             const Icon = item.icon
 
             return (

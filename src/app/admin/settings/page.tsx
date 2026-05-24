@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import React from 'react'
+import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/guards'
 import { verifySessionCookie } from '@/lib/auth/session'
 import { TestTelegramButton } from './TestTelegramButton'
-import { version } from '../../../../package.json'
+import pkg from '../../../../package.json'
 
 export const metadata: Metadata = { title: 'Settings — Command Center' }
 
@@ -87,7 +88,24 @@ export default async function SettingsPage() {
       <section>
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Applicazione</h2>
         <div className="bg-white rounded-lg border border-gray-200 px-5 py-4 text-sm">
-          <p className="text-gray-600">Versione: <span className="font-mono text-gray-900">v{version}</span></p>
+          <p className="text-gray-600">Versione: <span className="font-mono text-gray-900">v{pkg.version}</span></p>
+        </div>
+      </section>
+
+      {/* Dati azienda */}
+      <section>
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Preventivi</h2>
+        <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+          <Link
+            href="/admin/settings/company"
+            className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
+          >
+            <div>
+              <p className="text-sm font-medium text-gray-900">Dati azienda</p>
+              <p className="text-xs text-gray-400">Nome, P.IVA, indirizzo, logo, IVA predefinita</p>
+            </div>
+            <span className="text-gray-400 text-lg">›</span>
+          </Link>
         </div>
       </section>
     </div>

@@ -7,6 +7,11 @@ export interface Client {
   name: string
   email?: string
   phone?: string
+  vatNumber?: string    // Partita IVA
+  taxCode?: string      // Codice fiscale
+  address?: string      // Indirizzo sede legale
+  pec?: string          // PEC
+  sdi?: string          // Codice SDI
   notes?: string
   tags: string[]
   status: 'active' | 'archived'

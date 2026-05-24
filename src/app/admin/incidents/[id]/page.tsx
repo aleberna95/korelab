@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireAdmin } from '@/lib/auth/guards'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
@@ -22,9 +23,9 @@ export default async function IncidentPage({ params }: Props) {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <nav className="text-sm text-gray-500 mb-6">
-        <a href="/admin/incidents" className="hover:underline">
+        <Link href="/admin/incidents" className="hover:underline">
           Incidents
-        </a>{' '}
+        </Link>{' '}
         / <span className="text-gray-900">{incident.title}</span>
       </nav>
 

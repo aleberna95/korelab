@@ -1,11 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import type { ServiceStatusState, IncidentState } from '@/lib/domain/types'
 import type { SerializedTask } from '@/lib/repos/tasksSnapshot'
 import type { LinkItem } from '@/components/tasks/TaskLinkSheet'
 import { TaskInlineSection } from '@/components/tasks/TaskInlineSection'
+import { createQuoteDraft } from '@/lib/actions/quotes'
+import { formatEUR } from '@/lib/money'
 
 // ─── Serializable prop types (Timestamps converted to ms on server) ─────────
 
@@ -14,6 +18,11 @@ export type ClientData = {
   name: string
   email?: string
   phone?: string
+  vatNumber?: string
+  taxCode?: string
+  address?: string
+  pec?: string
+  sdi?: string
   notes?: string
   tags: string[]
   status: 'active' | 'archived'
@@ -34,6 +43,60 @@ export type IncidentRow = {
   title: string
   startedAtMs: number
   resolvedAtMs?: number
+}
+
+export type QuoteRow = {
+  id: string
+  number: string
+  status: 'bozza' | 'in-approvazione' | 'approvato' | 'rifiutato'
+  totalCents: number
+  createdAtMs: number
+}
+
+export type PaymentRow = {
+  id: string
+  number: string
+  quoteNumber: string
+  totalCents: number
+  status: 'open' | 'completed' | 'cancelled'
+  paidCount: number
+  totalCount: number
+}
+
+// ─── Badge maps ─────────────────────────────────────────────────────────────
+
+const QUOTE_STATUS_BADGE: Record<QuoteRow['status'], { label: string; className: string }> = {
+  bozza: {
+    label: 'Bozza',
+    className: 'bg-[var(--color-bg)] text-[var(--color-fg-muted)] border border-[var(--color-border)]',
+  },
+  'in-approvazione': {
+    label: 'In approvazione',
+    className: 'bg-[oklch(0.96_0.06_85)] text-[oklch(0.45_0.15_85)] border border-[oklch(0.88_0.10_85)]',
+  },
+  approvato: {
+    label: 'Approvato',
+    className: 'bg-[oklch(0.95_0.06_150)] text-[oklch(0.40_0.14_150)] border border-[oklch(0.86_0.10_150)]',
+  },
+  rifiutato: {
+    label: 'Rifiutato',
+    className: 'bg-[oklch(0.96_0.06_25)] text-[oklch(0.45_0.16_25)] border border-[oklch(0.88_0.10_25)]',
+  },
+}
+
+const PAYMENT_STATUS_BADGE: Record<PaymentRow['status'], { label: string; className: string }> = {
+  open: {
+    label: 'Aperto',
+    className: 'bg-[var(--color-bg)] text-[var(--color-fg-muted)] border border-[var(--color-border)]',
+  },
+  completed: {
+    label: 'Completato',
+    className: 'bg-[oklch(0.95_0.06_150)] text-[oklch(0.40_0.14_150)] border border-[oklch(0.86_0.10_150)]',
+  },
+  cancelled: {
+    label: 'Annullato',
+    className: 'bg-[oklch(0.96_0.06_25)] text-[oklch(0.45_0.16_25)] border border-[oklch(0.88_0.10_25)]',
+  },
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -86,10 +149,25 @@ type Props = {
   initialTasks: SerializedTask[]
   availableClients: LinkItem[]
   availableServices: LinkItem[]
+  quotes?: QuoteRow[]
+  payments?: PaymentRow[]
 }
 
-export function ClientDetail({ client, initialServices, recentIncidents, serviceNameMap, initialTasks, availableClients, availableServices }: Props) {
+export function ClientDetail({ client, initialServices, recentIncidents, serviceNameMap, initialTasks, availableClients, availableServices, quotes = [], payments = [] }: Props) {
+  const router = useRouter()
   const [services, setServices] = useState<ServiceRow[]>(initialServices)
+  const [isCreatingQuote, startQuoteTransition] = useTransition()
+
+  function handleNewQuote() {
+    startQuoteTransition(async () => {
+      try {
+        const { id } = await createQuoteDraft(client.id)
+        router.push(`/admin/quotes/${id}`)
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : 'Errore durante la creazione del preventivo.')
+      }
+    })
+  }
 
   // Realtime services subscription
   useEffect(() => {
@@ -171,6 +249,33 @@ export function ClientDetail({ client, initialServices, recentIncidents, service
             {client.phone}
           </a>
         )}
+        {client.address && (
+          <p className="text-sm text-[var(--color-fg-muted)] mt-0.5">{client.address}</p>
+        )}
+        {(client.vatNumber || client.taxCode || client.pec || client.sdi) && (
+          <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {client.vatNumber && (
+              <div className="text-xs text-[var(--color-fg-faint)]">
+                P.IVA <span className="text-[var(--color-fg-muted)] font-medium">{client.vatNumber}</span>
+              </div>
+            )}
+            {client.taxCode && (
+              <div className="text-xs text-[var(--color-fg-faint)]">
+                CF <span className="text-[var(--color-fg-muted)] font-medium">{client.taxCode}</span>
+              </div>
+            )}
+            {client.pec && (
+              <div className="text-xs text-[var(--color-fg-faint)]">
+                PEC <span className="text-[var(--color-fg-muted)] font-medium">{client.pec}</span>
+              </div>
+            )}
+            {client.sdi && (
+              <div className="text-xs text-[var(--color-fg-faint)]">
+                SDI <span className="text-[var(--color-fg-muted)] font-medium">{client.sdi}</span>
+              </div>
+            )}
+          </dl>
+        )}
         {client.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {client.tags.map((tag) => (
@@ -190,6 +295,100 @@ export function ClientDetail({ client, initialServices, recentIncidents, service
         <section>
           <h2 className="text-h2 text-[var(--color-fg)] mb-2">Note</h2>
           <p className="text-sm text-[var(--color-fg-muted)] whitespace-pre-wrap">{client.notes}</p>
+        </section>
+      )}
+
+      {/* Preventivi */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-h2 text-[var(--color-fg)]">
+            Preventivi{quotes.length > 0 ? ` (${quotes.length})` : ''}
+          </h2>
+          <button
+            type="button"
+            onClick={handleNewQuote}
+            disabled={isCreatingQuote}
+            className="text-sm text-[var(--color-accent)] hover:underline disabled:opacity-50"
+          >
+            {isCreatingQuote ? 'Creazione…' : '+ Nuovo preventivo'}
+          </button>
+        </div>
+        <div
+          className="bg-[var(--color-surface)] rounded-[var(--radius)] border border-[var(--color-border)] divide-y divide-[var(--color-border)]"
+          style={{ boxShadow: 'var(--shadow-card)' }}
+        >
+          {quotes.map((q) => {
+            const badge = QUOTE_STATUS_BADGE[q.status]
+            return (
+              <Link
+                key={q.id}
+                href={`/admin/quotes/${q.id}`}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-accent-soft)] transition-colors group"
+              >
+                <span className="font-mono text-sm text-[var(--color-fg)] group-hover:text-[var(--color-accent)] shrink-0">
+                  {q.number}
+                </span>
+                <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}>
+                  {badge.label}
+                </span>
+                <span className="flex-1" />
+                <span className="text-sm text-[var(--color-fg-muted)] shrink-0">
+                  {formatEUR(q.totalCents)}
+                </span>
+                <span suppressHydrationWarning className="text-xs text-[var(--color-fg-faint)] shrink-0 w-20 text-right">
+                  {new Date(q.createdAtMs).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                </span>
+              </Link>
+            )
+          })}
+          {quotes.length === 0 && (
+            <p className="px-4 py-6 text-sm text-center text-[var(--color-fg-faint)]">
+              Nessun preventivo.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Pagamenti */}
+      {payments.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-h2 text-[var(--color-fg)]">Pagamenti ({payments.length})</h2>
+          </div>
+          <div
+            className="bg-[var(--color-surface)] rounded-[var(--radius)] border border-[var(--color-border)] divide-y divide-[var(--color-border)]"
+            style={{ boxShadow: 'var(--shadow-card)' }}
+          >
+            {payments.map((p) => {
+              const badge = PAYMENT_STATUS_BADGE[p.status]
+              return (
+                <Link
+                  key={p.id}
+                  href={`/admin/payments/${p.id}`}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--color-accent-soft)] transition-colors group"
+                >
+                  <span className="font-mono text-sm text-[var(--color-fg)] group-hover:text-[var(--color-accent)] shrink-0">
+                    {p.number}
+                  </span>
+                  <span className={`shrink-0 inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}>
+                    {badge.label}
+                  </span>
+                  <span className="text-xs text-[var(--color-fg-faint)] shrink-0">
+                    {p.quoteNumber}
+                  </span>
+                  <span className="flex-1" />
+                  <span className="text-sm text-[var(--color-fg-muted)] shrink-0">
+                    {formatEUR(p.totalCents)}
+                  </span>
+                  {p.totalCount > 0 && (
+                    <span className="text-xs text-[var(--color-fg-faint)] shrink-0">
+                      {p.paidCount}/{p.totalCount} rate
+                    </span>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
         </section>
       )}
 

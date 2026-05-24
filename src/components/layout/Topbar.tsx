@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Sun, Moon, LogOut } from 'lucide-react'
+import Link from 'next/link'
+import { Sun, Moon, LogOut, Settings } from 'lucide-react'
 import { useTheme } from '@/components/theme/ThemeProvider'
 import { Button } from '@/components/ui/button'
 import { t } from '@/lib/i18n/it'
@@ -44,6 +45,12 @@ export function Topbar({ userEmail }: TopbarProps) {
             ? <Sun className="size-5" />
             : <Moon className="size-5" />
           }
+        </Button>
+
+        <Button variant="ghost" size="icon" asChild aria-label={t.nav.settings}>
+          <Link href="/admin/settings">
+            <Settings className="size-5" />
+          </Link>
         </Button>
 
         <Button

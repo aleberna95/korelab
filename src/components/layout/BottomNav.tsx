@@ -1,19 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, StickyNote, Activity } from 'lucide-react'
+import { LayoutDashboard, Users, FileText, CreditCard, StickyNote, Activity } from 'lucide-react'
 import { t } from '@/lib/i18n/it'
 
 const NAV_ITEMS = [
   { href: '/admin', label: t.nav.dashboard, icon: LayoutDashboard, exact: true },
   { href: '/admin/clients', label: t.nav.clients, icon: Users, exact: false },
-  { href: '/admin/tasks', label: t.nav.tasks, icon: StickyNote, exact: false },
+  { href: '/admin/quotes', label: t.nav.quotes, icon: FileText, exact: false },
+  { href: '/admin/payments', label: t.nav.payments, icon: CreditCard, exact: false },
   { href: '/admin/services', label: t.nav.services, icon: Activity, exact: false },
+  { href: '/admin/tasks', label: t.nav.tasks, icon: StickyNote, exact: false },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   return (
     <nav
@@ -22,9 +27,9 @@ export function BottomNav() {
     >
       <div className="flex w-full h-16">
         {NAV_ITEMS.map((item) => {
-          const isActive = item.exact
+          const isActive = mounted && (item.exact
             ? pathname === item.href
-            : pathname.startsWith(item.href)
+            : pathname.startsWith(item.href))
           const Icon = item.icon
 
           return (

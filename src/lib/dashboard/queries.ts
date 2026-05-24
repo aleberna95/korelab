@@ -1,6 +1,8 @@
 import 'server-only'
 import { servicesRepo } from '@/lib/repos/servicesRepo'
 import { incidentsRepo } from '@/lib/repos/incidentsRepo'
+import { quotesRepo } from '@/lib/repos/quotesRepo'
+import { paymentsRepo } from '@/lib/repos/paymentsRepo'
 import { cached, CACHE_TAGS } from '@/lib/cache'
 import type { Service, ServiceStatusState } from '@/lib/domain/types'
 
@@ -81,4 +83,52 @@ export function parseServiceFilters(
     hasNoCheck: filter === 'no-check' ? true : undefined,
     hasActiveIncident: filter === 'active-incident' ? true : undefined,
   }
+}
+
+// ─── Quotes & Payments stats ──────────────────────────────────────────────────
+
+export type QuotePaymentStats = {
+  quotesByStatus: { bozza: number; 'in-approvazione': number; approvato: number }
+  /** Sum of pending installments due within the next 30 days (in cents). */
+  incasso30ggCents: number
+  /** Count of pending installments whose expectedDate is past today. */
+  rateInRitardo: number
+}
+
+export async function getQuotePaymentStats(): Promise<QuotePaymentStats> {
+  const today = new Date().toISOString().slice(0, 10)
+  const in30days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+  const [quotes, payments] = await Promise.all([
+    cached(
+      () => quotesRepo.list({ limit: 500 }),
+      ['dashboard', 'quotes'],
+      { tags: [CACHE_TAGS.quotes], revalidate: 30 },
+    ),
+    cached(
+      () => paymentsRepo.list({ limit: 500 }),
+      ['dashboard', 'payments'],
+      { tags: [CACHE_TAGS.payments], revalidate: 30 },
+    ),
+  ])
+
+  const quotesByStatus = { bozza: 0, 'in-approvazione': 0, approvato: 0 }
+  for (const q of quotes) {
+    if (q.status === 'bozza') quotesByStatus.bozza++
+    else if (q.status === 'in-approvazione') quotesByStatus['in-approvazione']++
+    else if (q.status === 'approvato') quotesByStatus.approvato++
+  }
+
+  let incasso30ggCents = 0
+  let rateInRitardo = 0
+  for (const p of payments) {
+    if (p.status === 'cancelled') continue
+    for (const inst of p.installments) {
+      if (inst.status !== 'pending') continue
+      if (inst.expectedDate < today) rateInRitardo++
+      if (inst.expectedDate <= in30days) incasso30ggCents += inst.amountCents
+    }
+  }
+
+  return { quotesByStatus, incasso30ggCents, rateInRitardo }
 }

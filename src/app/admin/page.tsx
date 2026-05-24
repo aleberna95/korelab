@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth/guards'
-import { getOverviewStats } from '@/lib/dashboard/queries'
+import { getOverviewStats, getQuotePaymentStats } from '@/lib/dashboard/queries'
+import { formatEUR } from '@/lib/money'
 import { KpiCard } from '@/components/dashboard/KpiCard'
 import { IncidentList } from '@/components/incidents/IncidentList'
 import type { IncidentListItem } from '@/components/incidents/IncidentList'
@@ -11,8 +12,8 @@ export const metadata: Metadata = { title: 'Panoramica — Command Center' }
 export default async function AdminOverviewPage() {
   await requireAdmin()
 
-  const { byState, total, activeIncidents, withoutCheck } =
-    await getOverviewStats()
+  const [{ byState, total, activeIncidents, withoutCheck }, quoteStats] =
+    await Promise.all([getOverviewStats(), getQuotePaymentStats()])
 
   const unhealthy =
     (byState['degraded'] ?? 0) +
@@ -46,6 +47,32 @@ export default async function AdminOverviewPage() {
           accent={activeIncidents.length > 0 ? 'red' : 'green'}
         />
       </div>
+
+      {/* Quotes & Payments KPIs */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Preventivi &amp; Pagamenti</h2>
+          <div className="flex gap-3">
+            <Link href="/admin/quotes" className="text-xs text-blue-600 hover:underline">Preventivi →</Link>
+            <Link href="/admin/payments" className="text-xs text-blue-600 hover:underline">Pagamenti →</Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          <KpiCard label="Bozze" value={quoteStats.quotesByStatus.bozza} accent="gray" />
+          <KpiCard label="In approvazione" value={quoteStats.quotesByStatus['in-approvazione']} accent="amber" />
+          <KpiCard label="Approvati" value={quoteStats.quotesByStatus.approvato} accent="green" />
+          <KpiCard
+            label="Incasso atteso 30gg"
+            value={formatEUR(quoteStats.incasso30ggCents)}
+            accent="blue"
+          />
+          <KpiCard
+            label="Rate in ritardo"
+            value={quoteStats.rateInRitardo}
+            accent={quoteStats.rateInRitardo > 0 ? 'red' : 'green'}
+          />
+        </div>
+      </section>
 
       {/* Active incidents */}
       <section>

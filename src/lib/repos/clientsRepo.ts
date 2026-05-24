@@ -42,7 +42,7 @@ export const clientsRepo = {
 
   async create(
     input: CreateClientInput,
-    actorUid?: string,
+    _actorUid?: string,
   ): Promise<Client> {
     const validated = CreateClientSchema.parse(input)
     const ref = col().doc()
@@ -62,7 +62,7 @@ export const clientsRepo = {
   async update(
     id: string,
     patch: UpdateClientInput,
-    actorUid?: string,
+    _actorUid?: string,
   ): Promise<void> {
     const validated = UpdateClientSchema.parse(patch)
     await col()
@@ -70,7 +70,7 @@ export const clientsRepo = {
       .update({ ...validated, updatedAt: FieldValue.serverTimestamp() })
   },
 
-  async archive(id: string, actorUid?: string): Promise<void> {
+  async archive(id: string, _actorUid?: string): Promise<void> {
     await col()
       .doc(id)
       .update({ status: 'archived', updatedAt: FieldValue.serverTimestamp() })

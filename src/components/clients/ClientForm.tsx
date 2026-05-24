@@ -10,6 +10,11 @@ type Initial = {
   name?: string
   email?: string
   phone?: string
+  vatNumber?: string
+  taxCode?: string
+  address?: string
+  pec?: string
+  sdi?: string
   notes?: string
   tags?: string[]
   status?: 'active' | 'archived'
@@ -29,6 +34,11 @@ export function ClientForm({ id, initial, onSuccess }: Props) {
   const [name, setName] = useState(initial?.name ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
   const [phone, setPhone] = useState(initial?.phone ?? '')
+  const [vatNumber, setVatNumber] = useState(initial?.vatNumber ?? '')
+  const [taxCode, setTaxCode] = useState(initial?.taxCode ?? '')
+  const [address, setAddress] = useState(initial?.address ?? '')
+  const [pec, setPec] = useState(initial?.pec ?? '')
+  const [sdi, setSdi] = useState(initial?.sdi ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [tags, setTags] = useState((initial?.tags ?? []).join(', '))
   const [status, setStatus] = useState<'active' | 'archived'>(initial?.status ?? 'active')
@@ -38,6 +48,11 @@ export function ClientForm({ id, initial, onSuccess }: Props) {
       name: name.trim(),
       email: email.trim() || undefined,
       phone: phone.trim() || undefined,
+      vatNumber: vatNumber.trim() || undefined,
+      taxCode: taxCode.trim() || undefined,
+      address: address.trim() || undefined,
+      pec: pec.trim() || undefined,
+      sdi: sdi.trim() || undefined,
       notes: notes.trim() || undefined,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       status,
@@ -93,7 +108,7 @@ export function ClientForm({ id, initial, onSuccess }: Props) {
           onChange={(e) => setName(e.target.value)}
           aria-invalid={!!errors.name}
           className={fieldCls('name')}
-          placeholder="Es. Mario Rossi"
+          placeholder="Es. Mario Rossi / Acme S.r.l."
           autoFocus
         />
         {errors.name && (
@@ -129,9 +144,74 @@ export function ClientForm({ id, initial, onSuccess }: Props) {
         </div>
       </div>
 
+      {/* Dati fiscali */}
+      <div>
+        <p className="text-xs font-semibold text-[var(--color-fg-faint)] uppercase tracking-wide mb-3">
+          Dati fiscali
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Partita IVA</label>
+            <input
+              type="text"
+              value={vatNumber}
+              onChange={(e) => setVatNumber(e.target.value)}
+              className={fieldCls('vatNumber')}
+              placeholder="IT12345678901"
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Codice fiscale</label>
+            <input
+              type="text"
+              value={taxCode}
+              onChange={(e) => setTaxCode(e.target.value)}
+              className={fieldCls('taxCode')}
+              placeholder="RSSMRA80A01H501Z"
+            />
+          </div>
+          <div>
+            <label className={labelCls}>PEC</label>
+            <input
+              type="email"
+              value={pec}
+              onChange={(e) => setPec(e.target.value)}
+              aria-invalid={!!errors.pec}
+              className={fieldCls('pec')}
+              placeholder="mario@pec.it"
+            />
+            {errors.pec && (
+              <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.pec}</p>
+            )}
+          </div>
+          <div>
+            <label className={labelCls}>Codice SDI</label>
+            <input
+              type="text"
+              value={sdi}
+              onChange={(e) => setSdi(e.target.value)}
+              className={fieldCls('sdi')}
+              placeholder="XXXXXXX"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Indirizzo */}
+      <div>
+        <label className={labelCls}>Indirizzo sede legale</label>
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          className={fieldCls('address')}
+          placeholder="Via Roma 1, 20100 Milano (MI)"
+        />
+      </div>
+
       {/* Note */}
       <div>
-        <label className={labelCls}>Note</label>
+        <label className={labelCls}>Note interne</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}

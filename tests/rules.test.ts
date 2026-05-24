@@ -237,3 +237,127 @@ describe('catch-all deny', () => {
     await assertFails(db.collection('auditLog').get())
   })
 })
+
+// ─── quotes ──────────────────────────────────────────────────────────────────
+
+const validQuoteBozza = {
+  number: 'PREV-2026-001',
+  clientId: 'client-1',
+  clientSnapshot: { name: 'ACME Corp' },
+  status: 'bozza',
+  lines: [],
+  discounts: [],
+  vatPercent: 5,
+  payment: { mode: 'lump-sum' },
+  totals: { subtotalCents: 0, discountTotalCents: 0, taxableCents: 0, vatCents: 0, totalCents: 0 },
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+describe('quotes', () => {
+  it('admin can read quotes', async () => {
+    const db = adminCtx().firestore()
+    await assertSucceeds(db.collection('quotes').get())
+  })
+
+  it('admin can create a bozza quote', async () => {
+    const db = adminCtx().firestore()
+    await assertSucceeds(db.collection('quotes').add(validQuoteBozza))
+  })
+
+  it('admin cannot create a quote with status != bozza', async () => {
+    const db = adminCtx().firestore()
+    await assertFails(
+      db.collection('quotes').add({ ...validQuoteBozza, status: 'in-approvazione' }),
+    )
+    await assertFails(
+      db.collection('quotes').add({ ...validQuoteBozza, status: 'approvato' }),
+    )
+  })
+
+  it('admin can update a bozza quote (not setting it to approvato)', async () => {
+    const db = adminCtx().firestore()
+    const ref = await db.collection('quotes').add(validQuoteBozza)
+    await assertSucceeds(ref.update({ ...validQuoteBozza, status: 'in-approvazione', updatedAt: new Date() }))
+  })
+
+  it('admin cannot update a quote to approvato via client SDK', async () => {
+    const db = adminCtx().firestore()
+    const ref = await db.collection('quotes').add(validQuoteBozza)
+    await assertFails(ref.update({ ...validQuoteBozza, status: 'approvato', updatedAt: new Date() }))
+  })
+
+  it('admin can delete a bozza quote', async () => {
+    const db = adminCtx().firestore()
+    const ref = await db.collection('quotes').add(validQuoteBozza)
+    await assertSucceeds(ref.delete())
+  })
+
+  it('non-admin cannot read quotes', async () => {
+    const db = userCtx().firestore()
+    await assertFails(db.collection('quotes').get())
+  })
+
+  it('anon cannot read quotes', async () => {
+    const db = anonCtx().firestore()
+    await assertFails(db.collection('quotes').get())
+  })
+})
+
+// ─── payments ────────────────────────────────────────────────────────────────
+
+const validPayment = {
+  number: 'PAG-2026-001',
+  quoteId: 'quote-1',
+  quoteNumber: 'PREV-2026-001',
+  clientId: 'client-1',
+  clientSnapshot: { name: 'ACME Corp' },
+  totalCents: 100000,
+  installments: [],
+  status: 'open',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+describe('payments', () => {
+  it('admin can read payments', async () => {
+    const db = adminCtx().firestore()
+    await assertSucceeds(db.collection('payments').get())
+  })
+
+  it('admin cannot write payments via client SDK', async () => {
+    const db = adminCtx().firestore()
+    await assertFails(db.collection('payments').add(validPayment))
+  })
+
+  it('non-admin cannot read payments', async () => {
+    const db = userCtx().firestore()
+    await assertFails(db.collection('payments').get())
+  })
+
+  it('anon cannot write payments', async () => {
+    const db = anonCtx().firestore()
+    await assertFails(db.collection('payments').add(validPayment))
+  })
+})
+
+// ─── counters ────────────────────────────────────────────────────────────────
+
+describe('counters', () => {
+  it('admin cannot read counters via client SDK', async () => {
+    const db = adminCtx().firestore()
+    await assertFails(db.collection('counters').doc('2026').get())
+  })
+
+  it('admin cannot write counters via client SDK', async () => {
+    const db = adminCtx().firestore()
+    await assertFails(
+      db.collection('counters').doc('2026').set({ quoteSeq: 1, paymentSeq: 1 }),
+    )
+  })
+
+  it('anon cannot access counters', async () => {
+    const db = anonCtx().firestore()
+    await assertFails(db.collection('counters').doc('2026').get())
+  })
+})

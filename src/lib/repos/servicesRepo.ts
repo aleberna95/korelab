@@ -1,5 +1,5 @@
 import 'server-only'
-import { FieldValue, Timestamp } from 'firebase-admin/firestore'
+import { FieldValue } from 'firebase-admin/firestore'
 import { getAdminDb } from '@/lib/firebase/admin'
 import { makeDocConverter } from '@/lib/firebase/converters'
 import {
@@ -109,7 +109,7 @@ export const servicesRepo = {
     return snap.docs.map((d) => ({ id: d.id, name: d.get('name') as string }))
   },
 
-  async create(input: CreateServiceInput, actorUid?: string): Promise<Service> {
+  async create(input: CreateServiceInput, _actorUid?: string): Promise<Service> {
     const validated = CreateServiceSchema.parse(input)
 
     const ref = col().doc()
@@ -131,7 +131,7 @@ export const servicesRepo = {
     return created.data()!
   },
 
-  async update(id: string, patch: UpdateServiceInput, actorUid?: string): Promise<void> {
+  async update(id: string, patch: UpdateServiceInput, _actorUid?: string): Promise<void> {
     const validated = UpdateServiceSchema.parse(patch)
     await col()
       .doc(id)
@@ -158,13 +158,13 @@ export const servicesRepo = {
     await db.collection(COLLECTION).doc(id).update(update)
   },
 
-  async archive(id: string, actorUid?: string): Promise<void> {
+  async archive(id: string, _actorUid?: string): Promise<void> {
     await col()
       .doc(id)
       .update({ status: 'archived', updatedAt: FieldValue.serverTimestamp() })
   },
 
-  async delete(id: string, actorUid?: string): Promise<void> {
+  async delete(id: string, _actorUid?: string): Promise<void> {
     await col().doc(id).delete()
   },
 }
